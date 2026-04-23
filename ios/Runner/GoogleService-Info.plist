@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>AIzaSyB7jnxmOG1OJ4td5GjxEX0UHPpjx9-ojOo</string>
+	<key>GCM_SENDER_ID</key>
+	<string>274630585890</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>apps.envisionapps.churchappro-flutter</string>
+	<key>PROJECT_ID</key>
+	<string>churchapppro</string>
+	<key>STORAGE_BUCKET</key>
+	<string>churchapppro.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:274630585890:ios:dfe91bca92756303ee647b</string>
+</dict>
+</plist>

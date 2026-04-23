@@ -1,0 +1,15 @@
+name: better_player
+version: 0.0.0
+description: Local shim package that re-exports better_player_plus to satisfy legacy imports.
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  video_player: any
+  chewie: any
+
+flutter:
+  plugin:
+    platforms: {}
