@@ -333,7 +333,7 @@ class _StringsEn {
 	String get media => 'Media';
 	String get publications => 'Publications';
 	String get connect => 'Connect';
-	String get recentsermons => 'Recent Sermons';
+	String get recentsermons => 'Recent Messages';
 	String get donate => 'Give Now';
 	String get donatehint => 'God loves a cheerful giver.';
 	String get bible => 'Bible';
@@ -346,9 +346,9 @@ class _StringsEn {
 	String get livestreamshint => 'Connect to watch our live broadcasts.';
 	String get video => 'Videos';
 	String get videos => 'Video Messages';
-	String get videoshint => 'Collection of video sermons.';
+	String get videoshint => 'Collection of video messages.';
 	String get audios => 'Audio Messages';
-	String get audioshint => 'Collection of audio sermons';
+	String get audioshint => 'Collection of audio messages';
 	String get photos => 'Photo Gallery';
 	String get photoshint => 'Browse through our church photo collections.';
 	String get bookmarks => 'Bookmarks';
@@ -389,7 +389,7 @@ class _StringsEn {
 	String get applanguage => 'App Language';
 	String get recieveinbox => 'Receive inbox notifications';
 	String get recieveevents => 'Events';
-	String get sermonnotification => 'Sermons';
+	String get sermonnotification => 'Messages';
 	String get articlenotification => 'Articles';
 	String get devotionalnotification => 'Devotionals';
 	String get chooseapplanguage => 'Select App Language';
@@ -659,7 +659,7 @@ class _StringsEn {
 	List<String> get onboardingpagehints => [
 		'A vibrant worship centre committed to prayer, deliverance, holiness, and raising champions for Christ.',
 		'Stay connected with church updates, programmes, and spiritual resources designed to strengthen your walk with God.',
-		'Access sermons, prayer sessions, and live services anytime from anywhere.',
+		'Access messages, prayer sessions, and live services anytime from anywhere.',
 		'Start your journey to a never-ending worship experience.',
 	];
 	String get youneedtologintoreply => 'You need to login to add a reply';
@@ -1067,7 +1067,7 @@ class _StringsFr implements _StringsEn {
 	@override String get media => 'Media';
 	@override String get publications => 'Publications';
 	@override String get connect => 'Connect';
-	@override String get recentsermons => 'Recent Sermons';
+	@override String get recentsermons => 'Recent Messages';
 	@override String get donate => 'Give Now';
 	@override String get donatehint => 'God loves a cheerful giver.';
 	@override String get bible => 'Bible';
@@ -1080,9 +1080,9 @@ class _StringsFr implements _StringsEn {
 	@override String get livestreamshint => 'Connect to watch our live broadcasts.';
 	@override String get videos => 'Video Messages';
 	@override String get video => 'Videos';
-	@override String get videoshint => 'Collection of video sermons.';
+	@override String get videoshint => 'Collection of video messages.';
 	@override String get audios => 'Audio Messages';
-	@override String get audioshint => 'Collection of audio sermons';
+	@override String get audioshint => 'Collection of audio messages';
 	@override String get photos => 'Photo Gallery';
 	@override String get photoshint => 'Browse through our church photo collections.';
 	@override String get bookmarks => 'Bookmarks';
@@ -1123,7 +1123,7 @@ class _StringsFr implements _StringsEn {
 	@override String get applanguage => 'App Language';
 	@override String get recieveinbox => 'Receive inbox notifications';
 	@override String get recieveevents => 'Events';
-	@override String get sermonnotification => 'Sermons';
+	@override String get sermonnotification => 'Messages';
 	@override String get articlenotification => 'Articles';
 	@override String get devotionalnotification => 'Devotionals';
 	@override String get chooseapplanguage => 'Select App Language';
@@ -1391,7 +1391,7 @@ class _StringsFr implements _StringsEn {
 	@override List<String> get onboardingpagehints => [
 		'A vibrant worship centre committed to prayer, deliverance, holiness, and raising champions for Christ.',
 		'Stay connected with church updates, programmes, and spiritual resources designed to strengthen your walk with God.',
-		'Access sermons, prayer sessions, and live services anytime from anywhere.',
+		'Access messages, prayer sessions, and live services anytime from anywhere.',
 		'Start your journey to a never-ending worship experience.',
 	];
 	@override String get youneedtologintoreply => 'You need to login to add a reply';
@@ -1434,7 +1434,7 @@ class _StringsPt implements _StringsEn {
 	@override String get media => 'Media';
 	@override String get publications => 'Publications';
 	@override String get connect => 'Connect';
-	@override String get recentsermons => 'Recent Sermons';
+	@override String get recentsermons => 'Recent Messages';
 	@override String get donate => 'Give Now';
 	@override String get donatehint => 'God loves a cheerful giver.';
 	@override String get bible => 'Bible';
@@ -1447,9 +1447,9 @@ class _StringsPt implements _StringsEn {
 	@override String get livestreamshint => 'Connect to watch our live broadcasts.';
 	@override String get videos => 'Video Messages';
 	@override String get video => 'Videos';
-	@override String get videoshint => 'Collection of video sermons.';
+	@override String get videoshint => 'Collection of video messages.';
 	@override String get audios => 'Audio Messages';
-	@override String get audioshint => 'Collection of audio sermons';
+	@override String get audioshint => 'Collection of audio messages';
 	@override String get photos => 'Photo Gallery';
 	@override String get photoshint => 'Browse through our church photo collections.';
 	@override String get bookmarks => 'Bookmarks';
@@ -1490,7 +1490,7 @@ class _StringsPt implements _StringsEn {
 	@override String get applanguage => 'App Language';
 	@override String get recieveinbox => 'Receive inbox notifications';
 	@override String get recieveevents => 'Events';
-	@override String get sermonnotification => 'Sermons';
+	@override String get sermonnotification => 'Messages';
 	@override String get articlenotification => 'Articles';
 	@override String get devotionalnotification => 'Devotionals';
 	@override String get chooseapplanguage => 'Select App Language';
@@ -1758,7 +1758,7 @@ class _StringsPt implements _StringsEn {
 	@override List<String> get onboardingpagehints => [
 		'A vibrant worship centre committed to prayer, deliverance, holiness, and raising champions for Christ.',
 		'Stay connected with church updates, programmes, and spiritual resources designed to strengthen your walk with God.',
-		'Access sermons, prayer sessions, and live services anytime from anywhere.',
+		'Access messages, prayer sessions, and live services anytime from anywhere.',
 		'Start your journey to a never-ending worship experience.',
 	];
 	@override String get youneedtologintoreply => 'You need to login to add a reply';
@@ -1791,7 +1791,7 @@ extension on _StringsEn {
 			'media': 'Media',
 			'publications': 'Publications',
 			'connect': 'Connect',
-			'recentsermons': 'Recent Sermons',
+			'recentsermons': 'Recent Messages',
 			'donate': 'Give Now',
 			'donatehint': 'God loves a cheerful giver.',
 			'bible': 'Bible',
@@ -1804,9 +1804,9 @@ extension on _StringsEn {
 			'livestreamshint': 'Connect to watch our live broadcasts.',
 			'video': 'Videos',
 			'videos': 'Video Messages',
-			'videoshint': 'Collection of video sermons.',
+			'videoshint': 'Collection of video messages.',
 			'audios': 'Audio Messages',
-			'audioshint': 'Collection of audio sermons',
+			'audioshint': 'Collection of audio messages',
 			'photos': 'Photo Gallery',
 			'photoshint': 'Browse through our church photo collections.',
 			'bookmarks': 'Bookmarks',
@@ -1847,7 +1847,7 @@ extension on _StringsEn {
 			'applanguage': 'App Language',
 			'recieveinbox': 'Receive inbox notifications',
 			'recieveevents': 'Events',
-			'sermonnotification': 'Sermons',
+			'sermonnotification': 'Messages',
 			'articlenotification': 'Articles',
 			'devotionalnotification': 'Devotionals',
 			'chooseapplanguage': 'Select App Language',
@@ -2487,7 +2487,7 @@ extension on _StringsFr {
 			'media': 'Media',
 			'publications': 'Publications',
 			'connect': 'Connect',
-			'recentsermons': 'Recent Sermons',
+			'recentsermons': 'Recent Messages',
 			'donate': 'Give Now',
 			'donatehint': 'God loves a cheerful giver.',
 			'bible': 'Bible',
@@ -2500,9 +2500,9 @@ extension on _StringsFr {
 			'livestreamshint': 'Connect to watch our live broadcasts.',
 			'videos': 'Video Messages',
 			'video': 'Videos',
-			'videoshint': 'Collection of video sermons.',
+			'videoshint': 'Collection of video messages.',
 			'audios': 'Audio Messages',
-			'audioshint': 'Collection of audio sermons',
+			'audioshint': 'Collection of audio messages',
 			'photos': 'Photo Gallery',
 			'photoshint': 'Browse through our church photo collections.',
 			'bookmarks': 'Bookmarks',
@@ -2543,7 +2543,7 @@ extension on _StringsFr {
 			'applanguage': 'App Language',
 			'recieveinbox': 'Receive inbox notifications',
 			'recieveevents': 'Events',
-			'sermonnotification': 'Sermons',
+			'sermonnotification': 'Messages',
 			'articlenotification': 'Articles',
 			'devotionalnotification': 'Devotionals',
 			'chooseapplanguage': 'Select App Language',
@@ -2806,7 +2806,7 @@ extension on _StringsFr {
 			'onboardingpagetitles.3': 'Create Account',
 			'onboardingpagehints.0': 'A vibrant worship centre committed to prayer, deliverance, holiness, and raising champions for Christ.',
 			'onboardingpagehints.1': 'Stay connected with church updates, programmes, and spiritual resources designed to strengthen your walk with God.',
-			'onboardingpagehints.2': 'Access sermons, prayer sessions, and live services anytime from anywhere.',
+			'onboardingpagehints.2': 'Access messages, prayer sessions, and live services anytime from anywhere.',
 			'onboardingpagehints.3': 'Start your journey to a never-ending worship experience.',
 			'youneedtologintoreply': 'You need to login to add a reply',
 			'youneedtologintoreportpost': 'You need to login to report a post',
@@ -2835,7 +2835,7 @@ extension on _StringsPt {
 			'media': 'Media',
 			'publications': 'Publications',
 			'connect': 'Connect',
-			'recentsermons': 'Recent Sermons',
+			'recentsermons': 'Recent Messages',
 			'donate': 'Give Now',
 			'donatehint': 'God loves a cheerful giver.',
 			'bible': 'Bible',
@@ -2848,9 +2848,9 @@ extension on _StringsPt {
 			'livestreamshint': 'Connect to watch our live broadcasts.',
 			'videos': 'Video Messages',
 			'video': 'Videos',
-			'videoshint': 'Collection of video sermons.',
+			'videoshint': 'Collection of video messages.',
 			'audios': 'Audio Messages',
-			'audioshint': 'Collection of audio sermons',
+			'audioshint': 'Collection of audio messages',
 			'photos': 'Photo Gallery',
 			'photoshint': 'Browse through our church photo collections.',
 			'bookmarks': 'Bookmarks',
@@ -2891,7 +2891,7 @@ extension on _StringsPt {
 			'applanguage': 'App Language',
 			'recieveinbox': 'Receive inbox notifications',
 			'recieveevents': 'Events',
-			'sermonnotification': 'Sermons',
+			'sermonnotification': 'Messages',
 			'articlenotification': 'Articles',
 			'devotionalnotification': 'Devotionals',
 			'chooseapplanguage': 'Select App Language',
@@ -3154,7 +3154,7 @@ extension on _StringsPt {
 			'onboardingpagetitles.3': 'Create Account',
 			'onboardingpagehints.0': 'A vibrant worship centre committed to prayer, deliverance, holiness, and raising champions for Christ.',
 			'onboardingpagehints.1': 'Stay connected with church updates, programmes, and spiritual resources designed to strengthen your walk with God.',
-			'onboardingpagehints.2': 'Access sermons, prayer sessions, and live services anytime from anywhere.',
+			'onboardingpagehints.2': 'Access messages, prayer sessions, and live services anytime from anywhere.',
 			'onboardingpagehints.3': 'Start your journey to a never-ending worship experience.',
 			'youneedtologintoreply': 'You need to login to add a reply',
 			'youneedtologintoreportpost': 'You need to login to report a post',
@@ -3168,4 +3168,5 @@ extension on _StringsPt {
 		};
 	}
 }
+
 

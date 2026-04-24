@@ -1,25 +1,36 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
-import 'dart:async';
 import 'dart:convert';
-import 'package:higherground/utils/Utility.dart';
-import 'package:higherground/utils/ApiUrl.dart';
-import 'package:higherground/models/Branches.dart';
-import 'package:higherground/utils/TextStyles.dart';
-import 'NoitemScreen.dart';
+
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:higherground/i18n/strings.g.dart';
+import 'package:higherground/models/Branches.dart';
+import 'package:higherground/utils/ApiUrl.dart';
+import 'package:higherground/utils/TextStyles.dart';
+import 'package:higherground/utils/Utility.dart';
+
+import 'NoitemScreen.dart';
 
 class BranchesScreen extends StatelessWidget {
-  static const routeName = "/branches";
+  static const routeName = '/branches';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF7F2F5),
       appBar: AppBar(
-        title: Text(t.branches),
+        elevation: 0,
+        backgroundColor: const Color(0xFFF7F2F5),
+        surfaceTintColor: Colors.transparent,
+        title: Text(
+          t.branches,
+          style: const TextStyle(
+            fontWeight: FontWeight.w800,
+            color: Color(0xFF23141D),
+          ),
+        ),
       ),
       body: Padding(
-        padding: EdgeInsets.only(top: 12),
+        padding: const EdgeInsets.only(top: 8),
         child: BranchesPageBody(),
       ),
     );
@@ -41,32 +52,23 @@ class _BranchesPageBodyState extends State<BranchesPageBody> {
       isLoading = true;
     });
     try {
-      final response = await Utility.getDio().post(
-        ApiUrl.FETCH_BRANCHES,
-      );
+      final response = await Utility.getDio().post(ApiUrl.FETCH_BRANCHES);
 
       if (response.statusCode == 200) {
-        // If the server did return a 200 OK response,
-        // then parse the JSON.
-
-        dynamic res = jsonDecode(response.data);
-        print(res);
-        List<Branches>? _items = parseBranches(res);
+        final dynamic res = jsonDecode(response.data);
+        final List<Branches>? fetched = parseBranches(res);
         setState(() {
           isLoading = false;
-          items = _items;
+          isError = false;
+          items = fetched;
         });
       } else {
-        print(response.data);
-        // If the server did not return a 200 OK response,
-        // then throw an exception.
         setState(() {
           isLoading = false;
           isError = true;
         });
       }
     } catch (exception) {
-      // I get no exception here
       print(exception);
       setState(() {
         isLoading = false;
@@ -76,45 +78,38 @@ class _BranchesPageBodyState extends State<BranchesPageBody> {
   }
 
   static List<Branches>? parseBranches(dynamic res) {
-    // final res = jsonDecode(responseBody);
-    final parsed = res["branches"].cast<Map<String, dynamic>>();
+    final parsed = res['branches'].cast<Map<String, dynamic>>();
     return parsed.map<Branches>((json) => Branches.fromJson(json)).toList();
   }
 
   @override
   void initState() {
-    Future.delayed(const Duration(milliseconds: 0), () {
+    super.initState();
+    Future.delayed(Duration.zero, () {
       loadItems();
     });
-    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return Center(
-          child: CupertinoActivityIndicator(
-        radius: 20,
-      ));
-    } else if (isError) {
+      return const Center(child: CupertinoActivityIndicator(radius: 20));
+    }
+    if (isError) {
       return NoitemScreen(
-          title: t.oops,
-          message: t.dataloaderror,
-          onClick: () {
-            loadItems();
-          });
-    } else
-      return ListView.builder(
-        itemCount: items!.length,
-        scrollDirection: Axis.vertical,
-        padding: EdgeInsets.all(3),
-        itemBuilder: (BuildContext context, int index) {
-          return ItemTile(
-            index: index,
-            branches: items![index],
-          );
-        },
+        title: t.oops,
+        message: t.dataloaderror,
+        onClick: loadItems,
       );
+    }
+
+    return ListView.builder(
+      itemCount: items!.length,
+      padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
+      itemBuilder: (BuildContext context, int index) {
+        return ItemTile(index: index, branches: items![index]);
+      },
+    );
   }
 }
 
@@ -128,176 +123,108 @@ class ItemTile extends StatelessWidget {
     required this.branches,
   }) : super(key: key);
 
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 0.0),
-      child: Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
+  Widget _metaRow(BuildContext context, IconData icon, String value) {
+    return Row(
+      children: <Widget>[
+        Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: const Color(0xFFF5EAF1),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(icon, color: const Color(0xFF8F3E88), size: 20),
         ),
-        margin: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-        elevation: 0.9,
-        clipBehavior: Clip.antiAliasWithSaveLayer,
-        child: Container(
-          alignment: Alignment.centerLeft,
-          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-          child: Column(
-            children: <Widget>[
-              Container(width: 6),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(branches.name!,
-                    maxLines: 2,
-                    style: TextStyles.subhead(context)
-                        .copyWith(fontWeight: FontWeight.w500)),
-              ),
-              Container(height: 5),
-              Row(
-                children: <Widget>[
-                  Container(width: 6),
-                  Text(branches.pastor!,
-                      style: TextStyles.subhead(context).copyWith())
-                ],
-              ),
-              Container(height: 20),
-              Row(
-                children: <Widget>[
-                  ClipOval(
-                      child: Container(
-                    color:
-                        Theme.of(context).colorScheme.secondary.withAlpha(30),
-                    width: 50.0,
-                    height: 50.0,
-                    child: IconButton(
-                      padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
-                      onPressed: () {},
-                      icon: Icon(
-                        Icons.phone,
-                      ),
-                    ),
-                  )),
-                  Container(width: 15),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(branches.phone!,
-                          style: TextStyles.subhead(context)
-                              .copyWith(fontWeight: FontWeight.w500)),
-                    ],
-                  ),
-                  Spacer(),
-                ],
-              ),
-              Container(height: 10),
-              Row(
-                children: <Widget>[
-                  ClipOval(
-                      child: Container(
-                    color:
-                        Theme.of(context).colorScheme.secondary.withAlpha(30),
-                    width: 50.0,
-                    height: 50.0,
-                    child: IconButton(
-                      padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
-                      onPressed: () {},
-                      icon: Icon(
-                        Icons.email,
-                      ),
-                    ),
-                  )),
-                  Container(width: 15),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(branches.email!,
-                          style: TextStyles.subhead(context)
-                              .copyWith(fontWeight: FontWeight.w500)),
-                    ],
-                  ),
-                  Spacer(),
-                ],
-              ),
-              Container(height: 10),
-              Row(
-                children: <Widget>[
-                  ClipOval(
-                      child: Container(
-                    color:
-                        Theme.of(context).colorScheme.secondary.withAlpha(30),
-                    width: 50.0,
-                    height: 50.0,
-                    child: IconButton(
-                      padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
-                      onPressed: () {},
-                      icon: Icon(
-                        Icons.location_on,
-                      ),
-                    ),
-                  )),
-                  Container(width: 15),
-                  Expanded(
-                      child: Text(
-                        branches.address!,
-                        style: TextStyles.subhead(context)
-                            .copyWith(fontWeight: FontWeight.w500),
-                        textAlign: TextAlign.left,
-                      ),
-                    ),
-                  
-                ],
-              ),
-              Container(height: 10),
-              Visibility(
-                visible: branches.latitude != 0.0,
-                child: InkWell(
-                  onTap: () {
-                    final lat = branches.latitude!;
-                    final lng = branches.longitude!;
-                    Utility.openBrowserTab('https://www.google.com/maps/search/?api=1&query=$lat,$lng');
-                  },
-                  child: Row(
-                    children: <Widget>[
-                      ClipOval(
-                          child: Container(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .secondary
-                            .withAlpha(30),
-                        width: 50.0,
-                        height: 50.0,
-                        child: IconButton(
-                          padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
-                          onPressed: () {},
-                          icon: Icon(
-                            Icons.map_outlined,
-                          ),
-                        ),
-                      )),
-                      Container(width: 15),
-                      Expanded(
-                        child: Text(
-                          t.viewinmap,
-                          style: TextStyles.subhead(context).copyWith(
-                              fontWeight: FontWeight.w300,
-                              color: Colors.blue,
-                              decoration: TextDecoration.underline),
-                          textAlign: TextAlign.left,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              )
-            ],
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            value,
+            style: TextStyles.subhead(context).copyWith(
+              fontWeight: FontWeight.w500,
+              color: const Color(0xFF2F2029),
+            ),
           ),
         ),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE8DDE4)),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            branches.name ?? '',
+            maxLines: 2,
+            style: TextStyles.headline(context).copyWith(
+              fontWeight: FontWeight.w700,
+              fontSize: 18,
+              color: const Color(0xFF23141D),
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            branches.pastor ?? '',
+            style: TextStyles.subhead(context).copyWith(
+              color: const Color(0xFF7A6B75),
+            ),
+          ),
+          const SizedBox(height: 14),
+          _metaRow(context, Icons.phone_outlined, branches.phone ?? ''),
+          const SizedBox(height: 10),
+          _metaRow(context, Icons.email_outlined, branches.email ?? ''),
+          const SizedBox(height: 10),
+          _metaRow(context, Icons.location_on_outlined, branches.address ?? ''),
+          if (branches.latitude != 0.0) ...[
+            const SizedBox(height: 12),
+            InkWell(
+              onTap: () {
+                final lat = branches.latitude!;
+                final lng = branches.longitude!;
+                Utility.openBrowserTab(
+                  'https://www.google.com/maps/search/?api=1&query=$lat,$lng',
+                  context: context,
+                  title: 'Map',
+                );
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF3EAF0),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.map_outlined,
+                      size: 18,
+                      color: Color(0xFF8F3E88),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      t.viewinmap,
+                      style: TextStyles.subhead(context).copyWith(
+                        color: const Color(0xFF8F3E88),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ],
       ),
     );
   }
 }
-
-
-

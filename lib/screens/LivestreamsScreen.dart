@@ -25,11 +25,15 @@ class LivestreamsScreenRouteState extends State<LivestreamsScreen> {
     return ChangeNotifierProvider(
       create: (context) => LivestreamScreensModel(),
       child: Scaffold(
+        backgroundColor: const Color(0xFFF7F2F5),
         appBar: AppBar(
-          title: Text(t.livestreams),
+          title: Text(
+            t.livestreams,
+            style: const TextStyle(fontWeight: FontWeight.w800),
+          ),
         ),
         body: Padding(
-          padding: EdgeInsets.only(top: 12),
+          padding: const EdgeInsets.only(top: 8),
           child: AudioScreenBody(),
         ),
       ),
@@ -67,6 +71,8 @@ class MediaScreenRouteState extends State<AudioScreenBody> {
     mediaScreensModel = Provider.of<LivestreamScreensModel>(context);
     items = mediaScreensModel.mediaList;
 
+    final bool hasItems = items != null && items!.isNotEmpty;
+
     return SmartRefresher(
       enablePullDown: true,
       enablePullUp: true,
@@ -94,21 +100,19 @@ class MediaScreenRouteState extends State<AudioScreenBody> {
       controller: mediaScreensModel.refreshController,
       onRefresh: _onRefresh,
       onLoading: _onLoading,
-      child: (mediaScreensModel.isError == true && items!.length == 0)
+      child: (mediaScreensModel.isError == true && !hasItems)
           ? NoitemScreen(
               title: t.oops, message: t.dataloaderror, onClick: _onRefresh)
-          : GridView.builder(
+          : (!hasItems)
+              ? _buildEmptyState()
+              : ListView.separated(
               itemCount: items!.length,
-              scrollDirection: Axis.vertical,
-              padding: EdgeInsets.all(3),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 6.0,
-                  mainAxisSpacing: 8.0,
-                  childAspectRatio: 1.2),
+              padding: const EdgeInsets.fromLTRB(14, 10, 14, 18),
+              separatorBuilder: (_, __) => const SizedBox(height: 14),
               itemBuilder: (BuildContext context, int index) {
                 LiveStreams liveStreams = items![index];
                 return InkWell(
+                  borderRadius: BorderRadius.circular(16),
                   onTap: () {
                     if (liveStreams.type == "") {
                     } else {
@@ -121,55 +125,105 @@ class MediaScreenRouteState extends State<AudioScreenBody> {
                               ));
                     }
                   },
-                  child: Padding(
-                    padding: const EdgeInsets.all(4.0),
-                    child: Stack(
+                  child: Container(
+                    padding: const EdgeInsets.fromLTRB(0, 0, 0, 4),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: const Color(0xFFE8DDE4)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        CachedNetworkImage(
-                          imageUrl: liveStreams.coverphoto!,
-                          imageBuilder: (context, imageProvider) => Container(
-                            decoration: BoxDecoration(
-                              image: DecorationImage(
-                                image: imageProvider,
-                                fit: BoxFit.cover,
-                              ),
+                        ClipRRect(
+                          borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(14),
+                          ),
+                          child: AspectRatio(
+                            aspectRatio: 16 / 9,
+                            child: Stack(
+                              fit: StackFit.expand,
+                              children: [
+                                CachedNetworkImage(
+                                  imageUrl: liveStreams.coverphoto ?? '',
+                                  fit: BoxFit.cover,
+                                  placeholder: (context, url) => const Center(
+                                    child: CupertinoActivityIndicator(),
+                                  ),
+                                  errorWidget: (context, url, error) => const Center(
+                                    child: Icon(
+                                      Icons.live_tv_rounded,
+                                      color: Color(0xFF7A6B75),
+                                      size: 34,
+                                    ),
+                                  ),
+                                )
+                              ],
                             ),
                           ),
-                          placeholder: (context, url) =>
-                              Center(child: CupertinoActivityIndicator()),
-                          errorWidget: (context, url, error) => Center(
-                              child: Icon(
-                            Icons.error,
-                            color: Colors.grey,
-                          )),
                         ),
-                        Positioned(
-                          bottom: 0,
-                          left: 0,
-                          right: 0,
-                          child: Container(
-                            height: 70,
-                            //width: double.infinity,
-                            color: Colors.black54,
-                            padding: EdgeInsets.all(12),
-                            child: Align(
-                              alignment: Alignment.center,
-                              child: Text(
-                                liveStreams.title!,
-                                maxLines: 2,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 16),
-                              ),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(12, 10, 12, 8),
+                          child: Text(
+                            liveStreams.title ?? '',
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: Color(0xFF23141D),
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              height: 1.35,
                             ),
                           ),
-                        )
+                        ),
                       ],
                     ),
                   ),
                 );
               },
             ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Container(
+        width: 260,
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: const Color(0xFFE8DDE4)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.live_tv_rounded,
+              size: 42,
+              color: Color(0xFF8A7D86),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              t.noitemstodisplay,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Color(0xFF23141D),
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 4),
+            const Text(
+              'No current live stream. Pull down to check for newly streamed videos.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Color(0xFF7A6B75),
+                fontSize: 13,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

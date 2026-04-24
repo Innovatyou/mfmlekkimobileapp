@@ -18,11 +18,19 @@ class NewNotesScreen extends StatefulWidget {
 
 class _NewNotesScreenState extends State<NewNotesScreen> {
   QuillController? _controller;
+  late FocusNode _keyboardFocusNode;
 
   @override
   void initState() {
     super.initState();
+    _keyboardFocusNode = FocusNode();
     _loadNote();
+  }
+
+  @override
+  void dispose() {
+    _keyboardFocusNode.dispose();
+    super.dispose();
   }
 
   Future<void> _loadNote() async {
@@ -36,27 +44,49 @@ class _NewNotesScreenState extends State<NewNotesScreen> {
   @override
   Widget build(BuildContext context) {
     if (_controller == null) {
-      return const Scaffold(body: Center(child: Text('Loading...')));
+      return const Scaffold(
+        backgroundColor: Color(0xFFF7F2F5),
+        body: Center(child: Text('Loading...')),
+      );
     }
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF7F2F5),
       appBar: AppBar(
-        elevation: 0.3,
+        elevation: 0,
+        backgroundColor: const Color(0xFFF7F2F5),
+        surfaceTintColor: Colors.transparent,
+        iconTheme: const IconThemeData(color: Color(0xFF2A1720)),
         centerTitle: false,
         title: Text(
           t.createnote,
+          style: const TextStyle(
+            color: Color(0xFF2A1720),
+            fontWeight: FontWeight.w800,
+          ),
         ),
         actions: [
-          IconButton(
-              icon: Icon(Icons.save),
+          Padding(
+            padding: const EdgeInsets.only(right: 10),
+            child: FilledButton.icon(
+              style: FilledButton.styleFrom(
+                backgroundColor: const Color(0xFF7A3F60),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              icon: const Icon(Icons.save_outlined, size: 18),
+              label: const Text('Save'),
               onPressed: () {
                 saveNoteDialog(context);
-              })
+              },
+            ),
+          )
         ],
       ),
       body: KeyboardListener(
-        focusNode: FocusNode(),
+        focusNode: _keyboardFocusNode,
         onKeyEvent: (event) {
           if (event is KeyDownEvent &&
               HardwareKeyboard.instance.isControlPressed &&
@@ -81,22 +111,26 @@ class _NewNotesScreenState extends State<NewNotesScreen> {
   Widget _buildWelcomeEditor(BuildContext context) {
     return SafeArea(
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          Container(
-            height: 20,
-          ),
+          const SizedBox(height: 12),
           Expanded(
-            flex: 15,
-            child: Container(
-              color: Colors.white,
-              padding: const EdgeInsets.only(left: 16, right: 16),
-              child: QuillEditor.basic(
-                controller: _controller!,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(color: const Color(0xFFE9DEE5)),
+                ),
+                child: QuillEditor.basic(
+                  controller: _controller!,
+                ),
               ),
             ),
           ),
-          Container(),
+          const SizedBox(height: 12),
         ],
       ),
     );
@@ -104,34 +138,42 @@ class _NewNotesScreenState extends State<NewNotesScreen> {
 
   void saveNoteDialog(BuildContext _context) {
     String name = "";
+    final titleController = TextEditingController(text: "");
     showDialog(
         context: context,
         barrierDismissible: true,
         builder: (BuildContext context) {
           return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
             title: Text(
               t.savenotetitle,
-              style: TextStyle(color: Colors.black),
+              style: const TextStyle(color: Colors.black),
             ),
             actions: <Widget>[
               TextButton(
                 child: Text(
                   t.cancel,
-                  style: TextStyle(fontSize: 16, color: Colors.red),
+                  style: const TextStyle(fontSize: 16, color: Colors.red),
                 ),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
               ),
-              TextButton(
+              FilledButton(
+                style: FilledButton.styleFrom(
+                  backgroundColor: const Color(0xFF7A3F60),
+                  foregroundColor: Colors.white,
+                ),
                 child: Text(
                   t.ok,
-                  style: TextStyle(fontSize: 16),
+                  style: const TextStyle(fontSize: 16),
                 ),
                 onPressed: () {
                   if (name != "") {
                     Provider.of<NotesProvider>(context, listen: false).saveNote(
-                      new Notes(
+                      Notes(
                           title: name,
                           color: Colors.primaries[
                               Random().nextInt(Colors.primaries.length)],
@@ -147,15 +189,18 @@ class _NewNotesScreenState extends State<NewNotesScreen> {
               ),
             ],
             content: TextField(
-              controller: TextEditingController(text: ""),
+              controller: titleController,
               autofocus: true,
               onChanged: (text) {
                 name = text;
               },
-              // cursorColor: Colors.black,
+              decoration: const InputDecoration(
+                hintText: 'Note title',
+              ),
             ),
           );
         }).then((val) {
+      titleController.dispose();
       if (name != "") {
         Navigator.pop(_context);
       }

@@ -156,109 +156,115 @@ class UserPostsSectionRouteState extends State<UserPostsSection>
     super.build(context);
     userdata = Provider.of<AppStateManager>(context).userdata;
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: Padding(
-        padding: EdgeInsets.only(top: 0),
+      backgroundColor: const Color(0xFFF7F2F5),
+      body: SafeArea(
         child: Column(
           children: [
-            Container(height: 5),
-            userdata == null
-                ? Container()
-                : InkWell(
-                    onTap: () async {
-                      final dynamic result = await Navigator.pushNamed(
-                          context, MakePostScreen.routeName);
-                      if (result as bool) {
-                        loadItems();
-                      }
-                    },
+            const SizedBox(height: 8),
+            if (userdata != null)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(22),
+                  onTap: () async {
+                    final dynamic result =
+                        await Navigator.pushNamed(context, MakePostScreen.routeName);
+                    if (result == true) {
+                      loadItems();
+                    }
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.fromLTRB(10, 10, 12, 10),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(22),
+                      border: Border.all(color: const Color(0xFFE9DCE4)),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Color(0x12000000),
+                          blurRadius: 18,
+                          offset: Offset(0, 8),
+                        ),
+                      ],
+                    ),
                     child: Row(
                       children: [
                         Card(
-                          margin: EdgeInsets.all(10),
+                          margin: EdgeInsets.zero,
                           elevation: 0,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(80),
                           ),
                           clipBehavior: Clip.antiAliasWithSaveLayer,
-                          child: Container(
-                            height: 30,
-                            width: 30,
+                          child: SizedBox(
+                            height: 38,
+                            width: 38,
                             child: CachedNetworkImage(
-                              imageUrl: userdata!.photo!,
-                              imageBuilder: (context, imageProvider) =>
-                                  Container(
+                              imageUrl: userdata!.photo ?? '',
+                              imageBuilder: (context, imageProvider) => Container(
                                 decoration: BoxDecoration(
                                   image: DecorationImage(
-                                      image: imageProvider,
-                                      fit: BoxFit.cover,
-                                      colorFilter: ColorFilter.mode(
-                                          Colors.black12, BlendMode.darken)),
-                                ),
-                              ),
-                              placeholder: (context, url) =>
-                                  Center(child: CupertinoActivityIndicator()),
-                              errorWidget: (context, url, error) => Center(
-                                child: Icon(
-                                  Icons.error,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: Container(
-                            height: 45,
-                            child: Card(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              clipBehavior: Clip.antiAliasWithSaveLayer,
-                              margin: EdgeInsets.fromLTRB(10, 10, 10, 0),
-                              elevation: 1,
-                              child: Padding(
-                                padding: const EdgeInsets.fromLTRB(50, 5, 0, 0),
-                                child: TextField(
-                                  enabled: false,
-                                  style: TextStyle(fontSize: 12),
-                                  decoration: InputDecoration.collapsed(
-                                    hintStyle: TextStyle(fontSize: 16),
-                                    hintText: t.shareyourthoughts,
+                                    image: imageProvider,
+                                    fit: BoxFit.cover,
                                   ),
                                 ),
                               ),
+                              placeholder: (context, url) =>
+                                  const Center(child: CupertinoActivityIndicator()),
+                              errorWidget: (context, url, error) => const Center(
+                                child: Icon(Icons.person, color: Color(0xFF8A7D86)),
+                              ),
                             ),
                           ),
                         ),
-                        Container(width: 5),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Icon(
-                            Icons.insert_photo,
-                            size: 30,
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Container(
+                            height: 42,
+                            alignment: Alignment.centerLeft,
+                            padding: const EdgeInsets.symmetric(horizontal: 14),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF5EEF2),
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            child: Text(
+                              t.shareyourthoughts,
+                              style: const TextStyle(
+                                color: Color(0xFF8B7A84),
+                                fontSize: 15,
+                              ),
+                            ),
                           ),
                         ),
-                        Container(width: 5, height: 50),
+                        const SizedBox(width: 10),
+                        Container(
+                          width: 38,
+                          height: 38,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF2E6EC),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(Icons.insert_photo_outlined),
+                        ),
                       ],
                     ),
                   ),
-            //Visibility(visible: userdata != null, child: Divider()),
-            //Divider(height: 0),
+                ),
+              ),
             Expanded(
               child: Container(
-                margin: EdgeInsets.only(top: 10),
+                margin: const EdgeInsets.only(top: 10),
                 child: SmartRefresher(
                   enablePullDown: true,
                   enablePullUp: true,
-                  header: WaterDropHeader(),
+                  header: const WaterDropHeader(),
                   footer: CustomFooter(
                     builder: (BuildContext context, LoadStatus? mode) {
                       Widget body;
                       if (mode == LoadStatus.idle) {
                         body = Text(t.pulluploadmore);
                       } else if (mode == LoadStatus.loading) {
-                        body = CupertinoActivityIndicator();
+                        body = const CupertinoActivityIndicator();
                       } else if (mode == LoadStatus.failed) {
                         body = Text(t.loadfailedretry);
                       } else if (mode == LoadStatus.canLoading) {
@@ -266,8 +272,8 @@ class UserPostsSectionRouteState extends State<UserPostsSection>
                       } else {
                         body = Text(t.nomoredata);
                       }
-                      return Container(
-                        height: 55.0,
+                      return SizedBox(
+                        height: 55,
                         child: Center(child: body),
                       );
                     },
@@ -275,18 +281,18 @@ class UserPostsSectionRouteState extends State<UserPostsSection>
                   controller: refreshController,
                   onRefresh: _onRefresh,
                   onLoading: _onLoading,
-                  child: (isError == true)
+                  child: isError
                       ? NoitemScreen(
                           title: t.oops,
                           message: t.dataloaderror,
-                          onClick: _onRefresh)
-                      : (items!.length == 0
+                          onClick: _onRefresh,
+                        )
+                      : (items!.isEmpty
                           ? EmptyListScreen(message: t.noitemstodisplay)
                           : ListView.builder(
+                              padding: const EdgeInsets.fromLTRB(0, 4, 0, 14),
                               itemCount: items!.length,
-                              scrollDirection: Axis.vertical,
                               itemBuilder: (BuildContext context, int index) {
-                                // print(items[index].coverPhoto);
                                 return UserPostTile(
                                   index: index,
                                   object: items![index],
@@ -303,39 +309,45 @@ class UserPostsSectionRouteState extends State<UserPostsSection>
                 ),
               ),
             ),
-            Visibility(
-              visible: userdata != null,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: ListTile(
-                  leading: Card(
-                    margin: EdgeInsets.all(0),
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(80),
-                    ),
-                    clipBehavior: Clip.antiAliasWithSaveLayer,
-                    child: Container(
-                      height: 30,
-                      width: 30,
-                      child: Icon(
-                        LineAwesomeIcons.pinterest,
-                        size: 30,
-                      ),
-                    ),
-                  ),
-                  contentPadding: EdgeInsets.all(0),
-                  title: Text(
-                    t.mypins,
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  trailing: Icon(Icons.navigate_next),
+            if (userdata != null)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(18),
                   onTap: () {
                     Navigator.pushNamed(context, PinnedPosts.routeName);
                   },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(color: const Color(0xFFE8DDE4)),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 38,
+                          height: 38,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF2E6EC),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(LineAwesomeIcons.pinterest),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            t.mypins,
+                            style: const TextStyle(fontWeight: FontWeight.w700),
+                          ),
+                        ),
+                        const Icon(Icons.navigate_next),
+                      ],
+                    ),
+                  ),
                 ),
               ),
-            ),
           ],
         ),
       ),

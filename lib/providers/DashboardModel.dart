@@ -227,8 +227,8 @@ class DashboardModel with ChangeNotifier {
       print("[DashboardModel] ERROR: HTTP Status ${response.statusCode}");
       setFetchError();
     }
-  } on DioError catch (e) {
-    print("[DashboardModel] ===== DioError Caught =====");
+  } on DioException catch (e) {
+    print("[DashboardModel] ===== DioException Caught =====");
     print("[DashboardModel] Error type: ${e.type}");
     print("[DashboardModel] Message: ${e.message}");
     print("[DashboardModel] Response Status: ${e.response?.statusCode}");
@@ -240,24 +240,43 @@ class DashboardModel with ChangeNotifier {
     }
 
     final String dioType = e.type.toString().toLowerCase();
-    if (dioType.contains('connect')) {
+    final String errorText = [
+      e.message,
+      e.error?.toString(),
+      e.toString(),
+    ].whereType<String>().join(' ').toLowerCase();
+
+    if (errorText.contains('failed host lookup') ||
+        errorText.contains('no address associated with hostname') ||
+        errorText.contains('name or service not known')) {
+      print("[DashboardModel] CAUSE: DNS lookup failed - hostname could not be resolved");
+      print("[DashboardModel] CHECK: Does the device/emulator have working DNS and internet access?");
+      print("[DashboardModel] CHECK: Host configured in ApiUrl.BASEURL = ${ApiUrl.BASEURL}");
+    } else if (dioType.contains('connect') && !dioType.contains('connectionerror')) {
       print("[DashboardModel] CAUSE: Connection timeout - backend server took too long to respond");
       print("[DashboardModel] CHECK: Is the backend server accessible?");
     } else if (dioType.contains('receive')) {
       print("[DashboardModel] CAUSE: Receive timeout - response took too long");
-    } else if (dioType.contains('other') || dioType.contains('error')) {
+    } else if (dioType.contains('send')) {
+      print("[DashboardModel] CAUSE: Send timeout - took too long to send request");
+    } else if (errorText.contains('certificate') || errorText.contains('ssl')) {
+      print("[DashboardModel] CAUSE: SSL certificate validation failed");
+      print("[DashboardModel] CHECK: Server certificate may be invalid, expired, or rejected by the device");
+    } else if (dioType.contains('connectionerror') ||
+        dioType.contains('other') ||
+        dioType.contains('error') ||
+        errorText.contains('socketexception')) {
       print("[DashboardModel] CAUSE: Network error or socket error");
       print("[DashboardModel] CHECK: Internet connection available?");
       if (e.error != null) {
         print("[DashboardModel] Inner error: ${e.error}");
-        // Check for SSL certificate errors
         if (e.error.toString().contains("CERTIFICATE") || e.error.toString().contains("certificate")) {
           print("[DashboardModel] SSL Certificate validation error detected");
           print("[DashboardModel] SOLUTION: Server may have self-signed certificate or expired certificate");
         }
       }
-    } else if (dioType.contains('send')) {
-      print("[DashboardModel] CAUSE: Send timeout - took too long to send request");
+    } else {
+      print("[DashboardModel] CAUSE: Unclassified Dio network failure");
     }
 
     print("[DashboardModel] Full error: $e");
@@ -451,10 +470,23 @@ class DashboardModel with ChangeNotifier {
     if (features == null) return true;
     
     // Convert to String safely
-    String featureStr = features is String ? features : features.toString();
+    String featureStr = (features is String ? features : features.toString())
+        .toLowerCase();
     
     if (type == "media") {
-      return (featureStr.contains("audiomessages") || featureStr.contains("videomessages"));
+      return (featureStr.contains("media") ||
+          featureStr.contains("audiomessages") ||
+          featureStr.contains("videomessages") ||
+          featureStr.contains("audio") ||
+          featureStr.contains("video"));
+    }
+    if (type == "audiomessages") {
+      return (featureStr.contains("audiomessages") ||
+          featureStr.contains("audio"));
+    }
+    if (type == "videomessages") {
+      return (featureStr.contains("videomessages") ||
+          featureStr.contains("video"));
     }
     if (type == "publications") {
       return (featureStr.contains("articles") || featureStr.contains("books"));

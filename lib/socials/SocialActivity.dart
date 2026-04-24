@@ -26,7 +26,7 @@ class SocialActivity extends StatefulWidget {
 
 class _SocialActivityState extends State<SocialActivity> {
   Userdata? userdata;
-  PageController? _pageController;
+  late final PageController _pageController;
   int currentIndex = 0;
 
   List<BottomNavigationBarItem> navigationItems = [
@@ -52,7 +52,7 @@ class _SocialActivityState extends State<SocialActivity> {
 
   @override
   void dispose() {
-    _pageController!.dispose();
+    _pageController.dispose();
     super.dispose();
   }
 
@@ -60,14 +60,22 @@ class _SocialActivityState extends State<SocialActivity> {
   Widget build(BuildContext context) {
     userdata = Provider.of<AppStateManager>(context).userdata;
     return Scaffold(
+      backgroundColor: const Color(0xFFF7F2F5),
       appBar: AppBar(
-        elevation: 0.2,
+        elevation: 0,
+        backgroundColor: const Color(0xFFF7F2F5),
         leading: IconButton(
-            icon: Icon(Icons.arrow_back_ios),
+            icon: const Icon(Icons.arrow_back_ios_new_rounded),
             onPressed: () {
               Navigator.of(context).pop();
             }),
-        title: Text(t.churchsocial),
+        title: Text(
+          t.churchsocial,
+          style: const TextStyle(
+            color: Color(0xFF23141D),
+            fontWeight: FontWeight.w700,
+          ),
+        ),
         actions: [
           InkWell(
             onTap: () {
@@ -78,32 +86,30 @@ class _SocialActivityState extends State<SocialActivity> {
               );
             },
             child: Card(
-              margin: EdgeInsets.all(12),
+              margin: const EdgeInsets.all(12),
               elevation: 0,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(80),
               ),
               clipBehavior: Clip.antiAliasWithSaveLayer,
-              child: Container(
+              child: SizedBox(
                 height: 30,
                 width: 30,
                 child: CachedNetworkImage(
-                  imageUrl: userdata!.photo!,
+                  imageUrl: userdata?.photo ?? '',
                   imageBuilder: (context, imageProvider) => Container(
                     decoration: BoxDecoration(
                       image: DecorationImage(
                           image: imageProvider,
-                          fit: BoxFit.cover,
-                          colorFilter: ColorFilter.mode(
-                              Colors.black12, BlendMode.darken)),
+                          fit: BoxFit.cover),
                     ),
                   ),
                   placeholder: (context, url) =>
-                      Center(child: CupertinoActivityIndicator()),
+                      const Center(child: CupertinoActivityIndicator()),
                   errorWidget: (context, url, error) => Center(
                     child: Icon(
-                      Icons.error,
-                      color: Colors.grey,
+                      Icons.person,
+                      color: Colors.grey[500],
                     ),
                   ),
                 ),
@@ -113,36 +119,59 @@ class _SocialActivityState extends State<SocialActivity> {
         ],
       ),
       extendBody: true,
-      body: PageView.builder(
-        controller: _pageController,
-        physics: NeverScrollableScrollPhysics(),
-        itemBuilder: (context, position) {
-          return _handleNavigationChange(position);
-        },
-        itemCount: 5, // Can be null
+      body: Container(
+        margin: const EdgeInsets.only(bottom: 78),
+        child: PageView.builder(
+          controller: _pageController,
+          physics: const NeverScrollableScrollPhysics(),
+          itemBuilder: (context, position) {
+            return _handleNavigationChange(position);
+          },
+          itemCount: 5,
+        ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.shifting,
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        selectedItemColor: MyColors.mainC0lor,
-        unselectedItemColor: MyColors.grey_40,
-        currentIndex: currentIndex,
-        onTap: (int index) {
-          setState(() {
-            currentIndex = index;
-          });
+      bottomNavigationBar: Container(
+        margin: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(color: const Color(0xFFECE1E8)),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x12000000),
+              blurRadius: 16,
+              offset: Offset(0, 6),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(22),
+          child: BottomNavigationBar(
+            type: BottomNavigationBarType.fixed,
+            backgroundColor: Colors.white,
+            selectedItemColor: MyColors.mainC0lor,
+            unselectedItemColor: const Color(0xFF8B7D86),
+            selectedFontSize: 11,
+            unselectedFontSize: 11,
+            currentIndex: currentIndex,
+            onTap: (int index) {
+              setState(() {
+                currentIndex = index;
+              });
 
-          if (index == 3) {
-            eventBus.fire(OnNotificationsTabOpened());
-          }
+              if (index == 3) {
+                eventBus.fire(OnNotificationsTabOpened());
+              }
 
-          _pageController!.animateToPage(
-            index,
-            duration: const Duration(milliseconds: 400),
-            curve: Curves.easeInOut,
-          );
-        },
-        items: navigationItems.toList(),
+              _pageController.animateToPage(
+                index,
+                duration: const Duration(milliseconds: 400),
+                curve: Curves.easeInOut,
+              );
+            },
+            items: navigationItems.toList(),
+          ),
+        ),
       ),
     );
   }
@@ -151,33 +180,25 @@ class _SocialActivityState extends State<SocialActivity> {
     Widget? _child;
     switch (index) {
       case 0:
-        _child = Container(
-            margin: EdgeInsets.fromLTRB(0, 0, 0, 55),
-            child: UserPostsSection());
+        _child = UserPostsSection();
         break;
       case 1:
-        _child = Container(
-            margin: EdgeInsets.fromLTRB(0, 0, 0, 55), child: ChatUsersScreen());
+        _child = ChatUsersScreen();
         break;
       case 2:
-        _child = Container(
-            margin: EdgeInsets.fromLTRB(0, 0, 0, 55),
-            child: FollowPeopleSection());
+        _child = FollowPeopleSection();
         break;
       case 3:
-        _child = Container(
-            margin: EdgeInsets.fromLTRB(0, 0, 0, 55),
-            child: NotificationSection());
+        _child = NotificationSection();
         break;
       case 4:
-        _child = Container(
-            margin: EdgeInsets.fromLTRB(0, 0, 0, 55), child: SettingsScreen());
+        _child = SettingsScreen();
         break;
     }
     return AnimatedSwitcher(
       switchInCurve: Curves.easeOut,
       switchOutCurve: Curves.easeIn,
-      duration: Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 500),
       child: _child,
     );
   }

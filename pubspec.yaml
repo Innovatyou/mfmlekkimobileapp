@@ -74,7 +74,6 @@ dependencies:
   package_info_plus: ^8.3.1
   flutter_secure_storage: ^9.0.0
   visibility_detector: ^0.4.0+2
-  webview_flutter: ^4.7.0
 
   cupertino_icons: ^1.0.8
   
@@ -101,6 +100,7 @@ dependencies:
   flutter_snake_navigationbar: any
   flutter_local_notifications: any
   flutter_web_browser: any
+  webview_flutter: ^4.8.0
   flash: any
   # translator removed: replaced by internal/no-op translator to avoid package URI issues
   # maps_launcher removed: replaced with URL open via Utility.openBrowserTab

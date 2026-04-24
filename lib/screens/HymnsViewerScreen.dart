@@ -19,68 +19,104 @@ class HymnsViewerScreen extends StatefulWidget {
 class _HymnsViewerScreenState extends State<HymnsViewerScreen> {
   @override
   Widget build(BuildContext context) {
+    final hymn = widget.hymns!;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF7F2F5),
       appBar: AppBar(
-        elevation: 0.3,
-        title: Text(t.hymns),
+        elevation: 0,
+        backgroundColor: const Color(0xFFF7F2F5),
+        surfaceTintColor: Colors.transparent,
+        title: Text(
+          t.hymns,
+          style: const TextStyle(
+            color: Color(0xFF2A1720),
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        iconTheme: const IconThemeData(color: Color(0xFF2A1720)),
       ),
       body: Padding(
-        padding: EdgeInsets.only(top: 12),
+        padding: const EdgeInsets.only(top: 12),
         child: SingleChildScrollView(
-          child: Container(
-            padding: EdgeInsets.symmetric(vertical: 5, horizontal: 25),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Align(
-                  alignment: Alignment.center,
-                  child: Text(widget.hymns!.title!,
-                      textAlign: TextAlign.center,
-                      style: TextStyles.headline(context)
-                          .copyWith(fontWeight: FontWeight.bold, fontSize: 20)),
-                ),
-                Container(height: 20),
                 Container(
-                  height: 200,
-                  //margin: EdgeInsets.fromLTRB(10, 0, 0, 0),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
-                    child: CachedNetworkImage(
-                      imageUrl: widget.hymns!.thumbnail!,
-                      imageBuilder: (context, imageProvider) => Container(
-                        decoration: BoxDecoration(
-                          image: DecorationImage(
-                              image: imageProvider,
-                              fit: BoxFit.cover,
-                              colorFilter: ColorFilter.mode(
-                                  Colors.black12, BlendMode.darken)),
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: const Color(0xFFE8DDE4)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        hymn.title!,
+                        textAlign: TextAlign.left,
+                        style: TextStyles.headline(context).copyWith(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 22,
+                          color: const Color(0xFF2A1720),
                         ),
                       ),
-                      placeholder: (context, url) =>
-                          Center(child: CupertinoActivityIndicator()),
-                      errorWidget: (context, url, error) => Center(
-                          child: Image.asset(
-                        Img.get('hymns.jpg'),
-                        fit: BoxFit.fill,
-                        width: double.infinity,
-                        height: double.infinity,
-                        //color: Colors.black26,
-                      )),
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        height: 210,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(14),
+                          child: CachedNetworkImage(
+                            imageUrl: hymn.thumbnail!,
+                            imageBuilder: (context, imageProvider) => Container(
+                              decoration: BoxDecoration(
+                                image: DecorationImage(
+                                  image: imageProvider,
+                                  fit: BoxFit.cover,
+                                  colorFilter: ColorFilter.mode(
+                                    Colors.black.withValues(alpha: 0.15),
+                                    BlendMode.darken,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            placeholder: (context, url) =>
+                                const Center(child: CupertinoActivityIndicator()),
+                            errorWidget: (context, url, error) => Center(
+                              child: Image.asset(
+                                Img.get('hymns.jpg'),
+                                fit: BoxFit.cover,
+                                width: double.infinity,
+                                height: double.infinity,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: const Color(0xFFE8DDE4)),
+                  ),
+                  child: HtmlWidget(
+                    hymn.content!,
+                    textStyle: TextStyles.medium(context).copyWith(
+                      fontSize: 18,
+                      height: 1.55,
+                      color: const Color(0xFF3A2A33),
                     ),
                   ),
                 ),
-                Container(height: 20),
-                Align(
-                  alignment: Alignment.center,
-                  child: HtmlWidget(
-                    widget.hymns!.content!,
-                    
-                    textStyle:
-                        TextStyles.medium(context).copyWith(fontSize: 20),
-                  ),
-                ),
-                Container(height: 20),
+                const SizedBox(height: 16),
               ],
             ),
           ),

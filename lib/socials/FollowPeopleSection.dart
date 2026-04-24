@@ -150,121 +150,109 @@ class FollowPeopleSectionRouteState extends State<FollowPeopleSection>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    //userdata = Provider.of<AppStateManager>(context).userdata;
     return Scaffold(
       appBar: AppBar(
-        title: Text(t.members),
-      ),
-      backgroundColor: Colors.white,
-      body: Padding(
-        padding: EdgeInsets.only(top: 0),
-        child: Column(
-          children: [
-            Container(
-              child: Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                clipBehavior: Clip.antiAliasWithSaveLayer,
-                margin: EdgeInsets.all(10),
-                elevation: 1,
-                child: Row(
-                  children: <Widget>[
-                    Container(
-                      width: 20,
-                    ),
-                    Expanded(
-                      child: TextField(
-                        onChanged: (value) {
-                          if (value.length == 0) {
-                            query = "";
-                            loadItems();
-                          }
-                        },
-                        onSubmitted: (value) {
-                          query = value;
-                          loadItems();
-                        },
-                        style: TextStyle(fontSize: 18),
-                        decoration: InputDecoration.collapsed(
-                          hintStyle: TextStyle(fontSize: 18),
-                          hintText: t.searchforpeople,
-                        ),
-                      ),
-                    ),
-                    Container(width: 5),
-                    Icon(Icons.search),
-                    Container(width: 5, height: 50),
-                  ],
-                ),
-              ),
-            ),
-            Expanded(
-              child: SmartRefresher(
-                enablePullDown: true,
-                enablePullUp: true,
-                header: WaterDropHeader(),
-                footer: CustomFooter(
-                  builder: (BuildContext context, LoadStatus? mode) {
-                    Widget body;
-                    if (mode == LoadStatus.idle) {
-                      body = Text(t.pulluploadmore);
-                    } else if (mode == LoadStatus.loading) {
-                      body = CupertinoActivityIndicator();
-                    } else if (mode == LoadStatus.failed) {
-                      body = Text(t.loadfailedretry);
-                    } else if (mode == LoadStatus.canLoading) {
-                      body = Text(t.releaseloadmore);
-                    } else {
-                      body = Text(t.nomoredata);
-                    }
-                    return Container(
-                      height: 55.0,
-                      child: Center(child: body),
-                    );
-                  },
-                ),
-                controller: refreshController,
-                onRefresh: _onRefresh,
-                onLoading: _onLoading,
-                child: (isError == true)
-                    ? NoitemScreen(
-                        title: t.oops,
-                        message: t.dataloaderror,
-                        onClick: _onRefresh)
-                    : (items!.length == 0
-                        ? EmptyListScreen(message: t.noitemstodisplay)
-                        : ListView.separated(
-                            separatorBuilder:
-                                (BuildContext context, int index) {
-                              return Align(
-                                alignment: Alignment.centerRight,
-                                child: Container(
-                                  height: 0.5,
-                                  width:
-                                      MediaQuery.of(context).size.width / 1.3,
-                                  child: Divider(),
-                                ),
-                              );
-                            },
-                            itemCount: items!.length,
-                            scrollDirection: Axis.vertical,
-                            padding: EdgeInsets.all(3),
-                            itemBuilder: (BuildContext context, int index) {
-                              // print(items[index].coverPhoto);
-                              return PeopleList(
-                                object: items![index],
-                                //userdata: userdata,
-                                callback: followunfollowuser,
-                                isFollowing:
-                                    followUsers.contains(items![index].email),
-                              );
-                            },
-                          )),
-              ),
-            ),
-          ],
+        elevation: 0,
+        backgroundColor: const Color(0xFFF7F2F5),
+        title: Text(
+          t.members,
+          style: const TextStyle(
+            color: Color(0xFF23141D),
+            fontWeight: FontWeight.w700,
+          ),
         ),
+      ),
+      backgroundColor: const Color(0xFFF7F2F5),
+      body: Column(
+        children: [
+          Container(
+            margin: const EdgeInsets.all(10),
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: const Color(0xFFECE1E8)),
+            ),
+            child: Row(
+              children: <Widget>[
+                const Icon(Icons.search, color: Color(0xFF8B7D86)),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: TextField(
+                    onChanged: (value) {
+                      if (value.isEmpty) {
+                        query = "";
+                        loadItems();
+                      }
+                    },
+                    onSubmitted: (value) {
+                      query = value;
+                      loadItems();
+                    },
+                    style: const TextStyle(fontSize: 16),
+                    decoration: InputDecoration.collapsed(
+                      hintStyle: const TextStyle(fontSize: 16),
+                      hintText: t.searchforpeople,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: SmartRefresher(
+              enablePullDown: true,
+              enablePullUp: true,
+              header: const WaterDropHeader(),
+              footer: CustomFooter(
+                builder: (BuildContext context, LoadStatus? mode) {
+                  Widget body;
+                  if (mode == LoadStatus.idle) {
+                    body = Text(t.pulluploadmore);
+                  } else if (mode == LoadStatus.loading) {
+                    body = const CupertinoActivityIndicator();
+                  } else if (mode == LoadStatus.failed) {
+                    body = Text(t.loadfailedretry);
+                  } else if (mode == LoadStatus.canLoading) {
+                    body = Text(t.releaseloadmore);
+                  } else {
+                    body = Text(t.nomoredata);
+                  }
+                  return SizedBox(
+                    height: 55,
+                    child: Center(child: body),
+                  );
+                },
+              ),
+              controller: refreshController,
+              onRefresh: _onRefresh,
+              onLoading: _onLoading,
+              child: isError
+                  ? NoitemScreen(
+                      title: t.oops,
+                      message: t.dataloaderror,
+                      onClick: _onRefresh,
+                    )
+                  : (items!.isEmpty
+                      ? EmptyListScreen(message: t.noitemstodisplay)
+                      : ListView.separated(
+                          separatorBuilder: (BuildContext context, int index) {
+                            return const SizedBox(height: 8);
+                          },
+                          itemCount: items!.length,
+                          scrollDirection: Axis.vertical,
+                          padding: const EdgeInsets.fromLTRB(8, 6, 8, 12),
+                          itemBuilder: (BuildContext context, int index) {
+                            return PeopleList(
+                              object: items![index],
+                              callback: followunfollowuser,
+                              isFollowing: followUsers.contains(items![index].email),
+                            );
+                          },
+                        )),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -335,49 +323,52 @@ class _PeopleListState extends State<PeopleList> {
   @override
   Widget build(BuildContext context) {
     Userdata? userdata = Provider.of<AppStateManager>(context).userdata;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 4),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFECE1E8)),
+      ),
       child: ListTile(
         leading: Card(
-          margin: EdgeInsets.all(0),
+          margin: EdgeInsets.zero,
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(80),
           ),
           clipBehavior: Clip.antiAliasWithSaveLayer,
-          child: Container(
+          child: SizedBox(
             height: 50,
             width: 50,
             child: CachedNetworkImage(
-              imageUrl: widget.object.photo!,
+              imageUrl: widget.object.photo ?? '',
               imageBuilder: (context, imageProvider) => Container(
                 decoration: BoxDecoration(
                   image: DecorationImage(
                       image: imageProvider,
-                      fit: BoxFit.cover,
-                      colorFilter:
-                          ColorFilter.mode(Colors.black12, BlendMode.darken)),
+                      fit: BoxFit.cover),
                 ),
               ),
               placeholder: (context, url) =>
-                  Center(child: CupertinoActivityIndicator()),
+                  const Center(child: CupertinoActivityIndicator()),
               errorWidget: (context, url, error) => Center(
                 child: Icon(
-                  Icons.error,
-                  color: Colors.grey,
+                  Icons.person,
+                  color: Colors.grey[500],
                 ),
               ),
             ),
           ),
         ),
-        contentPadding: EdgeInsets.all(0),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         title: getUserName(context, widget.object),
-        subtitle: Text(widget.object.gender!),
+        subtitle: Text(
+          widget.object.gender!,
+          style: const TextStyle(color: Color(0xFF7B6D76), fontSize: 13),
+        ),
         trailing: (userdata != null && userdata.email == widget.object.email)
-            ? Container(
-                height: 0,
-                width: 0,
-              )
+            ? const SizedBox.shrink()
             : IconButton(
                 onPressed: () {
                   if (userdata == null) {

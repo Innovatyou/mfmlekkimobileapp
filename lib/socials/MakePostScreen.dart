@@ -180,7 +180,7 @@ class MakePostScreenState extends State<MakePostScreen> {
         return;
       }
       Navigator.pop(context, true);
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       Navigator.of(context).pop();
       print("=== DIO ERROR DEBUG ===");
       print("Error Type: ${e.type}");
@@ -226,206 +226,241 @@ class MakePostScreenState extends State<MakePostScreen> {
   }
 
   @override
+  void dispose() {
+    contentController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(title: Text(t.makepost), elevation: 0.5, actions: <Widget>[
-        IconButton(
-          icon: Icon(Icons.done_all),
-          onPressed: () {
-            validateandsubmit();
-          },
+      backgroundColor: const Color(0xFFF7F2F5),
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: const Color(0xFFF7F2F5),
+        title: Text(
+          t.makepost,
+          style: const TextStyle(
+            color: Color(0xFF23141D),
+            fontWeight: FontWeight.w700,
+          ),
         ),
-      ]),
-      body: Container(
-          width: double.infinity,
-          height: double.infinity,
-          child: Column(
-            children: <Widget>[
-              Container(
-                padding: EdgeInsets.only(top: 20.0, left: 10.0),
-                height: 120.0,
-                width: MediaQuery.of(context).size.width,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  primary: false,
-                  itemCount: _selectedFiles.length + 1,
-                  itemBuilder: (BuildContext context, int index) {
-                    if (index == 0) {
-                      return InkWell(
-                        onTap: () async {
-                          return showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return AlertDialog(
-                                  scrollable: true,
-                                  title: Text(
-                                    t.selectfile,
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.black),
-                                  ),
-                                  content: Container(
-                                    height: 120.0,
-                                    width: 400.0,
-                                    child: ListView.builder(
-                                      shrinkWrap: true,
-                                      itemCount: 2,
-                                      itemBuilder:
-                                          (BuildContext context, int index) {
-                                        return ListTile(
-                                          title: Text(
-                                              index == 0 ? t.images : t.video),
-                                          onTap: () {
-                                            Navigator.of(context).pop();
-                                            if (index == 0) {
-                                              pickImages();
-                                            } else {
-                                              pickVideos();
-                                            }
-                                          },
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                );
-                              });
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.all(15.0),
-                          child: Container(
-                            width: 50,
-                            height: 50,
-                            color: MyColors.mainC0lor,
-                            child: Center(
-                              child: Icon(
-                                Icons.attach_file,
-                                color: Colors.white,
-                                size: 40,
-                              ),
-                            ),
+        actions: <Widget>[
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 8, 12, 8),
+            child: ElevatedButton.icon(
+              onPressed: validateandsubmit,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: MyColors.mainC0lor,
+                foregroundColor: Colors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
+              icon: const Icon(Icons.send_rounded, size: 18),
+              label: const Text('Post'),
+            ),
+          ),
+        ],
+      ),
+      body: SafeArea(
+        top: false,
+        child: Column(
+          children: <Widget>[
+            Container(
+              margin: const EdgeInsets.fromLTRB(12, 10, 12, 0),
+              padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: const Color(0xFFE8DDE4)),
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.attach_file_rounded, color: Color(0xFF563349)),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          t.selectfile,
+                          style: const TextStyle(
+                            color: Color(0xFF23141D),
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
-                      );
-                    }
-                    Files _files = _selectedFiles[index - 1];
-                    if (_files.type == "image") {
-                      return Stack(
-                        children: [
-                          Container(
-                            height: 120,
-                            width: 100,
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF2E6EC),
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        child: Text(
+                          '${_selectedFiles.length}/10',
+                          style: const TextStyle(
+                            color: Color(0xFF563349),
+                            fontWeight: FontWeight.w700,
                           ),
-                          Container(
-                            height: 100,
-                            width: 100,
-                            child: Padding(
-                              padding: const EdgeInsets.all(10.0),
-                              child: Image.file(
-                                File.fromUri(Uri.parse(_files.link!)),
-                                height: 80,
-                                width: 80,
-                                fit: BoxFit.cover,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    height: 106,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: _selectedFiles.length + 1,
+                      itemBuilder: (BuildContext context, int index) {
+                        if (index == 0) {
+                          return InkWell(
+                            borderRadius: BorderRadius.circular(14),
+                            onTap: () async {
+                              return showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      scrollable: true,
+                                      title: Text(
+                                        t.selectfile,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                      content: SizedBox(
+                                        height: 120,
+                                        width: 400,
+                                        child: ListView.builder(
+                                          shrinkWrap: true,
+                                          itemCount: 2,
+                                          itemBuilder: (BuildContext context, int index) {
+                                            return ListTile(
+                                              title: Text(index == 0 ? t.images : t.video),
+                                              onTap: () {
+                                                Navigator.of(context).pop();
+                                                if (index == 0) {
+                                                  pickImages();
+                                                } else {
+                                                  pickVideos();
+                                                }
+                                              },
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    );
+                                  });
+                            },
+                            child: Container(
+                              width: 86,
+                              margin: const EdgeInsets.only(right: 10),
+                              decoration: BoxDecoration(
+                                color: MyColors.mainC0lor,
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              child: const Center(
+                                child: Icon(
+                                  Icons.add_photo_alternate_rounded,
+                                  color: Colors.white,
+                                  size: 34,
+                                ),
                               ),
                             ),
-                          ),
-                          Positioned(
-                            right: -10,
-                            top: -10,
-                            child: IconButton(
-                                icon: Icon(
-                                  Icons.cancel,
-                                  size: 30,
-                                  color: Colors.red,
-                                ),
-                                onPressed: () {
+                          );
+                        }
+
+                        Files file = _selectedFiles[index - 1];
+                        return Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            Container(
+                              width: 86,
+                              margin: const EdgeInsets.only(right: 10),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(14),
+                                color: const Color(0xFFF5EEF2),
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(14),
+                                child: file.type == "image"
+                                    ? Image.file(
+                                        File.fromUri(Uri.parse(file.link!)),
+                                        fit: BoxFit.cover,
+                                      )
+                                    : Image.asset(
+                                        Img.get('video_thumbnail.jpg'),
+                                        fit: BoxFit.cover,
+                                      ),
+                              ),
+                            ),
+                            Positioned(
+                              right: -4,
+                              top: -8,
+                              child: InkWell(
+                                onTap: () {
                                   setState(() {
                                     _selectedFiles.removeAt(index - 1);
                                   });
-                                }),
-                          ),
-                        ],
-                      );
-                    }
-
-                    return Stack(
-                      children: [
-                        Container(
-                          height: 120,
-                          width: 100,
-                        ),
-                        Container(
-                          height: 100,
-                          width: 100,
-                          child: Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: Container(
-                              height: 80,
-                              width: 80,
-                              child: Image.asset(
-                                Img.get('video_thumbnail.jpg'),
-                                height: 80,
-                                width: 80,
-                                fit: BoxFit.fill,
+                                },
+                                child: const CircleAvatar(
+                                  radius: 12,
+                                  backgroundColor: Colors.red,
+                                  child: Icon(
+                                    Icons.close,
+                                    color: Colors.white,
+                                    size: 14,
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
-                        ),
-                        Positioned(
-                          right: -10,
-                          top: -10,
-                          child: IconButton(
-                              icon: Icon(
-                                Icons.cancel,
-                                size: 30,
-                                color: Colors.red,
-                              ),
-                              onPressed: () {
-                                setState(() {
-                                  _selectedFiles.removeAt(index - 1);
-                                });
-                              }),
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              ),
-              Container(
-                width: double.infinity,
-                child: Align(
-                  alignment: Alignment.centerRight,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 4, 15, 0),
-                    child: Text(_selectedFiles.length.toString() + "/10"),
+                          ],
+                        );
+                      },
+                    ),
                   ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Container(
+                margin: const EdgeInsets.fromLTRB(12, 10, 12, 14),
+                padding: const EdgeInsets.fromLTRB(14, 12, 14, 0),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: const Color(0xFFE8DDE4)),
                 ),
-              ),
-              Container(
-                height: 20,
-              ),
-              Divider(
-                height: 20,
-              ),
-              Expanded(
-                child: Container(
-                  padding: EdgeInsets.symmetric(vertical: 15, horizontal: 15),
-                  child: TextField(
-                    style: TextStyle(fontSize: 20),
-                    maxLength: 500,
-                    maxLines: null,
-                    controller: contentController,
-                    keyboardType: TextInputType.multiline,
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                      hintText: t.shareYourThoughtsNow,
-                      hintStyle: TextStyle(fontSize: 18),
+                child: TextField(
+                  style: const TextStyle(
+                    fontSize: 18,
+                    color: Color(0xFF23141D),
+                    height: 1.35,
+                  ),
+                  maxLength: 500,
+                  maxLines: null,
+                  expands: true,
+                  controller: contentController,
+                  keyboardType: TextInputType.multiline,
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    hintText: t.shareYourThoughtsNow,
+                    hintStyle: const TextStyle(
+                      fontSize: 17,
+                      color: Color(0xFF9A8A94),
+                    ),
+                    counterStyle: const TextStyle(
+                      color: Color(0xFF8A7D86),
                     ),
                   ),
                 ),
               ),
-            ],
-          )),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

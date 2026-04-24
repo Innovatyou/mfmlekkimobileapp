@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:higherground/utils/Alerts.dart';
 import 'package:higherground/utils/Utility.dart';
-import 'package:higherground/utils/rounded_bordered_container.dart';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:higherground/models/ScreenArguements.dart';
@@ -30,50 +29,76 @@ class _HymnsListScreenState extends State<HymnsListScreen> {
   late BuildContext context;
   bool showClear = false;
   String query = "";
-  final TextEditingController inputController = new TextEditingController();
+  final TextEditingController inputController = TextEditingController();
+
+  @override
+  void dispose() {
+    inputController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF7F2F5),
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Theme.of(context).primaryColor,
+        backgroundColor: const Color(0xFFF7F2F5),
+        surfaceTintColor: Colors.transparent,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Color(0xFF2A1720)),
           onPressed: () => Navigator.pop(context),
         ),
         title: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 0),
-          child: TextField(
-            maxLines: 1,
-            controller: inputController,
-            style: const TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.w500),
-            keyboardType: TextInputType.text,
-            onSubmitted: (_query) {
-              setState(() {
-                query = _query;
-                showClear = (_query.length > 0);
-              });
-            },
-            onChanged: (term) {
-              setState(() {
-                query = term;
-                showClear = (term.length > 0);
-              });
-            },
-            decoration: InputDecoration(
-              border: InputBorder.none,
-              hintText: t.hymns,
-              hintStyle: const TextStyle(fontSize: 16.0, color: Colors.white70),
-              prefixIcon: const Icon(Icons.search, color: Colors.white70),
-              contentPadding: const EdgeInsets.symmetric(vertical: 8),
+          child: Container(
+            height: 42,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFFE7DDE4)),
+            ),
+            child: TextField(
+              maxLines: 1,
+              controller: inputController,
+              style: const TextStyle(
+                fontSize: 16,
+                color: Color(0xFF2A1720),
+                fontWeight: FontWeight.w500,
+              ),
+              keyboardType: TextInputType.text,
+              onSubmitted: (_query) {
+                setState(() {
+                  query = _query;
+                  showClear = (_query.isNotEmpty);
+                });
+              },
+              onChanged: (term) {
+                setState(() {
+                  query = term;
+                  showClear = (term.isNotEmpty);
+                });
+              },
+              decoration: InputDecoration(
+                border: InputBorder.none,
+                hintText: t.hymns,
+                hintStyle: const TextStyle(
+                  fontSize: 15,
+                  color: Color(0xFF8D7D87),
+                ),
+                prefixIcon: const Icon(
+                  Icons.search_rounded,
+                  color: Color(0xFF8D7D87),
+                ),
+                contentPadding: const EdgeInsets.symmetric(vertical: 10),
+              ),
             ),
           ),
         ),
         actions: <Widget>[
           showClear
               ? IconButton(
-                  icon: const Icon(Icons.close, color: Colors.white),
+                  icon: const Icon(Icons.close, color: Color(0xFF2A1720)),
                   onPressed: () {
                     inputController.clear();
                     showClear = false;
@@ -83,7 +108,10 @@ class _HymnsListScreenState extends State<HymnsListScreen> {
                   },
                 )
               : IconButton(
-                  icon: const Icon(Icons.bookmark_outline, color: Colors.white),
+                  icon: const Icon(
+                    Icons.bookmark_outline,
+                    color: Color(0xFF2A1720),
+                  ),
                   onPressed: () {
                     Navigator.of(context)
                         .pushNamed(BookmarkedHymnsListScreen.routeName);
@@ -240,7 +268,10 @@ class HymnScreenBodyBodyRouteState extends State<HymnScreenBody> {
     return SmartRefresher(
       enablePullDown: true,
       enablePullUp: true,
-      header: WaterDropHeader(),
+      header: const WaterDropHeader(
+        waterDropColor: Color(0xFF8E5972),
+        complete: Icon(Icons.done, color: Color(0xFF8E5972)),
+      ),
       footer: CustomFooter(
         builder: (BuildContext context, LoadStatus? mode) {
           Widget body;
@@ -292,7 +323,7 @@ class HymnScreenBodyBodyRouteState extends State<HymnScreenBody> {
               : ListView.builder(
                   itemCount: filteredItems!.length,
                   scrollDirection: Axis.vertical,
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                   itemBuilder: (BuildContext context, int index) {
                     return ItemTile(
                       object: filteredItems![index],
@@ -326,7 +357,7 @@ class _ItemTileState extends State<ItemTile> with SingleTickerProviderStateMixin
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: Duration(milliseconds: 500 + (widget.index * 100)),
+      duration: Duration(milliseconds: 450 + (widget.index * 60)),
       vsync: this,
     );
     _animation = Tween<double>(begin: 0.0, end: 1.0).animate(
@@ -351,7 +382,9 @@ class _ItemTileState extends State<ItemTile> with SingleTickerProviderStateMixin
           end: Offset.zero,
         ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut)),
         child: Material(
+          color: Colors.transparent,
           child: InkWell(
+            borderRadius: BorderRadius.circular(16),
             onTap: () {
               Navigator.of(context).pushNamed(HymnsViewerScreen.routeName,
                   arguments: ScreenArguements(
@@ -361,49 +394,66 @@ class _ItemTileState extends State<ItemTile> with SingleTickerProviderStateMixin
                   ));
             },
             child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+              margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.08),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
                   ),
                 ],
                 color: Colors.white,
+                border: Border.all(color: const Color(0xFFE9DFE5)),
               ),
               child: Padding(
                 padding: const EdgeInsets.all(14),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Title
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF5EBF1),
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: const Text(
+                        'Hymn',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF7A4B63),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
                     Text(
                       widget.object.title!,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 16,
-                        color: Colors.black87,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 17,
+                        color: Color(0xFF251620),
                       ),
                     ),
                     const SizedBox(height: 8),
-                    // Content Preview
                     Text(
                       Bidi.stripHtmlIfNeeded(widget.object.content!),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontWeight: FontWeight.w400,
-                        fontSize: 13,
-                        color: Colors.grey[700],
+                        fontSize: 13.5,
+                        color: const Color(0xFF6F616A),
                         height: 1.4,
                       ),
                     ),
                     const SizedBox(height: 12),
-                    // Action Buttons
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
@@ -476,10 +526,10 @@ class _ActionButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.all(9),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(8),
+          color: color.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(10),
         ),
         child: Icon(
           icon,

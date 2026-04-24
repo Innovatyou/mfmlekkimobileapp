@@ -45,6 +45,10 @@ class SettingsRouteState extends State<SettingsScreen>
         // then parse the JSON.
         print(response.data);
         dynamic res = jsonDecode(response.data);
+        if (res == null || res['user'] == null) {
+          print('[SettingsScreen] No user settings payload found: ${response.data}');
+          return;
+        }
         setState(() {
           phoneSwitch = int.parse(res['user']['show_phone'].toString()) == 0;
           dobSwitch =
@@ -114,7 +118,11 @@ class SettingsRouteState extends State<SettingsScreen>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    Userdata userdata = Provider.of<AppStateManager>(context).userdata!;
+    final appManager = Provider.of<AppStateManager>(context);
+    Userdata userdata = appManager.userdata!;
+    final String youVersionLabel = t.youversionbible.trim().isEmpty
+        ? 'Use Youversion Bible Reader'
+        : t.youversionbible;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -223,14 +231,15 @@ class SettingsRouteState extends State<SettingsScreen>
                       style: TextStyles.subhead(context)
                           .copyWith(fontWeight: FontWeight.bold)),
                   Spacer(),
-                  Container(
+                  SizedBox(
+                    width: 120,
                     height: 35,
                     child: ElevatedButton(
                       child: Text(
                         t.update,
                         style: TextStyle(color: Colors.white),
                       ),
-                      style: TextButton.styleFrom(
+                      style: ElevatedButton.styleFrom(
                         backgroundColor: MyColors.mainC0lor,
                         shape: RoundedRectangleBorder(
                             borderRadius: new BorderRadius.circular(20)),
@@ -262,7 +271,7 @@ class SettingsRouteState extends State<SettingsScreen>
                       phoneSwitch = value;
                     });
                   },
-                  activeColor: MyColors.mainC0lor,
+                    activeThumbColor: MyColors.mainC0lor,
                   inactiveThumbColor: Colors.grey,
                 ),
                 onTap: () {},
@@ -285,7 +294,7 @@ class SettingsRouteState extends State<SettingsScreen>
                       dobSwitch = value;
                     });
                   },
-                  activeColor: MyColors.mainC0lor,
+                    activeThumbColor: MyColors.mainC0lor,
                   inactiveThumbColor: Colors.grey,
                 ),
                 onTap: () {},
@@ -317,7 +326,7 @@ class SettingsRouteState extends State<SettingsScreen>
                       followSwitch = value;
                     });
                   },
-                  activeColor: MyColors.mainC0lor,
+                    activeThumbColor: MyColors.mainC0lor,
                   inactiveThumbColor: Colors.grey,
                 ),
                 onTap: () {},
@@ -335,7 +344,7 @@ class SettingsRouteState extends State<SettingsScreen>
                       commentSwitch = value;
                     });
                   },
-                  activeColor: MyColors.mainC0lor,
+                    activeThumbColor: MyColors.mainC0lor,
                   inactiveThumbColor: Colors.grey,
                 ),
                 onTap: () {},
@@ -354,13 +363,186 @@ class SettingsRouteState extends State<SettingsScreen>
                       likeSwitch = value;
                     });
                   },
-                  activeColor: MyColors.mainC0lor,
+                    activeThumbColor: MyColors.mainC0lor,
                   inactiveThumbColor: Colors.grey,
                 ),
                 onTap: () {},
               ),
             ),
             Divider(height: 0),
+            const SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+              child: Text(
+                t.appsettings,
+                style: TextStyles.subhead(context)
+                    .copyWith(fontWeight: FontWeight.bold),
+              ),
+            ),
+            Container(
+              margin: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFFBFD),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: const Color(0xFFEADAE3)),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x1A8F3E88),
+                    blurRadius: 18,
+                    offset: Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
+                    decoration: const BoxDecoration(
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(20),
+                      ),
+                      gradient: LinearGradient(
+                        colors: [Color(0xFFF9EEF5), Color(0xFFFDF7FA)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 42,
+                          height: 42,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: const Color(0xFFEBD8E5)),
+                          ),
+                          child: Icon(
+                            LineAwesomeIcons.cog,
+                            size: 22,
+                            color: MyColors.mainC0lor,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        const Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'App Experience',
+                                style: TextStyle(
+                                  color: Color(0xFF23141D),
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                              SizedBox(height: 2),
+                              Text(
+                                'Customize how scripture opens in the app.',
+                                style: TextStyle(
+                                  color: Color(0xFF7A6B75),
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 5),
+                          decoration: BoxDecoration(
+                            color: appManager.youversionbible
+                                ? const Color(0xFFE7F7EF)
+                                : const Color(0xFFF3EAF0),
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                          child: Text(
+                            appManager.youversionbible ? 'Enabled' : 'Disabled',
+                            style: TextStyle(
+                              color: appManager.youversionbible
+                                  ? const Color(0xFF167C4A)
+                                  : const Color(0xFF7A6B75),
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Divider(height: 1, thickness: 1, color: Color(0xFFF1E6EC)),
+                  Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: const BorderRadius.vertical(
+                        bottom: Radius.circular(20),
+                      ),
+                      onTap: () {
+                        appManager.setYouVersionBiblePreference(
+                          !appManager.youversionbible,
+                        );
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 12, 12, 12),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 42,
+                              height: 42,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF1E7F7),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Icon(
+                                LineAwesomeIcons.bible,
+                                color: Color(0xFF8F3E88),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    youVersionLabel,
+                                    style: const TextStyle(
+                                      color: Color(0xFF23141D),
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 15,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  const Text(
+                                    'Launch verses in YouVersion for a smoother reading flow.',
+                                    style: TextStyle(
+                                      color: Color(0xFF7A6B75),
+                                      fontSize: 13,
+                                      height: 1.35,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Transform.scale(
+                              scale: 0.95,
+                              child: Switch.adaptive(
+                                value: appManager.youversionbible,
+                                activeTrackColor: MyColors.mainC0lor,
+                                onChanged: (val) {
+                                  appManager.setYouVersionBiblePreference(val);
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
             Container(height: 25),
           ],
         ),

@@ -10,7 +10,8 @@ import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
 
 class ArticleViewer extends StatefulWidget {
-  static const routeName = "articlesviewer";
+  static const routeName = 'articlesviewer';
+
   ArticleViewer({this.articles});
   final Articles? articles;
 
@@ -21,92 +22,115 @@ class ArticleViewer extends StatefulWidget {
 class _ArticleViewerState extends State<ArticleViewer> {
   @override
   Widget build(BuildContext context) {
+    final article = widget.articles!;
     return Scaffold(
+      backgroundColor: const Color(0xFFF7F2F5),
       appBar: AppBar(
-        title: Text(t.articles),
+        elevation: 0,
+        backgroundColor: const Color(0xFFF7F2F5),
+        surfaceTintColor: Colors.transparent,
+        title: Text(
+          t.articles,
+          style: const TextStyle(
+            fontWeight: FontWeight.w800,
+            color: Color(0xFF23141D),
+          ),
+        ),
         actions: <Widget>[
           IconButton(
-            icon: Icon(Icons.share),
+            icon: const Icon(Icons.share),
             onPressed: () async {
               await Share.share(
-                Bidi.stripHtmlIfNeeded(widget.articles!.content!),
-                subject: widget.articles!.title,
+                Bidi.stripHtmlIfNeeded(article.content!),
+                subject: article.title,
               );
             },
           )
         ],
       ),
       body: SingleChildScrollView(
-        child: Container(
-          child: Stack(
-            children: <Widget>[
-              Container(
-                height: 300,
-                width: double.infinity,
-                child: CachedNetworkImage(
-                  imageUrl: widget.articles!.thumbnail!,
-                  imageBuilder: (context, imageProvider) => Container(
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: imageProvider,
-                        fit: BoxFit.cover,
+        padding: const EdgeInsets.fromLTRB(14, 12, 14, 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: const Color(0xFFE8DDE4)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    article.title!,
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF23141D),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    '${article.date!} ${t.by} ${article.author!}',
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: Color(0xFF7A6B75),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    height: 210,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(14),
+                      child: CachedNetworkImage(
+                        imageUrl: article.thumbnail!,
+                        imageBuilder: (context, imageProvider) => Container(
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                              image: imageProvider,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                        placeholder: (context, url) =>
+                            const Center(child: CupertinoActivityIndicator()),
+                        errorWidget: (context, url, error) => Center(
+                          child: Image.asset(
+                            Img.get('articles.jpg'),
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            height: double.infinity,
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                  placeholder: (context, url) =>
-                      Center(child: CupertinoActivityIndicator()),
-                  errorWidget: (context, url, error) => Center(
-                      child: Image.asset(
-                    Img.get("articles.jpg"),
-                    fit: BoxFit.fill,
-                    width: double.infinity,
-                    height: double.infinity,
-                    //color: Colors.black26,
-                  )),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: const Color(0xFFE8DDE4)),
+              ),
+              child: HtmlWidget(
+                article.content!,
+                textStyle: TextStyles.medium(context).copyWith(
+                  fontSize: 18,
+                  height: 1.55,
                 ),
               ),
-              Container(
-                margin: EdgeInsets.fromLTRB(16.0, 250.0, 16.0, 16.0),
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(5.0)),
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      widget.articles!.title!,
-                      style: TextStyle(fontSize: 20),
-                    ),
-                    SizedBox(height: 10.0),
-                    Text(
-                      widget.articles!.date! +
-                          " " +
-                          t.by +
-                          " " +
-                          widget.articles!.author!,
-                      style: TextStyle(fontSize: 14),
-                    ),
-                    SizedBox(height: 10.0),
-                    Divider(),
-                    SizedBox(
-                      height: 10.0,
-                    ),
-                    HtmlWidget(
-                      widget.articles!.content!,
-                      textStyle:
-                          TextStyles.medium(context).copyWith(fontSize: 20),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
 }
-
-
-

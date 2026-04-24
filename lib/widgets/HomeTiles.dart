@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:higherground/utils/my_colors.dart';
 
 class HomeTiles extends StatelessWidget {
   final String title;
@@ -21,60 +22,77 @@ class HomeTiles extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        onclick();
-      },
-      child: Stack(
-        children: [
-          Container(
-            width: width,
-            child: Card(
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  side: BorderSide(color: Colors.grey[300]!, width: 0.5)),
-              color: color,
-              child: Container(
-                height: height,
-                width: width,
-                padding: EdgeInsets.all(8),
-                child: Image.asset(
-                  thumbnail,
-                  //height: 75,
-                  //width: 75,
-                  fit: BoxFit.cover,
+    return GestureDetector(
+      onTap: () => onclick(),
+      child: Container(
+        width: width,
+        height: height,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: MyColors.border),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x10000000),
+              blurRadius: 14,
+              offset: Offset(0, 6),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              // ── Thumbnail ───────────────────────────────────────────────
+              Image.asset(
+                thumbnail,
+                fit: BoxFit.cover,
+              ),
+              // ── Gradient scrim ──────────────────────────────────────────
+              DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      Colors.black.withValues(alpha: 0.55),
+                    ],
+                    stops: const [0.45, 1.0],
+                  ),
                 ),
               ),
-            ),
-          ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 3,
-            child: Container(
-              height: 40,
-              width: width,
-              padding: EdgeInsetsDirectional.only(
-                bottom: 6,
-              ),
-              color: Colors.black38,
-              child: Align(
-                alignment: Alignment.center,
+              // ── Label ───────────────────────────────────────────────────
+              Positioned(
+                left: 12,
+                right: 12,
+                bottom: 12,
                 child: Text(
                   title,
-                  style: TextStyle(
-                      fontWeight: FontWeight.w600, color: Colors.white),
-                  textAlign: TextAlign.start,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 14,
+                    height: 1.25,
+                    shadows: [
+                      Shadow(
+                        color: Color(0x55000000),
+                        blurRadius: 6,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 }
+
 

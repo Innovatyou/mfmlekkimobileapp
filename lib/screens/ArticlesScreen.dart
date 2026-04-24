@@ -22,13 +22,21 @@ class ArticlesScreenRouteState extends State<ArticlesScreen> {
     return ChangeNotifierProvider(
       create: (context) => ArticlesScreensModel(),
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFFF7F2F5),
         appBar: AppBar(
-          title: Text(t.articles),
-          elevation: 1,
+          elevation: 0,
+          backgroundColor: const Color(0xFFF7F2F5),
+          surfaceTintColor: Colors.transparent,
+          title: Text(
+            t.articles,
+            style: const TextStyle(
+              fontWeight: FontWeight.w800,
+              color: Color(0xFF23141D),
+            ),
+          ),
         ),
         body: Padding(
-          padding: EdgeInsets.only(top: 5),
+          padding: const EdgeInsets.only(top: 6),
           child: AudioScreenBody(),
         ),
       ),
@@ -74,7 +82,9 @@ class MediaScreenRouteState extends State<AudioScreenBody> {
     return SmartRefresher(
       enablePullDown: true,
       enablePullUp: true,
-      header: WaterDropHeader(),
+      header: const WaterDropHeader(
+        waterDropColor: Color(0xFF8E5972),
+      ),
       footer: CustomFooter(
         builder: (BuildContext context, LoadStatus? mode) {
           Widget body;
@@ -104,13 +114,21 @@ class MediaScreenRouteState extends State<AudioScreenBody> {
           : ListView.separated(
               itemCount: items!.length,
               scrollDirection: Axis.vertical,
-              padding: EdgeInsets.all(3),
+              padding: const EdgeInsets.fromLTRB(12, 6, 12, 12),
               separatorBuilder: (context, index) {
-                return Divider();
+                return const SizedBox(height: 8);
               },
               itemBuilder: (BuildContext context, int index) {
-                Articles articles = items![index];
-                return ListTile(
+                final articles = items![index];
+                return Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: const Color(0xFFE8DDE4)),
+                  ),
+                  child: ListTile(
+                    contentPadding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   onTap: () {
                     Navigator.pushNamed(context, ArticleViewer.routeName,
                         arguments: articles);
@@ -118,17 +136,22 @@ class MediaScreenRouteState extends State<AudioScreenBody> {
                   title: Text(
                     articles.title!,
                     maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                     style: titleTextStyle,
                   ),
-                  subtitle: Text(articles.date! + " | " + articles.author!),
-                  trailing: Container(
-                    width: 80.0,
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10.0),
-                        image: DecorationImage(
-                          image: NetworkImage(articles.thumbnail!),
-                          fit: BoxFit.cover,
-                        )),
+                  subtitle: Text(
+                    articles.date! + " | " + articles.author!,
+                    style: const TextStyle(color: Color(0xFF7A6B75)),
+                  ),
+                  trailing: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Image.network(
+                      articles.thumbnail!,
+                      width: 78,
+                      height: 56,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                   ),
                 );
               },

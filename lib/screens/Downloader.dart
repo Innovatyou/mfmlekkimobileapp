@@ -1,116 +1,119 @@
 import 'package:flutter/material.dart';
+import 'package:higherground/audio_player/player_page.dart';
 import 'package:higherground/i18n/strings.g.dart';
-import 'package:higherground/models/Media.dart';
-import 'package:higherground/providers/BookmarksModel.dart';
-import 'package:higherground/screens/AddPlaylistScreen.dart';
-import 'package:higherground/utils/rounded_bordered_container.dart';
-import 'package:isolated_download_manager/isolated_download_manager.dart';
-import 'package:line_awesome_flutter/line_awesome_flutter.dart';
-import 'package:provider/provider.dart';
-import 'package:higherground/providers/DownloadsModel.dart';
 import 'package:higherground/models/Downloads.dart';
+import 'package:higherground/models/Media.dart';
+import 'package:higherground/models/ScreenArguements.dart';
+import 'package:higherground/providers/AudioPlayerModel.dart';
+import 'package:higherground/providers/BookmarksModel.dart';
+import 'package:higherground/providers/DownloadsModel.dart';
+import 'package:higherground/screens/AddPlaylistScreen.dart';
 import 'package:higherground/utils/TextStyles.dart';
 import 'package:higherground/utils/TimUtil.dart';
-import 'package:higherground/widgets/MediaPopupMenu.dart';
-import 'package:higherground/video_player/VideoPlayer.dart';
-import 'package:higherground/models/ScreenArguements.dart';
 import 'package:higherground/utils/Utility.dart';
-import 'package:higherground/providers/AudioPlayerModel.dart';
-import 'package:higherground/audio_player/player_page.dart';
+import 'package:higherground/video_player/VideoPlayer.dart';
+import 'package:higherground/widgets/MediaPopupMenu.dart';
+import 'package:isolated_download_manager/isolated_download_manager.dart';
+import 'package:provider/provider.dart';
 
 class Downloader extends StatefulWidget with WidgetsBindingObserver {
   final TargetPlatform? platform;
-  static const routeName = "/DownloadsScreen";
+  static const routeName = '/DownloadsScreen';
   final Downloads? downloads;
 
-  Downloader({Key? key, this.downloads, this.platform}) : super(key: key);
+  const Downloader({Key? key, this.downloads, this.platform}) : super(key: key);
 
   @override
-  _MyHomePageState createState() => new _MyHomePageState();
+  State<Downloader> createState() => _DownloaderState();
 }
 
-class _MyHomePageState extends State<Downloader> {
+class _DownloaderState extends State<Downloader> {
   DownloadsModel? downloadsModel;
-  final TextEditingController inputController = new TextEditingController();
+  final TextEditingController inputController = TextEditingController();
   bool showClear = false;
-  String? filter;
+  String filter = '';
 
   @override
   void initState() {
+    super.initState();
     inputController.addListener(() {
+      final value = inputController.text;
       setState(() {
-        filter = inputController.text;
+        filter = value;
+        showClear = value.trim().isNotEmpty;
       });
     });
     Provider.of<DownloadsModel>(context, listen: false)
         .initDownloads(context, widget.downloads);
-    super.initState();
   }
 
   @override
   void dispose() {
-    super.dispose();
-    //downloadsModel.unbindBackgroundIsolate();
     inputController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     downloadsModel = Provider.of<DownloadsModel>(context);
 
-    return new Scaffold(
+    return Scaffold(
+      backgroundColor: const Color(0xFFF7F2F5),
       appBar: AppBar(
-        title: TextField(
-          maxLines: 1,
-          controller: inputController,
-          style: new TextStyle(fontSize: 18, color: Colors.black),
-          keyboardType: TextInputType.text,
-          onSubmitted: (query) {
-            //downloadsModel.searchDownloads(query);
-          },
-          /* onChanged: (term) {
-            setState(() {
-              showClear = (term.length > 2);
-            });
-            if (term.length == 0) {
-              //downloadsModel.cancelSearch();
-            }
-          },*/
-          decoration: InputDecoration(
-            border: InputBorder.none,
-            hintText: t.downloads,
-            hintStyle: TextStyle(fontSize: 17.0, color: Colors.black),
+        elevation: 0,
+        backgroundColor: const Color(0xFFF7F2F5),
+        surfaceTintColor: Colors.transparent,
+        title: Text(
+          t.downloads,
+          style: const TextStyle(
+            fontWeight: FontWeight.w800,
+            color: Color(0xFF23141D),
           ),
         ),
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back,
+      ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 8, 12, 10),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: const Color(0xFFE8DDE4)),
+              ),
+              child: TextField(
+                controller: inputController,
+                maxLines: 1,
+                style: const TextStyle(fontSize: 16, color: Color(0xFF23141D)),
+                textInputAction: TextInputAction.search,
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  hintText: t.search,
+                  hintStyle:
+                      const TextStyle(fontSize: 15.5, color: Color(0xFF8A7B86)),
+                  prefixIcon:
+                      const Icon(Icons.search_rounded, color: Color(0xFF8A7B86)),
+                  suffixIcon: showClear
+                      ? IconButton(
+                          icon: const Icon(Icons.close_rounded),
+                          onPressed: () {
+                            inputController.clear();
+                            setState(() {
+                              filter = '';
+                              showClear = false;
+                            });
+                          },
+                        )
+                      : null,
+                ),
+              ),
+            ),
           ),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        actions: <Widget>[
-          showClear
-              ? IconButton(
-                  icon: const Icon(
-                    Icons.close,
-                    color: Colors.black,
-                  ),
-                  onPressed: () {
-                    inputController.clear();
-                    showClear = false;
-                    downloadsModel!.cancelSearch();
-                  },
-                )
-              : Container(),
+          Expanded(
+            child: BuildBodyPage(downloadsModel: downloadsModel, filter: filter),
+          ),
         ],
       ),
-      /*new AppBar(
-        title: new Text(Strings.downloads),
-        
-      ),*/
-      body: BuildBodyPage(downloadsModel: downloadsModel, filter: filter),
     );
   }
 }
@@ -123,444 +126,278 @@ class BuildBodyPage extends StatelessWidget {
   }) : super(key: key);
 
   final DownloadsModel? downloadsModel;
-  final String? filter;
+  final String filter;
 
   @override
   Widget build(BuildContext context) {
-    if (downloadsModel!.downloadsList.length == 0) {
+    final normalizedFilter = filter.trim().toLowerCase();
+    final items = downloadsModel!.downloadsList.where((item) {
+      if (normalizedFilter.isEmpty) return true;
+      final title = item.title?.toLowerCase() ?? '';
+      return title.contains(normalizedFilter);
+    }).toList();
+
+    if (items.isEmpty) {
       return Center(
         child: Container(
           width: double.infinity,
-          child: Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Text(t.noitemstodisplay,
-                textAlign: TextAlign.center, style: TextStyles.medium(context)),
+          margin: const EdgeInsets.symmetric(horizontal: 14),
+          padding: const EdgeInsets.all(22),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: const Color(0xFFE8DDE4)),
+          ),
+          child: Text(
+            t.noitemstodisplay,
+            textAlign: TextAlign.center,
+            style: TextStyles.medium(context),
           ),
         ),
       );
     }
-    return ListView.builder(
-        itemCount: downloadsModel!.downloadsList.length,
-        scrollDirection: Axis.vertical,
-        padding: EdgeInsets.all(3),
-        itemBuilder: (BuildContext context, int index) {
-          return filter == null || filter == ""
-              ? ItemTile(
-                  index: index,
-                  object: downloadsModel!.downloadsList[index],
-                  downloadsModel: downloadsModel!)
-              : downloadsModel!.downloadsList[index].title!
-                      .toLowerCase()
-                      .contains(filter!.toLowerCase())
-                  ? ItemTile(
-                      index: index,
-                      object: downloadsModel!.downloadsList[index],
-                      downloadsModel: downloadsModel!)
-                  : new Container();
-        });
-  }
-}
 
-class ItemTile extends StatefulWidget {
-  final Downloads object;
-  final int index;
-  final DownloadsModel downloadsModel;
-
-  const ItemTile({
-    Key? key,
-    required this.index,
-    required this.object,
-    required this.downloadsModel,
-  })  : super(key: key);
-
-  @override
-  _ItemTileState createState() => _ItemTileState();
-}
-
-class _ItemTileState extends State<ItemTile> {
-  @override
-  Widget build(BuildContext context) {
-    Media media = Downloads.mapMediaFromDownload(widget.object);
-    return InkWell(
-      onTap: () {
-        if (widget.object.state == DownloadState.finished) {
-          if (widget.object.mediaType!.toLowerCase() == "audio") {
-            Provider.of<AudioPlayerModel>(context, listen: false)
-                .preparePlaylist(
-                    Downloads.mapMediaListFromDownloadList(
-                        widget.downloadsModel.downloadsList),
-                    Downloads.mapMediaFromDownload(widget.object));
-            Navigator.of(context).pushNamed(PlayPage.routeName);
-          } else {
-            Navigator.pushNamed(context, VideoPlayer.routeName,
-                arguments: ScreenArguements(
-                  position: 0,
-                  items: Downloads.mapMediaFromDownload(widget.object),
-                  itemsList: Utility.extractMediaByType(
-                      Downloads.mapMediaListFromDownloadList(
-                          widget.downloadsModel.downloadsList),
-                      widget.object.mediaType),
-                ));
-          }
-        }
+    return ListView.separated(
+      itemCount: items.length,
+      padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+      separatorBuilder: (_, __) => const SizedBox(height: 8),
+      itemBuilder: (BuildContext context, int index) {
+        return ItemTile(
+          object: items[index],
+          downloadsModel: downloadsModel!,
+        );
       },
-      child: RoundedContainer(
-        padding: const EdgeInsets.all(0),
-        margin: EdgeInsets.all(5),
-        height: 130,
-        child: Row(
-          children: <Widget>[
-            widget.object.coverPhoto! == ""
-                ? Container()
-                : Container(
-                    width: 130,
-                    decoration: BoxDecoration(
-                        image: DecorationImage(
-                      image: NetworkImage(widget.object.coverPhoto!),
-                      fit: BoxFit.cover,
-                    )),
-                  ),
-            Flexible(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Column(
-                  children: <Widget>[
-                    Container(
-                      //color: Colors.blue,
-                      height: 40,
-                      width: double.infinity,
-                      child: Row(
-                        children: <Widget>[
-                          Text(TimUtil.timeFormatter(widget.object.duration!),
-                              style: TextStyles.caption(context)
-                              //.copyWith(color: MyColors.grey_60),
-                              ),
-                          Spacer(),
-                          Text(widget.object.viewsCount.toString() + " view(s)",
-                              style: TextStyles.caption(context)
-                              //.copyWith(color: MyColors.grey_60),
-
-                              ),
-                          Container(
-                            width: 12,
-                          ),
-                        ],
-                      ),
-                    ),
-                    Flexible(
-                      child: Text(
-                        widget.object.title!,
-                        overflow: TextOverflow.fade,
-                        maxLines: 3,
-                        softWrap: true,
-                        style: TextStyle(
-                            fontWeight: FontWeight.w400, fontSize: 15),
-                      ),
-                    ),
-                    widget.object.state == DownloadState.finished
-                        ? Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: <Widget>[
-                              IconButton(
-                                onPressed: () {
-                                  Navigator.pushNamed(
-                                    context,
-                                    AddPlaylistScreen.routeName,
-                                    arguments: ScreenArguements(
-                                        position: 0, items: widget.object),
-                                  );
-                                },
-                                icon: Icon(
-                                  Icons.playlist_add_sharp,
-                                  size: 20,
-                                  color: Colors.grey[700],
-                                ),
-                              ),
-                              IconButton(
-                                onPressed: () {
-                                  widget.downloadsModel
-                                      .deleteExistingMedia(widget.object.id);
-                                },
-                                icon: Icon(
-                                  LineAwesomeIcons.trash,
-                                  size: 20,
-                                  color: Colors.red[700],
-                                ),
-                              ),
-                              Consumer<BookmarksModel>(
-                                builder: (context, bookmarkmodel, child) {
-                                  bool isBookmarked =
-                                      bookmarkmodel.isMediaBookmarked(media);
-                                  return IconButton(
-                                    onPressed: () {
-                                      if (isBookmarked) {
-                                        bookmarkmodel.unBookmarkMedia(media);
-                                      } else {
-                                        bookmarkmodel.bookmarkMedia(media);
-                                      }
-                                    },
-                                    icon: Icon(
-                                      isBookmarked
-                                          ? LineAwesomeIcons.heart_1
-                                          : LineAwesomeIcons.heart,
-                                      size: 20,
-                                      color: isBookmarked
-                                          ? Colors.pink
-                                          : Colors.grey[700],
-                                    ),
-                                  );
-                                },
-                              ),
-                              IconButton(
-                                onPressed: () {
-                                  ShareFile.share(media);
-                                },
-                                icon: Icon(
-                                  LineAwesomeIcons.share,
-                                  size: 20,
-                                  color: Colors.green,
-                                ),
-                              ),
-                            ],
-                          )
-                        : Row(
-                            children: [
-                              Expanded(
-                                child: SizedBox(
-                                  height: 6,
-                                  child: (widget.object.state ==
-                                          DownloadState.queued)
-                                      ? LinearProgressIndicator(
-                                          backgroundColor: Colors.orangeAccent,
-                                          valueColor: AlwaysStoppedAnimation(
-                                              Colors.red),
-                                          // minHeight: 25,
-                                        )
-                                      : LinearProgressIndicator(
-                                          value: widget.object.progress! / 100),
-                                ),
-                              ),
-                              FittedBox(
-                                  child: Row(
-                                children: [
-                                  Container(width: 10),
-                                  widget.object.state == DownloadState.paused
-                                      ? IconButton(
-                                          //padding: EdgeInsets.all(0),
-                                          onPressed: () {
-                                            widget.downloadsModel
-                                                .resumeDownload(widget.object);
-                                          },
-                                          icon: Icon(
-                                            Icons.play_arrow,
-                                            size: 24,
-                                            color: Colors.black,
-                                          ))
-                                      : IconButton(
-                                          //padding: EdgeInsets.all(0),
-                                          onPressed: () {
-                                            widget.downloadsModel
-                                                .pauseDownload(widget.object);
-                                          },
-                                          icon: Icon(
-                                            Icons.pause,
-                                            size: 24,
-                                            color: Colors.black,
-                                          )),
-                                  IconButton(
-                                      onPressed: () async {
-                                        widget.downloadsModel
-                                            .deleteItem(widget.object);
-                                      },
-                                      icon: Icon(
-                                        Icons.delete_forever,
-                                        size: 24,
-                                        color: Colors.red,
-                                      )),
-                                ],
-                              )),
-                            ],
-                          ),
-                  ],
-                ),
-              ),
-            )
-          ],
-        ),
-      ),
-
-      /*Container(
-        height: widget.object.state == DownloadState.finished ? 140 : 170,
-        width: double.infinity,
-        padding: EdgeInsets.fromLTRB(15, 5, 10, 5),
-        child: Column(
-          children: <Widget>[
-            Expanded(
-              child: Row(
-                children: <Widget>[
-                  Card(
-                      margin: EdgeInsets.all(0),
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      clipBehavior: Clip.antiAliasWithSaveLayer,
-                      child: Container(
-                        height: 60,
-                        width: 60,
-                        child: CachedNetworkImage(
-                          imageUrl: widget.object.coverPhoto!,
-                          imageBuilder: (context, imageProvider) => Container(
-                            decoration: BoxDecoration(
-                              image: DecorationImage(
-                                  image: imageProvider,
-                                  fit: BoxFit.cover,
-                                  colorFilter: ColorFilter.mode(
-                                      Colors.black12, BlendMode.darken)),
-                            ),
-                          ),
-                          placeholder: (context, url) =>
-                              Center(child: CupertinoActivityIndicator()),
-                          errorWidget: (context, url, error) => Center(
-                              child: Icon(
-                            Icons.error,
-                            color: Colors.grey,
-                          )),
-                        ),
-                      )),
-                  Container(width: 10),
-                  Expanded(
-                    child: Column(
-                      children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(5, 4, 0, 0),
-                          child: Row(
-                            children: <Widget>[
-                              Text(widget.object.category!,
-                                  style: TextStyles.caption(context)
-                                  //.copyWith(color: MyColors.grey_60),
-                                  ),
-                              Spacer(),
-                              Text(
-                                  TimUtil.timeFormatter(
-                                      widget.object.duration!),
-                                  style: TextStyles.caption(context)
-                                  //.copyWith(color: MyColors.grey_60),
-                                  ),
-                            ],
-                          ),
-                        ),
-                        Spacer(),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(5, 5, 10, 5),
-                          child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(widget.object.title!,
-                                maxLines: 1,
-                                style: TextStyles.subhead(context).copyWith(
-                                    //color: MyColors.grey_80,
-                                    fontWeight: FontWeight.w500)),
-                          ),
-                        ),
-                        Row(
-                          children: <Widget>[
-                            Text(
-                                widget.object.mediaType![0].toUpperCase() +
-                                    widget.object.mediaType!.substring(1),
-                                style: TextStyles.caption(context)
-                                //.copyWith(color: MyColors.grey_60),
-                                ),
-                            Spacer(),
-                            (widget.object.state == DownloadState.finished)
-                                ? Align(
-                                    alignment: Alignment.centerRight,
-                                    child: MediaPopupMenu(
-                                      Downloads.mapMediaFromDownload(
-                                          widget.object),
-                                      isDownloads: true,
-                                    ),
-                                  )
-                                : Container(),
-                          ],
-                        ),
-                      ],
-                    ),
-                  )
-                ],
-              ),
-            ),
-            Container(
-              height: 0,
-            ),
-            (widget.object.state == DownloadState.finished)
-                ? Container()
-                : SizedBox(
-                    height: 50,
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: SizedBox(
-                            height: 10,
-                            child: (widget.object.state == DownloadState.queued)
-                                ? LinearProgressIndicator(
-                                    backgroundColor: Colors.orangeAccent,
-                                    valueColor:
-                                        AlwaysStoppedAnimation(Colors.red),
-                                    // minHeight: 25,
-                                  )
-                                : LinearProgressIndicator(
-                                    value: widget.object.progress! / 100),
-                          ),
-                        ),
-                        FittedBox(
-                            child: Row(
-                          children: [
-                            Container(width: 20),
-                            widget.object.state == DownloadState.paused
-                                ? IconButton(
-                                    //padding: EdgeInsets.all(0),
-                                    onPressed: () {
-                                      widget.downloadsModel
-                                          .resumeDownload(widget.object);
-                                    },
-                                    icon: Icon(
-                                      Icons.play_arrow,
-                                      size: 30,
-                                      color: Colors.black,
-                                    ))
-                                : IconButton(
-                                    //padding: EdgeInsets.all(0),
-                                    onPressed: () {
-                                      widget.downloadsModel
-                                          .pauseDownload(widget.object);
-                                    },
-                                    icon: Icon(
-                                      Icons.pause,
-                                      size: 30,
-                                      color: Colors.black,
-                                    )),
-                            IconButton(
-                                onPressed: () async {
-                                  widget.downloadsModel
-                                      .deleteItem(widget.object);
-                                },
-                                icon: Icon(
-                                  Icons.delete_forever,
-                                  size: 30,
-                                  color: Colors.red,
-                                )),
-                          ],
-                        )),
-                      ],
-                    ),
-                  ),
-            Divider()
-          ],
-        ),
-      ),*/
     );
   }
 }
 
+class ItemTile extends StatelessWidget {
+  final Downloads object;
+  final DownloadsModel downloadsModel;
 
+  const ItemTile({
+    Key? key,
+    required this.object,
+    required this.downloadsModel,
+  }) : super(key: key);
 
+  @override
+  Widget build(BuildContext context) {
+    final media = Downloads.mapMediaFromDownload(object);
+
+    return InkWell(
+      borderRadius: BorderRadius.circular(16),
+      onTap: () {
+        if (object.state == DownloadState.finished) {
+          _openMedia(context, object, downloadsModel);
+        }
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFFE8DDE4)),
+        ),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(10, 10, 10, 8),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildCoverImage(object.coverPhoto),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                              TimUtil.timeFormatter(object.duration ?? 0),
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Color(0xFF7A6B75),
+                              ),
+                            ),
+                            const Spacer(),
+                            Text(
+                              '${object.viewsCount ?? 0} view(s)',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Color(0xFF7A6B75),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          object.title ?? '',
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 15,
+                            color: Color(0xFF23141D),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            object.state == DownloadState.finished
+                ? _buildFinishedActions(context, media)
+                : _buildProgressActions(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCoverImage(String? imageUrl) {
+    if (imageUrl == null || imageUrl.isEmpty) {
+      return Container(
+        width: 104,
+        height: 88,
+        decoration: BoxDecoration(
+          color: const Color(0xFFF3EDF1),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: const Icon(Icons.music_note_rounded, color: Color(0xFF8A7B86)),
+      );
+    }
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(12),
+      child: Image.network(
+        imageUrl,
+        width: 104,
+        height: 88,
+        fit: BoxFit.cover,
+      ),
+    );
+  }
+
+  Widget _buildFinishedActions(BuildContext context, Media media) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 0, 8, 6),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          IconButton(
+            onPressed: () {
+              Navigator.pushNamed(
+                context,
+                AddPlaylistScreen.routeName,
+                arguments: ScreenArguements(position: 0, items: object),
+              );
+            },
+            icon: Icon(Icons.playlist_add_rounded, color: Colors.grey[700]),
+          ),
+          IconButton(
+            onPressed: () {
+              downloadsModel.deleteExistingMedia(object.id);
+            },
+            icon: Icon(Icons.delete_outline_rounded, color: Colors.red[700]),
+          ),
+          Consumer<BookmarksModel>(
+            builder: (context, bookmarkModel, child) {
+              final isBookmarked = bookmarkModel.isMediaBookmarked(media);
+              return IconButton(
+                onPressed: () {
+                  if (isBookmarked) {
+                    bookmarkModel.unBookmarkMedia(media);
+                  } else {
+                    bookmarkModel.bookmarkMedia(media);
+                  }
+                },
+                icon: Icon(
+                  isBookmarked ? Icons.favorite_rounded : Icons.favorite_border,
+                  color: isBookmarked ? Colors.pink : Colors.grey[700],
+                ),
+              );
+            },
+          ),
+          IconButton(
+            onPressed: () {
+              ShareFile.share(media);
+            },
+            icon: const Icon(Icons.share_rounded, color: Colors.green),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProgressActions() {
+    final isQueued = object.state == DownloadState.queued;
+    final isPaused = object.state == DownloadState.paused;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(10, 0, 4, 8),
+      child: Row(
+        children: [
+          Expanded(
+            child: SizedBox(
+              height: 7,
+              child: isQueued
+                  ? const LinearProgressIndicator(
+                      backgroundColor: Colors.orangeAccent,
+                      valueColor: AlwaysStoppedAnimation(Colors.red),
+                    )
+                  : LinearProgressIndicator(value: (object.progress ?? 0) / 100),
+            ),
+          ),
+          const SizedBox(width: 6),
+          IconButton(
+            onPressed: () {
+              if (isPaused) {
+                downloadsModel.resumeDownload(object);
+              } else {
+                downloadsModel.pauseDownload(object);
+              }
+            },
+            icon: Icon(
+              isPaused ? Icons.play_arrow_rounded : Icons.pause_rounded,
+              color: Colors.black,
+            ),
+          ),
+          IconButton(
+            onPressed: () async {
+              downloadsModel.deleteItem(object);
+            },
+            icon:
+                const Icon(Icons.delete_forever_rounded, color: Colors.red),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _openMedia(
+      BuildContext context, Downloads object, DownloadsModel downloadsModel) {
+    if ((object.mediaType ?? '').toLowerCase() == 'audio') {
+      Provider.of<AudioPlayerModel>(context, listen: false).preparePlaylist(
+        Downloads.mapMediaListFromDownloadList(downloadsModel.downloadsList),
+        Downloads.mapMediaFromDownload(object),
+      );
+      Navigator.of(context).pushNamed(PlayPage.routeName);
+      return;
+    }
+
+    Navigator.pushNamed(
+      context,
+      VideoPlayer.routeName,
+      arguments: ScreenArguements(
+        position: 0,
+        items: Downloads.mapMediaFromDownload(object),
+        itemsList: Utility.extractMediaByType(
+          Downloads.mapMediaListFromDownloadList(downloadsModel.downloadsList),
+          object.mediaType,
+        ),
+      ),
+    );
+  }
+}

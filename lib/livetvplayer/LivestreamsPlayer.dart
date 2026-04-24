@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
-import 'dart:ui';
-import 'package:better_player/better_player.dart';
+import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'dart:async';
+import 'package:higherground/i18n/strings.g.dart';
 import 'package:higherground/models/LiveStreams.dart';
+import 'package:higherground/screens/LivestreamsScreen.dart';
+import 'package:higherground/utils/ApiUrl.dart';
+import 'package:higherground/utils/Utility.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:wakelock/wakelock.dart';
+import 'package:line_awesome_flutter/line_awesome_flutter.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:share_plus/share_plus.dart';
 import 'UnifiedLivePlayer.dart';
 
 class LivestreamsPlayer extends StatefulWidget {
@@ -19,119 +24,291 @@ class LivestreamsPlayer extends StatefulWidget {
 }
 
 class _VideoViewerScreenState extends State<LivestreamsPlayer> {
-  BetterPlayerController? _betterPlayerController;
   LiveStreams? currentMedia;
-  Future<BetterPlayerController?>? reloadController;
+  List<LiveStreams> upNext = [];
+  bool loadingUpNext = false;
 
   @override
   void initState() {
     currentMedia = widget.liveStreams;
-    reloadController = playVideoStream();
-    // The following line will enable the Android and iOS wakelock.
-    Wakelock.enable();
+    _loadUpNext();
+    _toggleWakelock(true);
     super.initState();
   }
 
-  Future<BetterPlayerController?> playVideoStream() async {
-    BetterPlayerDataSource betterPlayerDataSource = BetterPlayerDataSource(
-        BetterPlayerDataSourceType.network, currentMedia!.streamUrl!,
-        videoFormat: BetterPlayerVideoFormat.hls);
-    _betterPlayerController = new BetterPlayerController(
-        BetterPlayerConfiguration(
-          aspectRatio: 3 / 2,
-          placeholder: CachedNetworkImage(
-            imageUrl: currentMedia!.coverphoto!,
-            imageBuilder: (context, imageProvider) => Container(
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: imageProvider,
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-            placeholder: (context, url) =>
-                Center(child: CupertinoActivityIndicator()),
-            errorWidget: (context, url, error) => Center(
-                child: Icon(
-              Icons.error,
-              color: Colors.grey,
-            )),
-          ),
-          autoPlay: true,
-          allowedScreenSleep: false,
-          fullScreenByDefault: true,
-          // showControlsOnInitialize: true,
-        ),
-        betterPlayerDataSource: betterPlayerDataSource);
-    // _betterPlayerController.addEventsListener((event) {
-    //print("Better player event: ${event.betterPlayerEventType}");
-    // });
-    return _betterPlayerController;
+  Future<void> _loadUpNext() async {
+    setState(() {
+      loadingUpNext = true;
+    });
+    try {
+      final response = await Utility.getDio().post(
+        ApiUrl.FETCH_LIVESTREAMS,
+        data: jsonEncode({
+          'data': {'page': '0'}
+        }),
+      );
+      if (response.statusCode == 200) {
+        final dynamic res = jsonDecode(response.data);
+        final List<dynamic> raw = (res['livestreams'] ?? []) as List<dynamic>;
+        final list = raw
+            .map((e) => LiveStreams.fromJson(e as Map<String, dynamic>))
+            .where((e) => (e.id != currentMedia?.id) && (e.type ?? '').isNotEmpty)
+            .take(8)
+            .toList();
+        if (mounted) {
+          setState(() {
+            upNext = list;
+          });
+        }
+      }
+    } catch (_) {
+      // Keep screen usable even when up-next fetch fails.
+    } finally {
+      if (mounted) {
+        setState(() {
+          loadingUpNext = false;
+        });
+      }
+    }
   }
 
   @override
   void dispose() {
-    // The next line disables the wakelock again.
-    Wakelock.disable();
+    _toggleWakelock(false);
     super.dispose();
   }
 
-  Widget _buildWidgetAlbumCoverBlur() {
-    return Container(
-      width: double.infinity,
-      height: double.infinity,
-      decoration: BoxDecoration(
-        color: Colors.black,
-        shape: BoxShape.rectangle,
-        image: DecorationImage(
-          image: NetworkImage(currentMedia!.coverphoto!),
-          fit: BoxFit.cover,
-        ),
-      ),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(
-          sigmaX: 10.0,
-          sigmaY: 10.0,
-        ),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.black.withOpacity(0.0),
-          ),
-        ),
-      ),
+  Future<void> _toggleWakelock(bool enabled) async {
+    try {
+      await Wakelock.toggle(enable: enabled);
+    } catch (e) {
+      debugPrint('Wakelock toggle failed: $e');
+    }
+  }
+
+  Future<void> _shareCurrentStream() async {
+    final current = currentMedia;
+    if (current == null) return;
+
+    final packageInfo = await PackageInfo.fromPlatform();
+    final packageName = packageInfo.packageName;
+    final shareTitle = t.sharefiletitle + (current.title ?? '');
+    await Share.share(
+      shareTitle +
+          '\n' +
+          t.sharefilebody +
+          ' http://play.google.com/store/apps/details?id=' +
+          packageName,
+      subject: shareTitle,
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF7F2F5),
       appBar: AppBar(
-        title: Text(widget.liveStreams!.title!),
+        title: Text(
+          t.livestreams,
+          style: const TextStyle(fontWeight: FontWeight.w800),
+        ),
       ),
-      body: Stack(
-        children: <Widget>[
-          _buildWidgetAlbumCoverBlur(),
-          Container(
-            height: double.infinity,
-            width: double.infinity,
-            decoration: BoxDecoration(
-                gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Colors.transparent,
-                Colors.black.withOpacity(0.3),
-                Colors.black.withOpacity(0.5)
-              ],
-            )),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.only(bottom: 18),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            buildVideoContainer(currentMedia!),
+            _buildMetaSection(),
+            if ((currentMedia?.description ?? '').trim().isNotEmpty)
+              Container(
+                margin: const EdgeInsets.fromLTRB(14, 12, 14, 6),
+                padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: const Color(0xFFE8DDE4)),
+                ),
+                child: Text(
+                  currentMedia!.description!,
+                  style: const TextStyle(
+                    color: Color(0xFF6F616A),
+                    fontSize: 14,
+                    height: 1.45,
+                  ),
+                ),
+              ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 12, 14, 8),
+              child: Text(
+                'Up Next',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey[900],
+                ),
+              ),
+            ),
+            if (loadingUpNext)
+              const Center(child: CupertinoActivityIndicator())
+            else if (upNext.isEmpty)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(14, 0, 14, 0),
+                child: InkWell(
+                  onTap: () {
+                    Navigator.of(context).pushNamed(LivestreamsScreen.routeName);
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFFE8DDE4)),
+                    ),
+                    child: const Text(
+                      'No more streamed videos available right now. Tap to view all streams.',
+                      style: TextStyle(color: Color(0xFF7A6B75)),
+                    ),
+                  ),
+                ),
+              )
+            else
+              ListView.separated(
+                itemCount: upNext.length,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                padding: const EdgeInsets.fromLTRB(14, 0, 14, 0),
+                separatorBuilder: (_, __) => const SizedBox(height: 10),
+                itemBuilder: (context, index) {
+                  final live = upNext[index];
+                  return InkWell(
+                    borderRadius: BorderRadius.circular(12),
+                    onTap: () {
+                      setState(() {
+                        currentMedia = live;
+                        upNext = upNext.where((e) => e.id != live.id).toList();
+                      });
+                      _loadUpNext();
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: const Color(0xFFE8DDE4)),
+                      ),
+                      child: Row(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: SizedBox(
+                              width: 120,
+                              height: 68,
+                              child: CachedNetworkImage(
+                                imageUrl: live.coverphoto ?? '',
+                                fit: BoxFit.cover,
+                                placeholder: (_, __) => const Center(
+                                  child: CupertinoActivityIndicator(),
+                                ),
+                                errorWidget: (_, __, ___) => const Icon(
+                                  Icons.live_tv_rounded,
+                                  color: Color(0xFF8A7D86),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              live.title ?? '',
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: Color(0xFF23141D),
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                                height: 1.35,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMetaSection() {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.fromLTRB(14, 10, 14, 0),
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFE8DDE4)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            currentMedia?.title ?? '',
+            style: const TextStyle(
+              color: Color(0xFF23141D),
+              fontSize: 22,
+              fontWeight: FontWeight.w500,
+              height: 1.35,
+            ),
           ),
-          Column(
-            children: <Widget>[
-              Expanded(
-                child: buildVideoContainer(currentMedia!),
+          const SizedBox(height: 10),
+          Row(
+            children: const [
+              Text(
+                'Streamed video',
+                style: TextStyle(
+                  color: Color(0xFF7A6B75),
+                  fontSize: 14,
+                ),
+              ),
+              Spacer(),
+              Icon(
+                Icons.keyboard_arrow_down_rounded,
+                color: Color(0xFF7A6B75),
               ),
             ],
           ),
+          const SizedBox(height: 10),
+          const Divider(height: 1, color: Color(0xFFEDE4EA)),
+          const SizedBox(height: 6),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              IconButton(
+                onPressed: () {
+                  Navigator.of(context).pushNamed(LivestreamsScreen.routeName);
+                },
+                icon: const Icon(
+                  LineAwesomeIcons.list,
+                  size: 24,
+                  color: Colors.black87,
+                ),
+              ),
+              IconButton(
+                onPressed: _shareCurrentStream,
+                icon: const Icon(
+                  LineAwesomeIcons.share,
+                  size: 24,
+                  color: Colors.black87,
+                ),
+              ),
+            ],
+          )
         ],
       ),
     );

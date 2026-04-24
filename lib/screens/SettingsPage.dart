@@ -47,6 +47,10 @@ class _SettingsPageState extends State<SettingsPage> {
         // then parse the JSON.
         print(response.data);
         dynamic res = jsonDecode(response.data);
+        if (res == null || res['user'] == null) {
+          print('[SettingsPage] No user settings payload found: ${response.data}');
+          return;
+        }
         setState(() {
           phoneSwitch = int.parse(res['user']['show_phone'].toString()) == 0;
           dobSwitch =
@@ -70,9 +74,9 @@ class _SettingsPageState extends State<SettingsPage> {
   Future<void> updateUserSettings(Userdata userdata) async {
     Alerts.showProgressDialog(context, t.processingpleasewait);
     try {
-      final response = await Utility.getDio().post(
-        ApiUrl.updateUserSettings,
-        data: jsonEncode({
+        final response = await Utility.getDio().post(
+          ApiUrl.updateUserSettings,
+          data: jsonEncode({
           "data": {
             "email": userdata.email,
             "show_dateofbirth": dobSwitch ? 0 : 1,
@@ -204,6 +208,9 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     appManager = Provider.of<AppStateManager>(context);
     userdata = appManager.userdata;
+    final String youVersionLabel = t.youversionbible.trim().isEmpty
+        ? 'Use Youversion Bible Reader'
+        : t.youversionbible;
     return Scaffold(
       appBar: AppBar(
         title: Text(t.appsettings),
@@ -339,14 +346,15 @@ class _SettingsPageState extends State<SettingsPage> {
                         style: TextStyles.subhead(context)
                             .copyWith(fontWeight: FontWeight.bold)),
                     Spacer(),
-                    Container(
+                    SizedBox(
+                      width: 120,
                       height: 35,
                       child: ElevatedButton(
                         child: Text(
                           t.update,
                           style: TextStyle(color: Colors.white),
                         ),
-                        style: TextButton.styleFrom(
+                        style: ElevatedButton.styleFrom(
                           backgroundColor: MyColors.mainC0lor,
                           shape: RoundedRectangleBorder(
                               borderRadius: new BorderRadius.circular(10)),
@@ -369,7 +377,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 child: Column(children: [
                   SwitchListTile(
-                    activeColor: Colors.purple,
+                      activeThumbColor: Colors.purple,
                     value: phoneSwitch,
                     title: Text(
                       t.phonenumber,
@@ -384,7 +392,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                   _buildDivider(),
                   SwitchListTile(
-                    activeColor: Colors.purple,
+                      activeThumbColor: Colors.purple,
                     value: dobSwitch,
                     title: Text(
                       t.dateofbirth,
@@ -399,7 +407,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                   _buildDivider(),
                   /*SwitchListTile(
-                    activeColor: Colors.purple,
+                      activeThumbColor: Colors.purple,
                     value: followSwitch,
                     title: Text(t.notifywhenuserfollowsme),
                     onChanged: (value) {
@@ -410,7 +418,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                   _buildDivider(),*/
                   SwitchListTile(
-                    activeColor: Colors.purple,
+                      activeThumbColor: Colors.purple,
                     value: commentSwitch,
                     title: Text(
                       t.notifymewhenusercommentsonmypost,
@@ -423,7 +431,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                   _buildDivider(),
                   SwitchListTile(
-                    activeColor: Colors.purple,
+                      activeThumbColor: Colors.purple,
                     value: likeSwitch,
                     title: Text(
                       t.notifymewhenuserlikesmypost,
@@ -442,22 +450,172 @@ class _SettingsPageState extends State<SettingsPage> {
               t.appsettings,
               style: headerStyle,
             ),
-            Card(
+            Container(
               margin: const EdgeInsets.symmetric(
                 vertical: 8.0,
                 horizontal: 0,
               ),
-              child: Column(
-                children: <Widget>[
-                  SwitchListTile(
-                    activeColor: Colors.purple,
-                    value: appManager.youversionbible,
-                    title: Text(t.youversionbible),
-                    onChanged: (val) {
-                      appManager.setYouVersionBiblePreference(val);
-                    },
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFFBFD),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: const Color(0xFFEADAE3)),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x1A8F3E88),
+                    blurRadius: 18,
+                    offset: Offset(0, 8),
                   ),
-                  _buildDivider(),
+                ],
+              ),
+              child: Column(
+                children: [
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
+                    decoration: const BoxDecoration(
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(20),
+                      ),
+                      gradient: LinearGradient(
+                        colors: [Color(0xFFF9EEF5), Color(0xFFFDF7FA)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 42,
+                          height: 42,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: const Color(0xFFEBD8E5)),
+                          ),
+                          child: Icon(
+                            LineAwesomeIcons.cog,
+                            size: 22,
+                            color: MyColors.mainC0lor,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        const Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'App Experience',
+                                style: TextStyle(
+                                  color: Color(0xFF23141D),
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                              SizedBox(height: 2),
+                              Text(
+                                'Customize how scripture opens in the app.',
+                                style: TextStyle(
+                                  color: Color(0xFF7A6B75),
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 5,
+                          ),
+                          decoration: BoxDecoration(
+                            color: appManager.youversionbible
+                                ? const Color(0xFFE7F7EF)
+                                : const Color(0xFFF3EAF0),
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                          child: Text(
+                            appManager.youversionbible ? 'Enabled' : 'Disabled',
+                            style: TextStyle(
+                              color: appManager.youversionbible
+                                  ? const Color(0xFF167C4A)
+                                  : const Color(0xFF7A6B75),
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Divider(height: 1, thickness: 1, color: Color(0xFFF1E6EC)),
+                  Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: const BorderRadius.vertical(
+                        bottom: Radius.circular(20),
+                      ),
+                      onTap: () {
+                        appManager.setYouVersionBiblePreference(
+                          !appManager.youversionbible,
+                        );
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 12, 12, 12),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 42,
+                              height: 42,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF1E7F7),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Icon(
+                                LineAwesomeIcons.bible,
+                                color: Color(0xFF8F3E88),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    youVersionLabel,
+                                    style: const TextStyle(
+                                      color: Color(0xFF23141D),
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 15,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  const Text(
+                                    'Launch verses in YouVersion for a smoother reading flow.',
+                                    style: TextStyle(
+                                      color: Color(0xFF7A6B75),
+                                      fontSize: 13,
+                                      height: 1.35,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Transform.scale(
+                              scale: 0.95,
+                              child: Switch.adaptive(
+                                value: appManager.youversionbible,
+                                activeTrackColor: MyColors.mainC0lor,
+                                onChanged: (val) {
+                                  appManager.setYouVersionBiblePreference(val);
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -474,7 +632,7 @@ class _SettingsPageState extends State<SettingsPage> {
               child: Column(
                 children: <Widget>[
                   SwitchListTile(
-                    activeColor: Colors.purple,
+                      activeThumbColor: Colors.purple,
                     value: appManager.inboxnotifications,
                     title: Text(t.recieveinbox),
                     onChanged: (val) {
@@ -572,7 +730,11 @@ class _SettingsPageState extends State<SettingsPage> {
                       onTap: () {
                         final website = Provider.of<DashboardModel>(context).data['website'];
                         if (website != null) {
-                          Utility.openBrowserTab(website.toString());
+                          Utility.openBrowserTab(
+                            website.toString(),
+                            context: context,
+                            title: t.website,
+                          );
                         }
                       },
                     ),
@@ -583,7 +745,11 @@ class _SettingsPageState extends State<SettingsPage> {
                     title: Text(t.terms),
                     trailing: Icon(Icons.navigate_next),
                     onTap: () {
-                      Utility.openBrowserTab(ApiUrl.TERMS);
+                      Utility.openBrowserTab(
+                        ApiUrl.TERMS,
+                        context: context,
+                        title: t.terms,
+                      );
                     },
                   ),
                   _buildDivider(),
@@ -594,7 +760,11 @@ class _SettingsPageState extends State<SettingsPage> {
                     title: Text(t.privacy),
                     trailing: Icon(Icons.navigate_next),
                     onTap: () {
-                      Utility.openBrowserTab(ApiUrl.PRIVACY);
+                      Utility.openBrowserTab(
+                        ApiUrl.PRIVACY,
+                        context: context,
+                        title: t.privacy,
+                      );
                     },
                   ),
                   _buildDivider(),
@@ -605,7 +775,11 @@ class _SettingsPageState extends State<SettingsPage> {
                     title: Text(t.about),
                     trailing: Icon(Icons.navigate_next),
                     onTap: () {
-                      Utility.openBrowserTab(ApiUrl.ABOUT);
+                      Utility.openBrowserTab(
+                        ApiUrl.ABOUT,
+                        context: context,
+                        title: t.about,
+                      );
                     },
                   ),
                   _buildDivider(),
@@ -616,7 +790,11 @@ class _SettingsPageState extends State<SettingsPage> {
                     title: Text(t.rateapp),
                     trailing: Icon(Icons.navigate_next),
                     onTap: () async {
-                      Utility.openBrowserTab("https://play.google.com/store/apps/details?id=org.mfmlekki.app");
+                      Utility.openBrowserTab(
+                        "https://play.google.com/store/apps/details?id=org.mfmlekki.app",
+                        context: context,
+                        title: t.rateapp,
+                      );
                     },
                   ),
                 ],

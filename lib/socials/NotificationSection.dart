@@ -123,7 +123,7 @@ class NotificationSectionRouteState extends State<NotificationSection>
     } catch (exception) {
       // I get no exception here
       print(exception);
-      if (exception is DioError) {
+      if (exception is DioException) {
         print(exception.stackTrace);
         print(exception.error);
         print(exception.message);
@@ -187,21 +187,29 @@ class NotificationSectionRouteState extends State<NotificationSection>
     super.build(context);
     userdata = Provider.of<AppStateManager>(context).userdata;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF7F2F5),
       appBar: AppBar(
-        title: Text(t.notifications),
+        elevation: 0,
+        backgroundColor: const Color(0xFFF7F2F5),
+        title: Text(
+          t.notifications,
+          style: const TextStyle(
+            color: Color(0xFF23141D),
+            fontWeight: FontWeight.w700,
+          ),
+        ),
       ),
       body: SmartRefresher(
         enablePullDown: true,
         enablePullUp: true,
-        header: WaterDropHeader(),
+        header: const WaterDropHeader(),
         footer: CustomFooter(
           builder: (BuildContext context, LoadStatus? mode) {
             Widget body;
             if (mode == LoadStatus.idle) {
               body = Text(t.pulluploadmore);
             } else if (mode == LoadStatus.loading) {
-              body = CupertinoActivityIndicator();
+              body = const CupertinoActivityIndicator();
             } else if (mode == LoadStatus.failed) {
               body = Text(t.loadfailedretry);
             } else if (mode == LoadStatus.canLoading) {
@@ -227,16 +235,16 @@ class NotificationSectionRouteState extends State<NotificationSection>
                     separatorBuilder: (BuildContext context, int index) {
                       return Align(
                         alignment: Alignment.centerRight,
-                        child: Container(
+                        child: SizedBox(
                           height: 0.5,
                           width: MediaQuery.of(context).size.width / 1.3,
-                          child: Divider(),
+                          child: const Divider(),
                         ),
                       );
                     },
                     itemCount: items!.length,
                     scrollDirection: Axis.vertical,
-                    padding: EdgeInsets.all(3),
+                    padding: const EdgeInsets.fromLTRB(8, 6, 8, 12),
                     itemBuilder: (BuildContext context, int index) {
                       // print(items[index].coverPhoto);
                       Notifications notification = items![index];
@@ -282,8 +290,14 @@ class _NotificationsListState extends State<NotificationsList> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10.0),
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 4),
+      padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFECE1E8)),
+      ),
       child: ListTile(
         onTap: () async {
           if (widget.object.type == "follow") return;
@@ -294,38 +308,36 @@ class _NotificationsListState extends State<NotificationsList> {
           );
         },
         leading: Card(
-          margin: EdgeInsets.all(0),
+          margin: EdgeInsets.zero,
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(80),
           ),
           clipBehavior: Clip.antiAliasWithSaveLayer,
-          child: Container(
+          child: SizedBox(
             height: 50,
             width: 50,
             child: CachedNetworkImage(
-              imageUrl: widget.object.avatar!,
+              imageUrl: widget.object.avatar ?? '',
               imageBuilder: (context, imageProvider) => Container(
                 decoration: BoxDecoration(
                   image: DecorationImage(
                       image: imageProvider,
-                      fit: BoxFit.cover,
-                      colorFilter:
-                          ColorFilter.mode(Colors.black12, BlendMode.darken)),
+                      fit: BoxFit.cover),
                 ),
               ),
               placeholder: (context, url) =>
-                  Center(child: CupertinoActivityIndicator()),
+                  const Center(child: CupertinoActivityIndicator()),
               errorWidget: (context, url, error) => Center(
                 child: Icon(
-                  Icons.error,
-                  color: Colors.grey,
+                  Icons.person,
+                  color: Colors.grey[500],
                 ),
               ),
             ),
           ),
         ),
-        contentPadding: EdgeInsets.all(5),
+        contentPadding: const EdgeInsets.all(5),
         title: getUserName(
             context,
             new Userdata(
@@ -339,7 +351,7 @@ class _NotificationsListState extends State<NotificationsList> {
             child: Text(
               widget.object.message!,
               textAlign: TextAlign.start,
-              style: TextStyle(fontSize: 15),
+              style: const TextStyle(fontSize: 14, color: Color(0xFF53404B)),
             ),
           ),
           Align(
@@ -347,11 +359,11 @@ class _NotificationsListState extends State<NotificationsList> {
             child: Text(
               TimUtil.timeAgoSinceDate(widget.object.timestamp!),
               textAlign: TextAlign.start,
-              style: TextStyle(fontSize: 15),
+              style: const TextStyle(fontSize: 12, color: Color(0xFF8A7D86)),
             ),
           ),
           widget.object.type == "follow"
-              ? Container()
+              ? const SizedBox.shrink()
               : InkWell(
                   onTap: () async {
                     await Navigator.pushNamed(
@@ -363,9 +375,12 @@ class _NotificationsListState extends State<NotificationsList> {
                   },
                   child: Row(
                     children: [
-                      Spacer(),
-                      Text(t.viewpost),
-                      Icon(Icons.navigate_next)
+                      const Spacer(),
+                      Text(
+                        t.viewpost,
+                        style: const TextStyle(color: Color(0xFF563349)),
+                      ),
+                      const Icon(Icons.navigate_next, color: Color(0xFF563349))
                     ],
                   ),
                 )
@@ -395,35 +410,33 @@ class InboxTile extends StatelessWidget {
             ));
       },
       child: RoundedContainer(
-        padding: const EdgeInsets.all(5),
-        margin: EdgeInsets.only(left: 4, right: 4),
+        padding: const EdgeInsets.all(8),
+        margin: const EdgeInsets.only(left: 4, right: 4),
         height: 100,
         child: Row(
           children: <Widget>[
-            CircleAvatar(
-              child: Icon(Icons.notifications),
+            const CircleAvatar(
+              backgroundColor: Color(0xFFF2E6EC),
+              child: Icon(Icons.notifications, color: Color(0xFF563349)),
             ),
             Flexible(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: Column(
                   children: <Widget>[
-                    Container(
-                      //color: Colors.blue,
+                    SizedBox(
                       height: 40,
                       width: double.infinity,
                       child: Row(
                         children: <Widget>[
-                          Spacer(),
+                          const Spacer(),
                           Text(
                             TimUtil.timeAgoSinceDate(object.date!),
                             style: TextStyles.caption(context)
                                 .copyWith(fontSize: 12)
                                 .copyWith(color: Colors.grey),
                           ),
-                          Container(
-                            width: 12,
-                          ),
+                          const SizedBox(width: 12),
                         ],
                       ),
                     ),
@@ -437,9 +450,7 @@ class InboxTile extends StatelessWidget {
                             fontWeight: FontWeight.w500, fontSize: 16),
                       ),
                     ),
-                    Container(
-                      height: 6,
-                    ),
+                    const SizedBox(height: 6),
                   ],
                 ),
               ),

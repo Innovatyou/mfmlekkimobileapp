@@ -7,7 +7,6 @@ import 'package:higherground/providers/TestimonyScreensModel.dart';
 import 'package:higherground/screens/AuthPage.dart';
 import 'package:higherground/screens/PostTestimonyScreen.dart';
 import 'package:higherground/screens/TestimonyViewer.dart';
-import 'package:higherground/utils/my_colors.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/cupertino.dart';
@@ -31,12 +30,21 @@ class TestimoniessScreennRouteState extends State<TestimoniessScreen> {
     return ChangeNotifierProvider(
       create: (context) => TestimonyScreensModel(),
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFFF7F2F5),
         appBar: AppBar(
-          title: Text(t.testimonies),
+          elevation: 0,
+          backgroundColor: const Color(0xFFF7F2F5),
+          surfaceTintColor: Colors.transparent,
+          title: Text(
+            t.testimonies,
+            style: const TextStyle(
+              fontWeight: FontWeight.w800,
+              color: Color(0xFF23141D),
+            ),
+          ),
         ),
         body: Padding(
-          padding: EdgeInsets.only(top: 12),
+          padding: const EdgeInsets.only(top: 8),
           child: AudioScreenBody(),
         ),
         floatingActionButton: (dashboardModel.data['post_testimony'] as bool)
@@ -51,8 +59,8 @@ class TestimoniessScreennRouteState extends State<TestimoniessScreen> {
                         .pushNamed(PostTestimonyScreen.routeName);
                   }
                 },
-                child: const Icon(Icons.add),
-                backgroundColor: MyColors.mainC0lor,
+                child: const Icon(Icons.add, color: Colors.white),
+                backgroundColor: const Color(0xFF7A3F60),
               )
             : null,
       ),
@@ -98,7 +106,7 @@ class MediaScreenRouteState extends State<AudioScreenBody> {
     return SmartRefresher(
       enablePullDown: true,
       enablePullUp: true,
-      header: WaterDropHeader(),
+      header: const WaterDropHeader(waterDropColor: Color(0xFF8E5972)),
       footer: CustomFooter(
         builder: (BuildContext context, LoadStatus? mode) {
           Widget body;
@@ -128,28 +136,36 @@ class MediaScreenRouteState extends State<AudioScreenBody> {
           : ListView.separated(
               itemCount: items!.length,
               scrollDirection: Axis.vertical,
-              padding: EdgeInsets.all(3),
+              padding: const EdgeInsets.fromLTRB(12, 6, 12, 12),
               separatorBuilder: (context, index) {
-                return Divider();
+                return const SizedBox(height: 8);
               },
               itemBuilder: (BuildContext context, int index) {
-                Testimony testimony = items![index];
-                return ListTile(
+                final testimony = items![index];
+                return Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: const Color(0xFFE8DDE4)),
+                  ),
+                  child: ListTile(
+                    contentPadding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   onTap: () {
                     Navigator.pushNamed(context, TestimonyViewer.routeName,
                         arguments: testimony);
                   },
                   leading: ClipOval(
                       child: Container(
-                    color:
-                        Theme.of(context).colorScheme.secondary.withAlpha(30),
+                    color: const Color(0xFFF5EAF1),
                     width: 50.0,
                     height: 50.0,
                     child: IconButton(
-                      padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
+                      padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                       onPressed: () {},
-                      icon: Icon(
+                      icon: const Icon(
                         LineAwesomeIcons.quote_left,
+                        color: Color(0xFF8F3E88),
                       ),
                     ),
                   )),
@@ -158,9 +174,12 @@ class MediaScreenRouteState extends State<AudioScreenBody> {
                     maxLines: 2,
                     style: titleTextStyle,
                   ),
-                  subtitle:
-                      Text(testimony.date! + " | " + testimony.testifier!),
-                  trailing: Icon(Icons.navigate_next_rounded),
+                  subtitle: Text(
+                    testimony.date! + " | " + testimony.testifier!,
+                    style: const TextStyle(color: Color(0xFF7A6B75)),
+                  ),
+                  trailing: const Icon(Icons.navigate_next_rounded),
+                  ),
                 );
               },
             ),

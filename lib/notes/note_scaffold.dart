@@ -71,26 +71,35 @@ class _DemoScaffoldState extends State<NoteScaffold> {
   Widget build(BuildContext context) {
     final actions = widget.actions ?? <Widget>[];
     return Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFFF7F2F5),
         key: _scaffoldKey,
         appBar: AppBar(
-          elevation: 0.3,
+          elevation: 0,
+          backgroundColor: const Color(0xFFF7F2F5),
+          surfaceTintColor: Colors.transparent,
           titleSpacing: 0,
+          iconTheme: const IconThemeData(color: Color(0xFF2A1720)),
           leading: IconButton(
-            icon: Icon(
+            icon: const Icon(
               Icons.keyboard_backspace_rounded,
             ),
             onPressed: () => Navigator.pop(context),
           ),
-          title: Text(t.notes),
+          title: Text(
+            t.notes,
+            style: const TextStyle(
+              color: Color(0xFF2A1720),
+              fontWeight: FontWeight.w800,
+            ),
+          ),
           actions: actions,
         ),
         floatingActionButton: widget.floatingActionButton,
         body: Column(
           children: [
             _loading || widget.showToolbar == false
-              ? Container()
-              : Container(),
+                ? Container()
+                : Container(),
             Expanded(
               child: _loading
                   ? const Center(child: Text('Loading...'))

@@ -77,7 +77,6 @@ import 'package:higherground/screens/TestimonyViewer.dart';
 import 'package:higherground/screens/UpdateProfile.dart';
 import 'package:higherground/screens/UserProfile.dart';
 import 'package:higherground/screens/VideoScreen.dart';
-import 'package:higherground/screens/ZoomLiveServiceScreen.dart';
 import 'package:higherground/socials/FollowPeople.dart';
 import 'package:higherground/socials/FollowPeopleSection.dart';
 import 'package:higherground/socials/MakePostScreen.dart';
@@ -763,14 +762,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
               return MaterialPageRoute(
                 builder: (context) {
                   return LivestreamsScreen();
-                },
-              );
-            }
-
-            if (settings.name == ZoomLiveServiceScreen.routeName) {
-              return MaterialPageRoute(
-                builder: (context) {
-                  return ZoomLiveServiceScreen();
                 },
               );
             }

@@ -261,56 +261,64 @@ class _UserPostTileState extends State<UserPostTile> {
 
   @override
   Widget build(BuildContext context) {
-    print(widget.object.media);
-    return Card(
-      elevation: 2,
-      margin: EdgeInsets.only(left: 10, right: 10, bottom: 10),
-      //clipBehavior: Clip.antiAliasWithSaveLayer,
+    return Container(
+      margin: const EdgeInsets.only(left: 12, right: 12, bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: const Color(0xFFECE1E8)),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x12000000),
+            blurRadius: 18,
+            offset: Offset(0, 8),
+          ),
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Container(
-            padding: EdgeInsets.fromLTRB(0, 15, 0, 0),
+            padding: const EdgeInsets.fromLTRB(0, 15, 0, 0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
                   child: Row(
                     children: <Widget>[
                       Card(
-                        margin: EdgeInsets.all(0),
+                        margin: EdgeInsets.zero,
                         elevation: 0,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(80),
                         ),
                         clipBehavior: Clip.antiAliasWithSaveLayer,
-                        child: Container(
+                        child: SizedBox(
                           height: 40,
                           width: 40,
                           child: CachedNetworkImage(
-                            imageUrl: widget.object.avatar!,
+                            imageUrl: widget.object.avatar ?? '',
                             imageBuilder: (context, imageProvider) => Container(
                               decoration: BoxDecoration(
                                 image: DecorationImage(
                                     image: imageProvider,
-                                    fit: BoxFit.cover,
-                                    colorFilter: ColorFilter.mode(
-                                        Colors.black12, BlendMode.darken)),
+                                    fit: BoxFit.cover),
                               ),
                             ),
                             placeholder: (context, url) =>
-                                Center(child: CupertinoActivityIndicator()),
+                                const Center(child: CupertinoActivityIndicator()),
                             errorWidget: (context, url, error) => Center(
                               child: Icon(
-                                Icons.error,
-                                color: Colors.grey,
+                                Icons.person,
+                                color: Colors.grey[500],
                               ),
                             ),
                           ),
                         ),
                       ),
-                      Container(width: 15),
+                      const SizedBox(width: 12),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
@@ -321,31 +329,31 @@ class _UserPostTileState extends State<UserPostTile> {
                                   name: widget.object.name,
                                   photo: widget.object.avatar,
                                   coverphoto: widget.object.coverPhoto)),
-                          Container(height: 0),
+                          const SizedBox(height: 2),
                           Text(
                             TimUtil.timeAgo(widget.object.timestamp!),
-                            style: TextStyle(fontSize: 14),
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Color(0xFF8A7D86),
+                            ),
                           ),
                         ],
                       ),
-                      Spacer(),
+                      const Spacer(),
                       (widget.userdata != null &&
                               widget.object.email == widget.userdata!.email &&
                               !widget.isCommentsSection)
                           ? PostPopupMenu(widget.object, editPost, deletePost)
-                          : Container(
-                              height: 0,
-                              width: 0,
-                            ),
+                          : const SizedBox.shrink(),
                     ],
                   ),
                 ),
-                Container(height: 0),
+                const SizedBox(height: 10),
                 widget.object.media!.length == 0
-                    ? Container()
+                    ? const SizedBox.shrink()
                     : Stack(
                         children: [
-                          Container(
+                          SizedBox(
                             height: 250,
                             child: PageView.builder(
                               onPageChanged: (int index) {
@@ -357,7 +365,6 @@ class _UserPostTileState extends State<UserPostTile> {
                               itemBuilder: (context, position) {
                                 String ext = Utility.getFileExtension(
                                     widget.object.media![position]);
-                                print("extension is = " + ext);
                                 if (ext == "mp4")
                                   return PostVideoPlayer(
                                     videoURL: widget.object.media![position],
@@ -372,11 +379,11 @@ class _UserPostTileState extends State<UserPostTile> {
                             ),
                           ),
                           widget.object.media!.length < 2
-                              ? Container()
+                                ? const SizedBox.shrink()
                               : Positioned(
                                   top: 15,
                                   right: 10,
-                                  child: Container(
+                                  child: SizedBox(
                                     height: 30,
                                     width: 60,
                                     child: Card(
@@ -392,12 +399,9 @@ class _UserPostTileState extends State<UserPostTile> {
                                         child: Align(
                                           alignment: Alignment.center,
                                           child: Text(
-                                            currentPage.toString() +
-                                                "/" +
-                                                widget.object.media!.length
-                                                    .toString(),
+                                            '$currentPage/${widget.object.media!.length}',
                                             textAlign: TextAlign.center,
-                                            style: TextStyle(
+                                            style: const TextStyle(
                                                 color: Colors.white,
                                                 fontWeight: FontWeight.bold),
                                           ),
@@ -409,10 +413,10 @@ class _UserPostTileState extends State<UserPostTile> {
                         ],
                       ),
                 widget.object.media!.length < 2
-                    ? Container()
+                    ? const SizedBox.shrink()
                     : Row(
                         children: [
-                          Spacer(),
+                          const Spacer(),
                           Padding(
                             padding: const EdgeInsets.all(15.0),
                             child: SmoothPageIndicator(
@@ -422,22 +426,25 @@ class _UserPostTileState extends State<UserPostTile> {
                                     dotHeight: 6,
                                     dotWidth: 6,
                                     dotColor: Colors.grey,
-                                    activeDotColor: MyColors
-                                        .mainC0lor), // your preferred effect
+                                    activeDotColor: MyColors.mainC0lor),
                                 onDotClicked: (index) {}),
                           ),
-                          Spacer(),
+                          const Spacer(),
                         ],
                       ),
                 widget.object.content == ""
-                    ? Container()
-                    : Container(
-                        padding: EdgeInsets.all(12),
+                    ? const SizedBox.shrink()
+                    : Padding(
+                        padding: const EdgeInsets.fromLTRB(14, 0, 14, 12),
                         child: ReadMoreText(
                           widget.object.content!,
-                          style: TextStyle(fontSize: 18),
+                          style: const TextStyle(
+                            fontSize: 17,
+                            height: 1.35,
+                            color: Color(0xFF2B1A24),
+                          ),
                           trimLines: 5,
-                          colorClickableText: Colors.pink,
+                          colorClickableText: MyColors.mainC0lor,
                           trimMode: TrimMode.Line,
                           trimCollapsedText: t.readmore,
                           trimExpandedText: t.less,
@@ -450,12 +457,11 @@ class _UserPostTileState extends State<UserPostTile> {
             height: 55,
             child: Row(
               children: <Widget>[
-                Container(width: 12),
+                const SizedBox(width: 14),
                 InkWell(
                   onTap: () {
                     if (widget.userdata == null) {
-                      Alerts.showToast(
-                          context, t.logintolikeapost);
+                      Alerts.showToast(context, t.logintolikeapost);
                       return;
                     }
                     likeposts();
@@ -463,14 +469,12 @@ class _UserPostTileState extends State<UserPostTile> {
                   child: Icon(
                     LineAwesomeIcons.thumbs_up,
                     size: 28,
-                    color: isLiked! ? Colors.pink : Colors.black,
+                    color: isLiked! ? MyColors.mainC0lor : const Color(0xFF2E1D27),
                   ),
                 ),
-                Container(
-                  width: 2,
-                ),
+                const SizedBox(width: 4),
                 likesCount == 0
-                    ? Container()
+                    ? const SizedBox.shrink()
                     : InkWell(
                         onTap: () {
                           Navigator.pushNamed(
@@ -479,11 +483,15 @@ class _UserPostTileState extends State<UserPostTile> {
                                 items: widget.object,
                               ));
                         },
-                        child: Text(likesCount.toString() + t.likess,
-                            style: TextStyle(
-                                fontWeight: FontWeight.w500, fontSize: 15)),
+                        child: Text(
+                          '${likesCount.toString()}${t.likess}',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 14,
+                          ),
+                        ),
                       ),
-                Container(width: 15),
+                const SizedBox(width: 15),
                 InkWell(
                   onTap: () async {
                     if (!widget.isCommentsSection) {
@@ -505,18 +513,17 @@ class _UserPostTileState extends State<UserPostTile> {
                   child: Icon(LineAwesomeIcons.comment, size: 26),
                 ),
                 commentsCount == 0
-                    ? Container()
+                    ? const SizedBox.shrink()
                     : Text(commentsCount.toString(),
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontWeight: FontWeight.w500,
-                          fontSize: 15,
+                          fontSize: 14,
                         )),
-                Spacer(),
+                const Spacer(),
                 InkWell(
                   onTap: () {
                     if (widget.userdata == null) {
-                      Alerts.showToast(
-                          context, t.logintopinapost);
+                      Alerts.showToast(context, t.logintopinapost);
                       return;
                     }
                     pinpost();
@@ -524,14 +531,14 @@ class _UserPostTileState extends State<UserPostTile> {
                   child: Image.asset(
                     Img.get("pins.png"),
                     height: 26,
-                    color: isPinned! ? Colors.pink : Colors.black,
+                    color: isPinned! ? MyColors.mainC0lor : const Color(0xFF2E1D27),
                   ),
                 ),
-                Container(width: 15),
+                const SizedBox(width: 14),
               ],
             ),
           ),
-          Container(height: 15),
+          const SizedBox(height: 8),
         ],
       ),
     );

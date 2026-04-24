@@ -1,237 +1,277 @@
-import 'package:higherground/utils/Utility.dart';
-import 'package:higherground/utils/ApiUrl.dart';
-import 'package:higherground/utils/Alerts.dart';
-import 'package:higherground/models/Userdata.dart';
-import 'dart:convert';
 import 'package:dio/dio.dart';
-import 'package:provider/provider.dart';
-import 'package:higherground/providers/AppStateManager.dart';
 import 'package:flutter/material.dart';
 import 'package:higherground/i18n/strings.g.dart';
+import 'package:higherground/models/Userdata.dart';
+import 'package:higherground/providers/AppStateManager.dart';
+import 'package:higherground/utils/Alerts.dart';
+import 'package:higherground/utils/ApiUrl.dart';
+import 'package:higherground/utils/Utility.dart';
+import 'package:provider/provider.dart';
 
 class PostPrayerScreen extends StatefulWidget {
-  static const routeName = "/PostPrayerScreen";
-  PostPrayerScreen();
+  static const routeName = '/PostPrayerScreen';
 
   @override
-  PostPrayerScreenState createState() => new PostPrayerScreenState();
+  PostPrayerScreenState createState() => PostPrayerScreenState();
 }
 
 class PostPrayerScreenState extends State<PostPrayerScreen> {
   Userdata? userdata;
   int? public = 1;
-  TextStyle textStyle = TextStyle(height: 1.4, fontSize: 16);
-  TextStyle labelStyle = TextStyle();
-  UnderlineInputBorder lineStyle1 = UnderlineInputBorder(
-      borderSide: BorderSide(color: Colors.grey[800]!, width: 1));
-  UnderlineInputBorder lineStyle2 = UnderlineInputBorder(
-      borderSide: BorderSide(color: Colors.grey[800]!, width: 2));
 
-  TextEditingController titleController = TextEditingController();
-  TextEditingController requesterController = TextEditingController();
-  TextEditingController contentController = TextEditingController();
+  final TextEditingController titleController = TextEditingController();
+  final TextEditingController requesterController = TextEditingController();
+  final TextEditingController contentController = TextEditingController();
 
-  validateandsubmit() async {
-    String _title = titleController.text;
-    String _requester = requesterController.text;
-    String _content = contentController.text;
+  Future<void> validateandsubmit() async {
+    final _title = titleController.text;
+    final _requester = requesterController.text;
+    final _content = contentController.text;
 
-    if (_title == "" || _requester == "" || _content == "") {
+    if (_title.isEmpty || _requester.isEmpty || _content.isEmpty) {
       Alerts.show(context, t.error, t.updateprofileerrorhint);
-    } else {
-      Alerts.showProgressDialog(context, t.processingpleasewait);
-      FormData formData = FormData.fromMap({
-        "title": _title,
-        "requester": _requester,
-        "content": _content,
-        "public": public,
-        "email": userdata!.email,
-      });
+      return;
+    }
 
-      try {
-        var response = await Utility.getDio().post(ApiUrl.SUBMIT_PRAYER,
-            data: formData, onSendProgress: (int send, int total) {
+    Alerts.showProgressDialog(context, t.processingpleasewait);
+    final formData = FormData.fromMap({
+      'title': _title,
+      'requester': _requester,
+      'content': _content,
+      'public': public,
+      'email': userdata!.email,
+    });
+
+    try {
+      final response = await Utility.getDio().post(
+        ApiUrl.SUBMIT_PRAYER,
+        data: formData,
+        onSendProgress: (int send, int total) {
           print((send / total) * 100);
-        });
-        Navigator.of(context).pop();
-        print(response.data);
-        Alerts.show(context, t.success, t.successprayerposting);
-        setState(() {
-          titleController.text = "";
-          contentController.text = "";
-        });
-      } on DioError catch (e) {
-        Navigator.of(context).pop();
-        Alerts.show(context, t.error, e.message);
-        if (e.response != null) {
-          print(e.response!.data);
-          print(e.response!.headers);
-          //print(e.response.request);
-        } else {
-          //print(e.request.headers);
-          print(e.message);
-        }
+        },
+      );
+      Navigator.of(context).pop();
+      print(response.data);
+      Alerts.show(context, t.success, t.successprayerposting);
+      setState(() {
+        titleController.text = '';
+        contentController.text = '';
+      });
+    } on DioException catch (e) {
+      Navigator.of(context).pop();
+      Alerts.show(context, t.error, e.message ?? t.error);
+      if (e.response != null) {
+        print(e.response!.data);
+        print(e.response!.headers);
+      } else {
+        print(e.message);
       }
     }
   }
 
   @override
   void initState() {
+    super.initState();
     userdata = Provider.of<AppStateManager>(context, listen: false).userdata;
     if (userdata != null) {
-      requesterController.text =
-          userdata!.firstname! + " " + userdata!.lastname!;
+      requesterController.text = '${userdata!.firstname!} ${userdata!.lastname!}';
     }
-    super.initState();
+  }
+
+  @override
+  void dispose() {
+    titleController.dispose();
+    requesterController.dispose();
+    contentController.dispose();
+    super.dispose();
+  }
+
+  InputDecoration _fieldDecoration({
+    required String label,
+    required IconData icon,
+  }) {
+    return InputDecoration(
+      labelText: label,
+      prefixIcon: Icon(icon, color: const Color(0xFF7A5D6E)),
+      filled: true,
+      fillColor: const Color(0xFFF8F2F6),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide.none,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide(color: const Color(0xFFE9DFE5)),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: Color(0xFF8A5A75), width: 1.5),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final isGuest =
+        Provider.of<AppStateManager>(context, listen: false).userdata == null;
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF7F1F5),
       appBar: AppBar(
-          elevation: 1,
-          //backgroundColor: MyColors.primary,
-          title: Text(t.Prayerrequests),
-          leading:
-              (Provider.of<AppStateManager>(context, listen: false).userdata ==
-                      null)
-                  ? Container()
-                  : IconButton(
-                      icon: Icon(Icons.arrow_back),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                    ),
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(
-                Icons.done_all,
-                size: 30,
-                color: Colors.white,
+        elevation: 0,
+        backgroundColor: const Color(0xFFF7F1F5),
+        surfaceTintColor: Colors.transparent,
+        title: Text(
+          t.Prayerrequests,
+          style: const TextStyle(
+            color: Color(0xFF261621),
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        iconTheme: const IconThemeData(color: Color(0xFF261621)),
+        leading: isGuest
+            ? const SizedBox.shrink()
+            : IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
               ),
-              onPressed: () {
-                validateandsubmit();
-              },
-            ),
-          ]),
-      body: SingleChildScrollView(
-          scrollDirection: Axis.vertical,
-          child: Column(
-            children: <Widget>[
-              Container(
-                padding: EdgeInsets.all(15),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    TextField(
-                      style: textStyle,
-                      controller: requesterController,
-                      keyboardType: TextInputType.text,
-                      cursorColor: Colors.pink[800],
-                      decoration: InputDecoration(
-                        icon: Container(
-                            child: Icon(Icons.person),
-                            margin: EdgeInsets.fromLTRB(0, 15, 0, 0)),
-                        labelText: t.fullname,
-                        labelStyle: labelStyle,
-                        enabledBorder: lineStyle1,
-                        focusedBorder: lineStyle2,
-                      ),
-                    ),
-                    Container(height: 15),
-                    TextField(
-                      style: textStyle,
-                      controller: titleController,
-                      maxLines: 2,
-                      keyboardType: TextInputType.multiline,
-                      cursorColor: Colors.pink[800],
-                      decoration: InputDecoration(
-                        icon: Container(
-                            child: Icon(Icons.title),
-                            margin: EdgeInsets.fromLTRB(0, 15, 0, 0)),
-                        labelText: t.prayertitle,
-                        labelStyle: labelStyle,
-                        enabledBorder: lineStyle1,
-                        focusedBorder: lineStyle2,
-                      ),
-                    ),
-                    Container(height: 10),
-                    TextField(
-                      style: textStyle,
-                      controller: contentController,
-                      keyboardType: TextInputType.multiline,
-                      cursorColor: Colors.pink[800],
-                      maxLines: 10,
-                      decoration: InputDecoration(
-                        icon: Container(
-                            child: Icon(Icons.text_fields_rounded),
-                            margin: EdgeInsets.fromLTRB(0, 15, 0, 0)),
-                        labelText: t.prayercontent,
-                        labelStyle: labelStyle,
-                        enabledBorder: lineStyle1,
-                        focusedBorder: lineStyle2,
-                      ),
-                    ),
-                    Container(height: 20),
-                    Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Text(
-                        "Prayer Visibility",
-                        style: TextStyle(fontSize: 18),
-                      ),
-                    ),
-                    Container(height: 4),
-                    Container(
-                      // height: 50,
-                      width: double.infinity,
-                      child: Wrap(
-                        children: <Widget>[
-                          Container(width: 0),
-                          Container(
-                            width: double.infinity,
-                            height: 70,
-                            child: RadioListTile<int>(
-                              title: Text("Public"),
-                              subtitle: Text("All members can see request"),
-                              value: 0,
-                              groupValue: public,
-                              onChanged: (int? value) {
-                                setState(() {
-                                  public = value;
-                                });
-                              },
-                            ),
-                          ),
-                          Container(width: 0),
-                          Container(
-                            width: double.infinity,
-                            height: 70,
-                            child: RadioListTile<int>(
-                              title: Text("Private"),
-                              subtitle:
-                                  Text("Only you & Pastor can see request"),
-                              value: 1,
-                              groupValue: public,
-                              onChanged: (int? value) {
-                                setState(() {
-                                  public = value;
-                                });
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Container(height: 30),
-                  ],
+        actions: <Widget>[
+          Padding(
+            padding: const EdgeInsets.only(right: 10),
+            child: FilledButton.icon(
+              style: FilledButton.styleFrom(
+                backgroundColor: const Color(0xFF7A3F60),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
                 ),
-              )
-            ],
-          )),
+              ),
+              onPressed: validateandsubmit,
+              icon: const Icon(Icons.send_rounded, size: 18),
+              label: const Text('Submit'),
+            ),
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(14, 8, 14, 24),
+        child: Column(
+          children: <Widget>[
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: const Color(0xFFE9DFE5)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  TextField(
+                    controller: requesterController,
+                    keyboardType: TextInputType.text,
+                    cursorColor: const Color(0xFF8A5A75),
+                    decoration: _fieldDecoration(
+                      label: t.fullname,
+                      icon: Icons.person_outline,
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  TextField(
+                    controller: titleController,
+                    maxLines: 2,
+                    keyboardType: TextInputType.multiline,
+                    cursorColor: const Color(0xFF8A5A75),
+                    decoration: _fieldDecoration(
+                      label: t.prayertitle,
+                      icon: Icons.title,
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  TextField(
+                    controller: contentController,
+                    keyboardType: TextInputType.multiline,
+                    cursorColor: const Color(0xFF8A5A75),
+                    maxLines: 9,
+                    decoration: _fieldDecoration(
+                      label: t.prayercontent,
+                      icon: Icons.edit_note_rounded,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 14),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: const Color(0xFFE9DFE5)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Prayer Visibility',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF261621),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  SegmentedButton<int>(
+                    showSelectedIcon: false,
+                    style: SegmentedButton.styleFrom(
+                      backgroundColor: const Color(0xFFF8F2F6),
+                      foregroundColor: const Color(0xFF5A2E46),
+                      selectedBackgroundColor: const Color(0xFF7A3F60),
+                      selectedForegroundColor: Colors.white,
+                      side: const BorderSide(color: Color(0xFFE9DFE5)),
+                    ),
+                    segments: const [
+                      ButtonSegment<int>(
+                        value: 0,
+                        label: Text('Public'),
+                      ),
+                      ButtonSegment<int>(
+                        value: 1,
+                        label: Text('Private'),
+                      ),
+                    ],
+                    selected: {public ?? 1},
+                    onSelectionChanged: (Set<int> value) {
+                      setState(() {
+                        public = value.first;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF8F2F6),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Text(
+                      public == 0
+                          ? 'All members can see request'
+                          : 'Only you & Pastor can see request',
+                      style: const TextStyle(color: Color(0xFF5E5060)),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
-
-
-

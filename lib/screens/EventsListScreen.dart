@@ -113,8 +113,12 @@ class _EventsListScreenState extends State<EventsListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF7F2F5),
       appBar: AppBar(
-        title: Text(t.events),
+        title: Text(
+          t.events,
+          style: const TextStyle(fontWeight: FontWeight.w800),
+        ),
       ),
       body: isLoading
           ? Center(
@@ -129,10 +133,78 @@ class _EventsListScreenState extends State<EventsListScreen> {
                     loadItems();
                   })
               : SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(14, 12, 14, 20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      TableCalendar(
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(22),
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF7F375E), Color(0xFFA84978)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Color(0x1A000000),
+                              blurRadius: 16,
+                              offset: Offset(0, 8),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 44,
+                              height: 44,
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.16),
+                                borderRadius: BorderRadius.circular(13),
+                              ),
+                              child: const Icon(
+                                Icons.event_available_rounded,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Church Calendar',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w800,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 3),
+                                  Text(
+                                    'Tap any highlighted date to open event details.',
+                                    style: TextStyle(
+                                      color: Colors.white.withValues(alpha: 0.9),
+                                      fontSize: 12.5,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: const Color(0xFFE8DDE4)),
+                        ),
+                        child: TableCalendar(
                         availableCalendarFormats: {
                           CalendarFormat.month: "Month"
                         },
@@ -152,7 +224,7 @@ class _EventsListScreenState extends State<EventsListScreen> {
 
                         calendarStyle: CalendarStyle(
                             //markerDecoration: MyColors.primary,
-                            markerSize: 40,
+                            markerSize: 34,
                             markerMargin: EdgeInsets.only(bottom: 0),
                             markersAnchor: 1.0,
                             markersOffset: PositionedOffset(top: 0, bottom: 0),
@@ -160,23 +232,34 @@ class _EventsListScreenState extends State<EventsListScreen> {
                             canMarkersOverflow: true,
                             markerDecoration: BoxDecoration(
                                 border: Border.all(
-                                  color: Colors.red[500]!,
+                                  color: const Color(0xFFCF4E45),
                                 ),
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(20))),
                             //todayDecoration: Colors.orange,
                             //selectedDecoration: Colors.orange,
+                            defaultTextStyle:
+                              const TextStyle(color: Color(0xFF23141D)),
+                            weekendTextStyle:
+                              const TextStyle(color: Color(0xFF23141D)),
+                            outsideTextStyle:
+                              const TextStyle(color: Color(0xFFB4A8B1)),
                             todayTextStyle: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                fontSize: 18.0,
-                                color: Colors.orange)),
+                              fontSize: 16.0,
+                              color: const Color(0xFFB06B1B))),
                         headerStyle: HeaderStyle(
                           headerMargin: EdgeInsets.all(10),
                           //leftChevronVisible: false,
                           //rightChevronVisible: false,
                           titleCentered: true,
+                          titleTextStyle: const TextStyle(
+                            color: Color(0xFF23141D),
+                            fontWeight: FontWeight.w800,
+                            fontSize: 16,
+                          ),
                           formatButtonDecoration: BoxDecoration(
-                            color: Colors.orange,
+                            color: const Color(0xFF8F3E88),
                             borderRadius: BorderRadius.circular(20.0),
                           ),
                           formatButtonTextStyle: TextStyle(color: Colors.white),
@@ -239,18 +322,23 @@ class _EventsListScreenState extends State<EventsListScreen> {
                                   borderRadius: BorderRadius.circular(10.0)),
                               child: Text(
                                 date.day.toString(),
+                                style: const TextStyle(color: Colors.white),
                               )),
                           todayBuilder: (context, date, events) => Container(
                               margin: const EdgeInsets.all(4.0),
                               alignment: Alignment.center,
                               decoration: BoxDecoration(
-                                  color: Colors.orange,
+                                  color: const Color(0xFFFFD58E),
                                   borderRadius: BorderRadius.circular(10.0)),
                               child: Text(
                                 date.day.toString(),
-                                //style: TextStyle(color: Colors.white),
+                                style: const TextStyle(
+                                  color: Color(0xFF7A4A0D),
+                                  fontWeight: FontWeight.w700,
+                                ),
                               )),
                         ),
+                      ),
                       ),
                       ..._selectedEvents!.map((event) => Padding(
                             padding: const EdgeInsets.all(8.0),
@@ -271,41 +359,57 @@ class _EventsListScreenState extends State<EventsListScreen> {
                               )),
                             ),
                           )),
-                      Container(
-                        height: 50,
+                      const SizedBox(height: 18),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
                         child: Row(
                           children: [
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.fromLTRB(15, 20, 10, 15),
-                                child: Text(
-                                  t.events,
-                                  style: TextStyles.headline(context).copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    fontFamily: "serif",
-                                    fontSize: 15,
-                                  ),
+                            Text(
+                              'Upcoming Events',
+                              style: TextStyles.headline(context).copyWith(
+                                fontWeight: FontWeight.w800,
+                                fontSize: 18,
+                                color: const Color(0xFF23141D),
+                              ),
+                            ),
+                            const Spacer(),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 5),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF3EAF0),
+                                borderRadius: BorderRadius.circular(999),
+                              ),
+                              child: Text(
+                                '${items.length}',
+                                style: const TextStyle(
+                                  color: Color(0xFF7A6B75),
+                                  fontWeight: FontWeight.w700,
                                 ),
                               ),
                             ),
-                            Spacer(),
                           ],
                         ),
                       ),
+                      const SizedBox(height: 8),
                       items.length == 0
-                          ? Align(
-                              alignment: Alignment.centerLeft,
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.fromLTRB(15, 0, 10, 15),
+                          ? Padding(
+                              padding: const EdgeInsets.all(6),
+                              child: Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.all(20),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(18),
+                                  border: Border.all(
+                                      color: const Color(0xFFE8DDE4)),
+                                ),
                                 child: Text(
                                   t.noevents,
-                                  style: TextStyles.headline(context).copyWith(
-                                    // fontWeight: FontWeight.bold,
-                                    // fontFamily: "serif",
-                                    fontSize: 15,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyles.subhead(context).copyWith(
+                                    fontSize: 14,
+                                    color: const Color(0xFF7A6B75),
                                   ),
                                 ),
                               ),
@@ -315,7 +419,7 @@ class _EventsListScreenState extends State<EventsListScreen> {
                               shrinkWrap: true,
                               physics: NeverScrollableScrollPhysics(),
                               scrollDirection: Axis.vertical,
-                              padding: EdgeInsets.all(3),
+                              padding: const EdgeInsets.only(top: 4),
                               itemBuilder: (BuildContext context, int index) {
                                 return ItemTile(
                                   index: index,
@@ -378,8 +482,8 @@ class ItemTile extends StatelessWidget {
 
   const ItemTile({
     Key? key,
-    @required this.index,
-    @required this.events,
+    required this.index,
+    required this.events,
   })  : assert(index != null),
         assert(events != null),
         super(key: key);
@@ -397,55 +501,82 @@ class ItemTile extends StatelessWidget {
             ));
       },
       child: Container(
-        height: 60,
+        margin: const EdgeInsets.only(bottom: 10),
         width: double.infinity,
-        padding: EdgeInsets.fromLTRB(15, 0, 15, 5),
-        child: Column(
-          children: <Widget>[
+        padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFFE8DDE4)),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x12000000),
+              blurRadius: 10,
+              offset: Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 46,
+              height: 46,
+              decoration: BoxDecoration(
+                color: const Color(0xFFF5EAF1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(
+                Icons.event_note_rounded,
+                color: Color(0xFF8F3E88),
+              ),
+            ),
+            const SizedBox(width: 12),
             Expanded(
-              child: Row(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Container(width: 10),
-                  Expanded(
-                    child: Column(
-                      children: <Widget>[
-                        Row(
-                          children: <Widget>[
-                            Text(
-                                DateFormat('EEE, MMM d, yyyy', 'en_US').format(tempDate),
-                                style: TextStyles.caption(context)
-                                //.copyWith(color: MyColors.grey_60),
-                                ),
-                            Spacer(),
-                            Text(events!.time!,
-                                style: TextStyles.caption(context)
-                                //.copyWith(color: MyColors.grey_60),
-                                ),
-                          ],
+                  Row(
+                    children: <Widget>[
+                      Expanded(
+                        child: Text(
+                          DateFormat('EEE, MMM d, yyyy', 'en_US')
+                              .format(tempDate),
+                          style: TextStyles.caption(context).copyWith(
+                            color: const Color(0xFF7A6B75),
+                            fontWeight: FontWeight.w700,
+                            fontSize: 12.5,
+                          ),
                         ),
-                        Spacer(),
-                        Align(
-                          alignment: Alignment.topLeft,
-                          child: Text(events!.title!,
-                              maxLines: 1,
-                              style: TextStyles.subhead(context).copyWith(
-                                  //color: MyColors.grey_80,
-                                  fontWeight: FontWeight.w500)),
+                      ),
+                      Text(
+                        events!.time!,
+                        style: TextStyles.caption(context).copyWith(
+                          color: const Color(0xFF7A6B75),
+                          fontWeight: FontWeight.w700,
+                          fontSize: 12.5,
                         ),
-                        Spacer(),
-                      ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    events!.title!,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyles.subhead(context).copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFF23141D),
                     ),
-                  )
+                  ),
                 ],
               ),
             ),
-            Container(
-              height: 10,
+            const SizedBox(width: 8),
+            const Icon(
+              Icons.arrow_forward_ios_rounded,
+              size: 16,
+              color: Color(0xFF8D8089),
             ),
-            Divider(
-              height: 0.1,
-              //color: Colors.grey.shade800,
-            )
           ],
         ),
       ),

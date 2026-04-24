@@ -11,7 +11,7 @@
   "media":"Media",
   "publications":"Publications",
   "connect":"Connect",
-  "recentsermons":"Recent Sermons",
+  "recentsermons":"Recent Messages",
 
   "donate":"Give Now",
   "donatehint":"God loves a cheerful giver.",
@@ -26,9 +26,9 @@
   "livestreamshint":"Connect to watch our live broadcasts.",
   "video":"Videos",
   "videos":"Video Messages",
-  "videoshint":"Collection of video sermons.",
+  "videoshint":"Collection of video messages.",
   "audios":"Audio Messages",
-  "audioshint":"Collection of audio sermons",
+  "audioshint":"Collection of audio messages",
   "photos":"Photo Gallery",
   "photoshint":"Browse through our church photo collections.",
   "bookmarks":"Bookmarks",
@@ -73,7 +73,7 @@
   "applanguage":"App Language",
   "recieveinbox":"Receive inbox notifications",
   "recieveevents":"Events",
-  "sermonnotification":"Sermons",
+  "sermonnotification":"Messages",
   "articlenotification":"Articles",
   "devotionalnotification":"Devotionals",
   "chooseapplanguage": "Select App Language",
@@ -366,10 +366,10 @@
   "Audio, Video \n and Live Streaming",
   "Create Account"
 ],
-"onboardingpagehints" : [
+  "onboardingpagehints" : [
   "A vibrant worship centre committed to prayer, deliverance, holiness, and raising champions for Christ.",
   "Stay connected with church updates, programmes, and spiritual resources designed to strengthen your walk with God.",
-  "Access sermons, prayer sessions, and live services anytime from anywhere.",
+  "Access messages, prayer sessions, and live services anytime from anywhere.",
   "Start your journey to a never-ending worship experience."
 ], 
 "youneedtologintoreply":"You need to login to add a reply",

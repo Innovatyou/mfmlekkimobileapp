@@ -49,56 +49,69 @@ class HomePageItem extends StatefulWidget {
   _HomePageItemState createState() => _HomePageItemState();
 }
 
+class _HomeTab {
+  const _HomeTab({
+    required this.icon,
+    required this.label,
+    required this.builder,
+  });
+
+  final IconData icon;
+  final String label;
+  final Widget Function() builder;
+}
+
 class _HomePageItemState extends State<HomePageItem>
     with SingleTickerProviderStateMixin {
   late DashboardModel dashmodel;
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   int currentIndex = 0;
-  List<BottomNavigationBarItem> items = [];
+  final List<_HomeTab> tabs = [];
 
-  final iconList = <IconData>[
-    LineAwesomeIcons.home,
-    LineAwesomeIcons.play_circle,
-    LineAwesomeIcons.blog,
-    LineAwesomeIcons.alternate_share,
-    LineAwesomeIcons.teamspeak,
-  ];
-
-  String getTitle() {
-    switch (currentIndex) {
-      case 0:
-        return t.appname;
-      case 1:
-        return t.media;
-      case 2:
-        return t.publications;
-      case 3:
-        return t.connect;
-      case 4:
-        return t.posts;
-      default:
-        return t.appname;
-    }
-  }
+  String get currentTitle => tabs[currentIndex].label;
 
   @override
   void initState() {
     super.initState();
-    DashboardModel dashmodel =
-        Provider.of<DashboardModel>(context, listen: false);
-    items.add(
-        BottomNavigationBarItem(icon: Icon(iconList[0]), label: 'Home'));
-    items.add(
-        BottomNavigationBarItem(icon: Icon(iconList[1]), label: 'Media'));
+    dashmodel = Provider.of<DashboardModel>(context, listen: false);
+    tabs.add(
+      _HomeTab(
+        icon: LineAwesomeIcons.home,
+        label: t.appname,
+        builder: () => DashboardScreen(),
+      ),
+    );
+    tabs.add(
+      _HomeTab(
+        icon: LineAwesomeIcons.play_circle,
+        label: t.media,
+        builder: () => MediaPage(),
+      ),
+    );
     if (dashmodel.isFeatureAvailable("publications")) {
-      items.add(
-          BottomNavigationBarItem(icon: Icon(iconList[2]), label: 'Publications'));
+      tabs.add(
+        _HomeTab(
+          icon: LineAwesomeIcons.blog,
+          label: t.publications,
+          builder: () => PublicationsPage(),
+        ),
+      );
     }
-    items.add(
-        BottomNavigationBarItem(icon: Icon(iconList[3]), label: 'Connect'));
+    tabs.add(
+      _HomeTab(
+        icon: LineAwesomeIcons.alternate_share,
+        label: t.connect,
+        builder: () => ConnectPage(),
+      ),
+    );
     if (dashmodel.isFeatureAvailable("gosocial")) {
-      items.add(
-          BottomNavigationBarItem(icon: Icon(iconList[4]), label: 'Posts'));
+      tabs.add(
+        _HomeTab(
+          icon: LineAwesomeIcons.teamspeak,
+          label: t.posts,
+          builder: () => UserPostsSection(),
+        ),
+      );
     }
   }
 
@@ -108,157 +121,185 @@ class _HomePageItemState extends State<HomePageItem>
     dashmodel = Provider.of<DashboardModel>(context);
     Userdata? userdata = appManager.userdata;
     return Scaffold(
+      backgroundColor: const Color(0xFFF7F1F4),
       appBar: AppBar(
-        title: MarqueeWidget(
-          child: Text(
-            getTitle(),
-            style: TextStyle(
-              fontWeight: FontWeight.w500,
-              fontSize: 20,
-              color: Colors.white,
+        automaticallyImplyLeading: false,
+        titleSpacing: 16,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              currentTitle,
+              style: const TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 20,
+                color: Colors.white,
+              ),
+            ),
+            MarqueeWidget(
+              child: Text(
+                currentIndex == 0
+                    ? 'Worship, grow, and stay connected.'
+                    : 'Everything you need for this moment.',
+                style: TextStyle(
+                  fontWeight: FontWeight.w400,
+                  fontSize: 12,
+                  color: Colors.white.withValues(alpha: 0.85),
+                ),
+              ),
+            ),
+          ],
+        ),
+        centerTitle: false,
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        toolbarHeight: 72,
+        elevation: 0,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                MyColors.primaryDark,
+                MyColors.mainC0lor,
+                const Color(0xFFB73D7C),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
           ),
         ),
-        centerTitle: false,
-        backgroundColor: MyColors.mainC0lor,
-        toolbarHeight: 50,
-        elevation: 2,
-        leading: Container(
-            padding: const EdgeInsets.all(13.0),
-            child: IconButton(
-              padding: EdgeInsets.zero,
-              icon: Icon(LineAwesomeIcons.user_edit),
-              onPressed: () {
-                Navigator.of(context).pushNamed(SettingsPage.routeName);
-              },
-            )),
+        leadingWidth: 72,
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 16, top: 12, bottom: 12),
+          child: _buildChromeButton(
+            icon: LineAwesomeIcons.user_edit,
+            onPressed: () {
+              Navigator.of(context).pushNamed(SettingsPage.routeName);
+            },
+          ),
+        ),
         actions: [
-          Container(
-            padding: const EdgeInsets.only(right: 0),
-            margin: EdgeInsets.only(right: 0),
-            child: IconButton(
-                padding: EdgeInsets.zero,
-                icon: appManager.notificationcount == ""
-                    ? Icon(LineAwesomeIcons.bell)
-                    : badge.Badge(
-                        badgeContent: Text(
-                          appManager.notificationcount,
-                          style: TextStyle(color: Colors.white, fontSize: 12),
-                        ),
-                        child: Icon(LineAwesomeIcons.bell),
-                      ),
-                onPressed: (() {
-                  appManager.unsetNotificationcount();
-                  Navigator.of(context)
-                      .pushNamed(NotificationSection.routeName);
-                })),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: _buildChromeButton(
+              icon: LineAwesomeIcons.bell,
+              badgeText: appManager.notificationcount,
+              onPressed: () {
+                appManager.unsetNotificationcount();
+                Navigator.of(context).pushNamed(NotificationSection.routeName);
+              },
+            ),
           ),
-          Container(
-            width: 0,
-          ),
-          Container(
-            padding: const EdgeInsets.only(right: 0),
-            margin: EdgeInsets.only(right: 0),
-            child: IconButton(
-                padding: EdgeInsets.zero,
-                icon: appManager.chatnotificationcount == ""
-                    ? Icon(LineAwesomeIcons.facebook_messenger)
-                    : badge.Badge(
-                        badgeContent: Text(
-                          appManager.chatnotificationcount,
-                          style: TextStyle(color: Colors.white, fontSize: 12),
-                        ),
-                        child: Icon(LineAwesomeIcons.facebook_messenger),
-                      ),
-                onPressed: (() {
-                  if (userdata == null) {
-                    Navigator.pushNamed(context, AuthPage.routeName,
-                        arguments: true);
-                  } else {
-                    appManager.unsetChatNotificationcount();
-                    Navigator.of(context).pushNamed(ChatUsersScreen.routeName);
-                  }
-                })),
-          ),
-          Container(
-            width: 8,
+          const SizedBox(width: 10),
+          Padding(
+            padding: const EdgeInsets.only(top: 12, bottom: 12, right: 16),
+            child: _buildChromeButton(
+              icon: LineAwesomeIcons.facebook_messenger,
+              badgeText: appManager.chatnotificationcount,
+              onPressed: () {
+                if (userdata == null) {
+                  Navigator.pushNamed(context, AuthPage.routeName,
+                      arguments: true);
+                } else {
+                  appManager.unsetChatNotificationcount();
+                  Navigator.of(context).pushNamed(ChatUsersScreen.routeName);
+                }
+              },
+            ),
           ),
         ],
       ),
       body: Column(
         children: [
           Expanded(
-            child: getBody(currentIndex),
+            child: tabs[currentIndex].builder(),
           ),
           MiniPlayer(),
         ],
       ),
-      bottomNavigationBar: SnakeNavigationBar.color(
-        backgroundColor: Colors.grey[100],
-        behaviour: SnakeBarBehaviour.floating,
-        snakeShape: SnakeShape.indicator,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
-        padding: const EdgeInsets.all(0),
-
-        ///configuration for SnakeNavigationBar.color
-        snakeViewColor: MyColors.mainC0lor,
-        selectedItemColor: Colors.black,
-        unselectedItemColor: Colors.blueGrey,
-
-        ///configuration for SnakeNavigationBar.gradient
-        //snakeViewGradient: selectedGradient,
-        //selectedItemGradient: snakeShape == SnakeShape.indicator ? selectedGradient : null,
-        //unselectedItemGradient: unselectedGradient,
-
-        showUnselectedLabels: false,
-        showSelectedLabels: false,
-
-        currentIndex: currentIndex,
-        onTap: (index) {
-          setState(() => currentIndex = index);
-        },
-        items: items,
+      bottomNavigationBar: SafeArea(
+        minimum: const EdgeInsets.fromLTRB(14, 0, 14, 12),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(26),
+            boxShadow: [
+              BoxShadow(
+                color: MyColors.primaryDark.withValues(alpha: 0.12),
+                blurRadius: 24,
+                offset: const Offset(0, 12),
+              ),
+            ],
+          ),
+          child: SnakeNavigationBar.color(
+            backgroundColor: Colors.transparent,
+            behaviour: SnakeBarBehaviour.floating,
+            snakeShape: SnakeShape.indicator,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            snakeViewColor: MyColors.primary.withValues(alpha: 0.14),
+            selectedItemColor: MyColors.mainC0lor,
+            unselectedItemColor: const Color(0xFF7E7380),
+            showUnselectedLabels: false,
+            showSelectedLabels: false,
+            currentIndex: currentIndex,
+            onTap: (index) {
+              setState(() => currentIndex = index);
+            },
+            items: tabs
+                .map(
+                  (tab) => BottomNavigationBarItem(
+                    icon: Icon(tab.icon),
+                    label: tab.label,
+                  ),
+                )
+                .toList(),
+          ),
+        ),
       ),
     );
   }
 
-  Widget getBody(int pos) {
-    if (pos == 0) {
-      return DashboardScreen();
+  Widget _buildChromeButton({
+    required IconData icon,
+    required VoidCallback onPressed,
+    String badgeText = '',
+  }) {
+    final Widget button = Material(
+      color: Colors.white.withValues(alpha: 0.16),
+      borderRadius: BorderRadius.circular(18),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(18),
+        onTap: onPressed,
+        child: SizedBox(
+          width: 44,
+          height: 44,
+          child: Icon(icon, color: Colors.white, size: 22),
+        ),
+      ),
+    );
+
+    if (badgeText.isEmpty) {
+      return button;
     }
-    if (pos == 1) {
-      return MediaPage();
-    }
-    if (pos == 2) {
-      if (dashmodel.isFeatureAvailable("publications")) {
-        return PublicationsPage();
-      }
-      return ConnectPage();
-    }
-    if (pos == 3) {
-      if (dashmodel.isFeatureAvailable("publications")) {
-        return ConnectPage();
-      }
-      return UserPostsSection();
-    }
-    if (pos == 4) {
-      return UserPostsSection();
-    }
-    return DashboardScreen();
-    /*switch (pos) {
-      case 0:
-        return DashboardScreen();
-      case 1:
-        return MediaPage();
-      case 2:
-        return PublicationsPage();
-      case 3:
-        return ConnectPage();
-      case 4:
-        return UserPostsSection();
-      default:
-        return DashboardScreen();
-    }*/
+
+    return badge.Badge(
+      position: badge.BadgePosition.topEnd(top: -10, end: -8),
+      badgeStyle: badge.BadgeStyle(
+        badgeColor: const Color(0xFFFFD166),
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+      ),
+      badgeContent: Text(
+        badgeText,
+        style: const TextStyle(
+          color: Color(0xFF40220F),
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+      child: button,
+    );
   }
 }
 
@@ -266,6 +307,3 @@ class Constants {
   static final Color primaryColor = Color.fromRGBO(86, 215, 188, 1);
   static final Color scaffoldBackgroundColor = Color.fromRGBO(245, 247, 249, 1);
 }
-
-
-

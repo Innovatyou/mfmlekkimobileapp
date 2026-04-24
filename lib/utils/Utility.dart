@@ -1,8 +1,11 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_web_browser/flutter_web_browser.dart';
+import 'package:higherground/screens/InAppWebPage.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:higherground/models/LiveStreams.dart';
 import 'package:higherground/models/Media.dart';
 import 'package:higherground/providers/DashboardModel.dart';
@@ -58,23 +61,83 @@ class Utility {
     return dio;
   }
 
-  static openBrowserTab(String url) async {
-    await FlutterWebBrowser.openWebPage(
-      url: url,
-      customTabsOptions: CustomTabsOptions(
-        colorScheme: CustomTabsColorScheme.dark,
-        instantAppsEnabled: true,
-        showTitle: true,
-        urlBarHidingEnabled: true,
-      ),
-      safariVCOptions: SafariViewControllerOptions(
-        barCollapsingEnabled: true,
-        preferredBarTintColor: MyColors.mainC0lor,
-        preferredControlTintColor: MyColors.mainC0lor,
-        dismissButtonStyle: SafariViewControllerDismissButtonStyle.close,
-        modalPresentationCapturesStatusBarAppearance: true,
-      ),
-    );
+  static String normalizeUrl(String url) {
+    final trimmed = url.trim();
+    if (trimmed.isEmpty) return '';
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+      return trimmed;
+    }
+    return 'https://$trimmed';
+  }
+
+  static Future<void> openBrowserTab(
+    String url, {
+    BuildContext? context,
+    String? title,
+  }) async {
+    final normalized = normalizeUrl(url);
+    if (normalized.isEmpty) {
+      if (context != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Donation link is currently unavailable.')),
+        );
+      }
+      return;
+    }
+
+    try {
+      await FlutterWebBrowser.openWebPage(
+        url: normalized,
+        customTabsOptions: CustomTabsOptions(
+          colorScheme: CustomTabsColorScheme.dark,
+          instantAppsEnabled: true,
+          showTitle: true,
+          urlBarHidingEnabled: true,
+        ),
+        safariVCOptions: SafariViewControllerOptions(
+          barCollapsingEnabled: true,
+          preferredBarTintColor: MyColors.mainC0lor,
+          preferredControlTintColor: MyColors.mainC0lor,
+          dismissButtonStyle: SafariViewControllerDismissButtonStyle.close,
+          modalPresentationCapturesStatusBarAppearance: true,
+        ),
+      );
+    } on PlatformException catch (e) {
+      debugPrint('[Utility] Custom tab open failed: $e');
+      if (context != null) {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => InAppWebPage(
+              url: normalized,
+              title: title,
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('[Utility] Custom tab open failed: $e');
+      final uri = Uri.tryParse(normalized);
+      if (uri == null) {
+        if (context != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Invalid donation link.')),
+          );
+        }
+        return;
+      }
+
+      final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+      if (!launched && context != null) {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => InAppWebPage(
+              url: normalized,
+              title: title,
+            ),
+          ),
+        );
+      }
+    }
   }
 
   static Color hexToColor(String code) {

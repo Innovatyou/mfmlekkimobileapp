@@ -52,23 +52,30 @@ class ChatUsersScreenRouteState extends State<ChatUsersScreen> {
   Widget build(BuildContext context) {
     chatManager = Provider.of<ChatManager>(context);
     items = chatManager.userChatsList;
-    print(" chat users list = " + items.length.toString());
     return Scaffold(
       appBar: AppBar(
-        title: Text("Chats"),
+        title: const Text(
+          "Chats",
+          style: TextStyle(
+            color: Color(0xFF23141D),
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        elevation: 0,
+        backgroundColor: const Color(0xFFF7F2F5),
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF7F2F5),
       body: SmartRefresher(
         enablePullDown: true,
         enablePullUp: true,
-        header: WaterDropHeader(),
+        header: const WaterDropHeader(),
         footer: CustomFooter(
           builder: (BuildContext context, LoadStatus? mode) {
             Widget body;
             if (mode == LoadStatus.idle) {
               body = Text(t.pulluploadmore);
             } else if (mode == LoadStatus.loading) {
-              body = CupertinoActivityIndicator();
+              body = const CupertinoActivityIndicator();
             } else if (mode == LoadStatus.failed) {
               body = Text(t.loadfailedretry);
             } else if (mode == LoadStatus.canLoading) {
@@ -92,9 +99,9 @@ class ChatUsersScreenRouteState extends State<ChatUsersScreen> {
             : ListView.separated(
                 itemCount: items.length,
                 scrollDirection: Axis.vertical,
-                padding: EdgeInsets.all(3),
+                padding: const EdgeInsets.fromLTRB(8, 6, 8, 12),
                 separatorBuilder: (context, index) {
-                  return Divider();
+                  return const SizedBox(height: 8);
                 },
                 itemBuilder: (BuildContext context, int index) {
                   return _ChatItem(
@@ -117,11 +124,12 @@ class ChatUsersScreenRouteState extends State<ChatUsersScreen> {
             size: 24,
           ),
         ),
-        duration: Duration(milliseconds: 100),
+        duration: const Duration(milliseconds: 100),
         opacity: fabIsVisible ? 1 : 0,
       ),
     );
   }
+
 }
 
 class _ChatItem extends StatelessWidget {
@@ -155,6 +163,7 @@ class _ChatItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
+      borderRadius: BorderRadius.circular(18),
       onTap: () {
         eventBus.fire(StartPartnerChatEvent(chats!.partner));
         Navigator.pushNamed(
@@ -162,13 +171,18 @@ class _ChatItem extends StatelessWidget {
           ChatConversations.routeName,
         );
       },
-      child: Padding(
-        padding: EdgeInsets.all(8),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: const Color(0xFFECE1E8)),
+        ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Container(
-              margin: EdgeInsets.only(right: 12.0),
+              margin: const EdgeInsets.only(right: 12),
               child: Stack(
                 children: <Widget>[
                   InkWell(
@@ -180,8 +194,14 @@ class _ChatItem extends StatelessWidget {
                       );
                     },
                     child: CircleAvatar(
-                      backgroundImage: NetworkImage(chats!.partner!.photo!),
-                      radius: 30.0,
+                      radius: 28,
+                      backgroundColor: const Color(0xFFF1E5EC),
+                      backgroundImage: (chats!.partner!.photo ?? '').isNotEmpty
+                          ? NetworkImage(chats!.partner!.photo!)
+                          : null,
+                      child: (chats!.partner!.photo ?? '').isEmpty
+                          ? const Icon(Icons.person, color: Color(0xFF8A7D86))
+                          : null,
                     ),
                   ),
                   Positioned(
@@ -194,59 +214,63 @@ class _ChatItem extends StatelessWidget {
             ),
             Expanded(
               child: Padding(
-                  padding: EdgeInsets.only(left: 6.0, right: 6.0),
+                  padding: const EdgeInsets.only(left: 6, right: 6),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Text(
                         chats!.partner!.name!,
-                        style: TextStyle(fontSize: 18),
+                        style: const TextStyle(
+                          fontSize: 17,
+                          color: Color(0xFF23141D),
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                       chats!.isTyping
                           ? Container(
-                              margin: EdgeInsets.only(top: 4.0),
+                              margin: const EdgeInsets.only(top: 4),
                               child: Text(
                                 t.typing,
-                                style: TextStyle(
-                                    fontWeight: FontWeight.w400,
-                                    fontSize: 12,
-                                    fontStyle: FontStyle.italic),
+                                style: const TextStyle(
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 12,
+                                      fontStyle: FontStyle.italic,
+                                      color: Color(0xFF7B6D76),
+                                ),
                               ),
                             )
                           : Container(
-                              margin: EdgeInsets.only(top: 4.0),
+                              margin: const EdgeInsets.only(top: 4),
                               child: chats!.chatMessages!.length > 0
                                   ? (chats!.chatMessages![0].message != "")
                                       ? Text(chats!.chatMessages![0].message!,
-                                          style: TextStyle(
-                                              color: Colors.grey,
-                                              fontSize: 15,
-                                              height: 1.1),
+                                          style: const TextStyle(
+                                            color: Color(0xFF7B6D76),
+                                            fontSize: 14,
+                                            height: 1.15,
+                                          ),
                                           maxLines: 2,
                                           overflow: TextOverflow.ellipsis)
                                       : Row(
                                           children: [
-                                            Container(
-                                              width: 10,
-                                            ),
-                                            Icon(
+                                            const SizedBox(width: 10),
+                                            const Icon(
                                               Icons.photo,
                                               size: 22,
                                             ),
-                                            Container(
-                                              width: 4,
-                                            ),
+                                            const SizedBox(width: 4),
                                             Text(
                                               t.photo,
-                                              style: TextStyle(fontSize: 14),
+                                              style: const TextStyle(fontSize: 14),
                                             )
                                           ],
                                         )
                                   : Text(chats!.partner!.gender!,
-                                      style: TextStyle(
-                                          color: Colors.grey,
-                                          fontSize: 15,
-                                          height: 1.1),
+                                      style: const TextStyle(
+                                        color: Color(0xFF7B6D76),
+                                        fontSize: 14,
+                                        height: 1.15,
+                                      ),
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis),
                             )
@@ -258,8 +282,8 @@ class _ChatItem extends StatelessWidget {
                 chats!.chatMessages!.length > 0
                     ? Text(
                         TimUtil.timeAgoSinceDate(chats!.chatMessages![0].date!),
-                        style: TextStyle(color: Colors.grey[350]))
-                    : Container(),
+                        style: TextStyle(color: Colors.grey[500], fontSize: 12))
+                    : const SizedBox.shrink(),
                 _UnreadIndicator(chats!.unseen),
               ],
             )
@@ -278,21 +302,21 @@ class _UnreadIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (unread == 0) {
-      return Container(); // return empty container
+      return const SizedBox.shrink();
     } else {
       return Padding(
-          padding: EdgeInsets.only(top: 8.0),
+          padding: const EdgeInsets.only(top: 8),
           child: ClipRRect(
               borderRadius: BorderRadius.circular(10),
               child: Container(
-                height: 30,
-                color: Colors.red,
-                width: 30,
-                padding: EdgeInsets.all(0),
+                height: 26,
+                color: const Color(0xFFD74A62),
+                width: 26,
+                padding: EdgeInsets.zero,
                 alignment: Alignment.center,
                 child: Text(
                   unread! > 9 ? "9+" : unread.toString(),
-                  style: TextStyle(
+                  style: const TextStyle(
                       fontWeight: FontWeight.bold, color: Colors.white),
                 ),
               )));

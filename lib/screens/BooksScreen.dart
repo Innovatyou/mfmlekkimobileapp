@@ -23,13 +23,21 @@ class BooksScreenRouteState extends State<BooksScreen> {
     return ChangeNotifierProvider(
       create: (context) => BookScreensModel(),
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFFF7F2F5),
         appBar: AppBar(
-          title: Text(t.books),
-          elevation: 1,
+          elevation: 0,
+          backgroundColor: const Color(0xFFF7F2F5),
+          surfaceTintColor: Colors.transparent,
+          title: Text(
+            t.books,
+            style: const TextStyle(
+              fontWeight: FontWeight.w800,
+              color: Color(0xFF23141D),
+            ),
+          ),
         ),
         body: Padding(
-          padding: EdgeInsets.only(top: 2),
+          padding: const EdgeInsets.only(top: 4),
           child: AudioScreenBody(),
         ),
       ),
@@ -70,7 +78,7 @@ class MediaScreenRouteState extends State<AudioScreenBody> {
     return SmartRefresher(
       enablePullDown: true,
       enablePullUp: true,
-      header: WaterDropHeader(),
+      header: const WaterDropHeader(waterDropColor: Color(0xFF8E5972)),
       footer: CustomFooter(
         builder: (BuildContext context, LoadStatus? mode) {
           Widget body;
@@ -100,63 +108,74 @@ class MediaScreenRouteState extends State<AudioScreenBody> {
           : GridView.builder(
               itemCount: items!.length,
               scrollDirection: Axis.vertical,
-              padding: EdgeInsets.all(3),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              padding: const EdgeInsets.fromLTRB(12, 6, 12, 12),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
                   crossAxisSpacing: 6.0,
                   mainAxisSpacing: 8.0,
                   childAspectRatio: 0.8),
               itemBuilder: (BuildContext context, int index) {
-                Books books = items![index];
+                final books = items![index];
                 return InkWell(
+                  borderRadius: BorderRadius.circular(14),
                   onTap: () {
                     Navigator.pushNamed(context, BooksViewerScreen.routeName,
                         arguments: books);
                   },
                   child: Padding(
                     padding: const EdgeInsets.all(4.0),
-                    child: Stack(
-                      children: [
-                        CachedNetworkImage(
-                          imageUrl: books.thumbnail!,
-                          imageBuilder: (context, imageProvider) => Container(
-                            decoration: BoxDecoration(
-                              image: DecorationImage(
-                                image: imageProvider,
-                                fit: BoxFit.cover,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: const Color(0xFFE8DDE4)),
+                        color: Colors.white,
+                      ),
+                      clipBehavior: Clip.antiAlias,
+                      child: Stack(
+                        children: [
+                          CachedNetworkImage(
+                            imageUrl: books.thumbnail!,
+                            imageBuilder: (context, imageProvider) => Container(
+                              decoration: BoxDecoration(
+                                image: DecorationImage(
+                                  image: imageProvider,
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                             ),
+                            placeholder: (context, url) =>
+                                const Center(child: CupertinoActivityIndicator()),
+                            errorWidget: (context, url, error) => const Center(
+                                child: Icon(
+                              Icons.error,
+                              color: Colors.grey,
+                            )),
                           ),
-                          placeholder: (context, url) =>
-                              Center(child: CupertinoActivityIndicator()),
-                          errorWidget: (context, url, error) => Center(
-                              child: Icon(
-                            Icons.error,
-                            color: Colors.grey,
-                          )),
-                        ),
-                        Positioned(
-                          bottom: 0,
-                          left: 0,
-                          right: 0,
-                          child: Container(
-                            height: 70,
-                            //width: double.infinity,
-                            color: Colors.black54,
-                            padding: EdgeInsets.all(12),
-                            child: Align(
-                              alignment: Alignment.center,
-                              child: Text(
-                                books.title!,
-                                maxLines: 2,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 16),
+                          Positioned(
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                            child: Container(
+                              height: 72,
+                              color: const Color(0xA623141D),
+                              padding: const EdgeInsets.all(12),
+                              child: Align(
+                                alignment: Alignment.center,
+                                child: Text(
+                                  books.title!,
+                                  maxLines: 2,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
-                        )
-                      ],
+                          )
+                        ],
+                      ),
                     ),
                   ),
                 );
