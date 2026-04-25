@@ -1,6 +1,8 @@
 image: ghcr.io/cirruslabs/flutter:3.24.5
 
 stages:
+  - test
+  - secret-detection
   - validate
 
 cache:
@@ -10,11 +12,15 @@ cache:
     - .dart_tool/
 
 variables:
+  SECRET_DETECTION_ENABLED: 'true'
   PUB_CACHE: "$CI_PROJECT_DIR/.pub-cache"
 
 before_script:
   - flutter --version
   - flutter pub get
+
+secret_detection:
+  stage: secret-detection
 
 analyze:
   stage: validate
@@ -23,3 +29,6 @@ analyze:
   rules:
     - if: $CI_PIPELINE_SOURCE == "push"
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
+include:
+  - template: Security/Secret-Detection.gitlab-ci.yml
