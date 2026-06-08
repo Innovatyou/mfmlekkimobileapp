@@ -137,8 +137,15 @@ class _NewNotesScreenState extends State<NewNotesScreen> {
   }
 
   void saveNoteDialog(BuildContext _context) {
-    String name = "";
-    final titleController = TextEditingController(text: "");
+    // Default the title to the first non-empty line of the note so the user
+    // can save straight away without being forced to type a separate title.
+    final String defaultTitle = _controller!.document
+        .toPlainText()
+        .split('\n')
+        .firstWhere((line) => line.trim().isNotEmpty, orElse: () => '')
+        .trim();
+    String name = defaultTitle;
+    final titleController = TextEditingController(text: defaultTitle);
     showDialog(
         context: context,
         barrierDismissible: true,
@@ -158,7 +165,7 @@ class _NewNotesScreenState extends State<NewNotesScreen> {
                   style: const TextStyle(fontSize: 16, color: Colors.red),
                 ),
                 onPressed: () {
-                  Navigator.of(context).pop();
+                  Navigator.of(context).pop(false);
                 },
               ),
               FilledButton(
@@ -171,20 +178,21 @@ class _NewNotesScreenState extends State<NewNotesScreen> {
                   style: const TextStyle(fontSize: 16),
                 ),
                 onPressed: () {
-                  if (name != "") {
-                    Provider.of<NotesProvider>(context, listen: false).saveNote(
-                      Notes(
-                          title: name,
-                          color: Colors.primaries[
-                              Random().nextInt(Colors.primaries.length)],
-                          content: jsonEncode(
-                              _controller!.document.toDelta().toJson()),
-                          plaincontent: _controller!.document.toPlainText(),
-                          date: DateTime.now().millisecondsSinceEpoch),
-                    );
-                    // Navigator.pop(context);
-                    Navigator.of(context).pop();
-                  }
+                  // Fall back to a sensible title when left blank so Save
+                  // always works.
+                  final String title =
+                      name.trim().isEmpty ? 'Untitled note' : name.trim();
+                  Provider.of<NotesProvider>(context, listen: false).saveNote(
+                    Notes(
+                        title: title,
+                        color: Colors.primaries[
+                            Random().nextInt(Colors.primaries.length)],
+                        content: jsonEncode(
+                            _controller!.document.toDelta().toJson()),
+                        plaincontent: _controller!.document.toPlainText(),
+                        date: DateTime.now().millisecondsSinceEpoch),
+                  );
+                  Navigator.of(context).pop(true);
                 },
               ),
             ],
@@ -199,9 +207,10 @@ class _NewNotesScreenState extends State<NewNotesScreen> {
               ),
             ),
           );
-        }).then((val) {
+        }).then((saved) {
       titleController.dispose();
-      if (name != "") {
+      // Only leave the editor when the note was actually saved.
+      if (saved == true) {
         Navigator.pop(_context);
       }
     });

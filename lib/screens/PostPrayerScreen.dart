@@ -269,6 +269,26 @@ class PostPrayerScreenState extends State<PostPrayerScreen> {
                 ],
               ),
             ),
+            const SizedBox(height: 18),
+            SizedBox(
+              width: double.infinity,
+              height: 52,
+              child: FilledButton.icon(
+                style: FilledButton.styleFrom(
+                  backgroundColor: const Color(0xFF7A3F60),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                ),
+                onPressed: validateandsubmit,
+                icon: const Icon(Icons.send_rounded, size: 20),
+                label: const Text(
+                  'Submit Prayer Request',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                ),
+              ),
+            ),
           ],
         ),
       ),

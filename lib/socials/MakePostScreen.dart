@@ -461,6 +461,29 @@ class MakePostScreenState extends State<MakePostScreen> {
           ],
         ),
       ),
+      bottomNavigationBar: SafeArea(
+        minimum: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+        child: SizedBox(
+          width: double.infinity,
+          height: 52,
+          child: ElevatedButton.icon(
+            onPressed: validateandsubmit,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: MyColors.mainC0lor,
+              foregroundColor: Colors.white,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+            ),
+            icon: const Icon(Icons.send_rounded, size: 20),
+            label: const Text(
+              'Post',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
