@@ -339,7 +339,7 @@ class AppStateManager with ChangeNotifier {
         if (_notificationcount == 0) {
           notificationcount = "";
         } else if (_notificationcount <= 9) {
-          notificationcount = (_notificationcount - 1).toString();
+          notificationcount = _notificationcount.toString();
         } else {
           notificationcount = "9+";
         }

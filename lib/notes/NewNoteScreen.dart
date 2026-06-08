@@ -105,6 +105,30 @@ class _NewNotesScreenState extends State<NewNotesScreen> {
         },
         child: _buildWelcomeEditor(context),
       ),
+      bottomNavigationBar: SafeArea(
+        minimum: const EdgeInsets.fromLTRB(14, 0, 14, 14),
+        child: SizedBox(
+          width: double.infinity,
+          height: 52,
+          child: FilledButton.icon(
+            style: FilledButton.styleFrom(
+              backgroundColor: const Color(0xFF7A3F60),
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+            ),
+            onPressed: () {
+              saveNoteDialog(context);
+            },
+            icon: const Icon(Icons.save_outlined, size: 20),
+            label: const Text(
+              'Save Note',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+            ),
+          ),
+        ),
+      ),
     );
   }
 
