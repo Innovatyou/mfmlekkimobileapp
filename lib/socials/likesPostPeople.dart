@@ -110,7 +110,7 @@ class LikesPostPeopleRouteState extends State<LikesPostPeople> {
     } catch (exception) {
       // I get no exception here
       print(exception);
-      if (exception is DioError) {
+      if (exception is DioException) {
         print(exception.stackTrace);
         print(exception.error);
         print(exception.message);

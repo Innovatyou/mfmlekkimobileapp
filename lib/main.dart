@@ -14,7 +14,6 @@ import 'package:higherground/providers/NotesProvider.dart';
 import 'package:higherground/providers/PlaylistsModel.dart';
 import 'package:higherground/providers/translate_provider.dart';
 import 'package:higherground/providers/wellness_provider.dart';
-import 'package:higherground/utils/my_colors.dart';
 import 'package:isolated_download_manager/isolated_download_manager.dart';
 import 'package:provider/provider.dart';
 import 'package:higherground/providers/AppStateManager.dart';

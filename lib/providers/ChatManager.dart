@@ -277,7 +277,7 @@ class ChatManager with ChangeNotifier {
     } catch (exception) {
       // I get no exception here
       print(exception);
-      if (exception is DioError) {
+      if (exception is DioException) {
         print(exception.stackTrace);
         print("userchatssss = " + exception.error.toString());
         print("userchatssss = " + exception.message.toString());
@@ -398,7 +398,7 @@ class ChatManager with ChangeNotifier {
     } catch (exception) {
       // I get no exception here
       print(exception);
-      if (exception is DioError) {
+      if (exception is DioException) {
         print(exception.stackTrace);
         print(exception.error);
         print(exception.message);
@@ -536,7 +536,7 @@ class ChatManager with ChangeNotifier {
         print((send / total) * 100);
       });
       print(response.data);
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       print(e.message);
     }
   }
@@ -566,7 +566,7 @@ class ChatManager with ChangeNotifier {
     } catch (exception) {
       // I get no exception here
       print(exception);
-      if (exception is DioError) {
+      if (exception is DioException) {
         print(exception.stackTrace);
         print(exception.error);
         print(exception.message);
@@ -735,7 +735,7 @@ class ChatManager with ChangeNotifier {
     } catch (exception) {
       // I get no exception here
       print(exception);
-      if (exception is DioError) {
+      if (exception is DioException) {
         print(exception.stackTrace);
         print(exception.error);
         print(exception.message);

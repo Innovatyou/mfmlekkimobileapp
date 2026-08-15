@@ -246,20 +246,21 @@ class _ReportCommentDialogState extends State<ReportCommentDialog> {
                 constraints: BoxConstraints(
                   maxHeight: MediaQuery.of(context).size.height * 0.4,
                 ),
-                child: ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: reportOptions.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return RadioListTile(
-                          title: Text(reportOptions[index]),
-                          value: index,
-                          groupValue: _selected,
-                          onChanged: (dynamic value) {
-                            setState(() {
-                              _selected = index;
-                            });
-                          });
-                    }),
+                child: RadioGroup<int>(
+                  groupValue: _selected,
+                  onChanged: (int? value) {
+                    setState(() {
+                      _selected = value ?? _selected;
+                    });
+                  },
+                  child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: reportOptions.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return RadioListTile(
+                            title: Text(reportOptions[index]), value: index);
+                      }),
+                ),
               ),
             ],
           ),
@@ -268,6 +269,3 @@ class _ReportCommentDialogState extends State<ReportCommentDialog> {
     );
   }
 }
-
-
-

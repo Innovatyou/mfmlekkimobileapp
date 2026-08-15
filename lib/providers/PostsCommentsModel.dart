@@ -212,7 +212,7 @@ class PostsCommentsModel with ChangeNotifier {
       // I get no exception here
       print(exception);
       print("three");
-      if (exception is DioError) {
+      if (exception is DioException) {
         print(exception.stackTrace);
         print(exception.error);
         print(exception.message);
@@ -414,7 +414,7 @@ class PostsCommentsModel with ChangeNotifier {
     } catch (exception) {
       // I get no exception here
       print(exception);
-      if (exception is DioError) {
+      if (exception is DioException) {
         print(exception.stackTrace);
         print(exception.error);
         print(exception.message);

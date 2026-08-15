@@ -119,7 +119,7 @@ class _PlayPageState extends State<PlayPage> with TickerProviderStateMixin {
         ),
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.black.withOpacity(0.8),
+            color: Colors.black.withValues(alpha: 0.8),
           ),
         ),
       ),

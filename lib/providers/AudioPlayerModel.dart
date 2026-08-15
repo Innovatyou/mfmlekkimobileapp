@@ -4,7 +4,6 @@ import 'package:just_audio/just_audio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:higherground/i18n/strings.g.dart';
 import 'package:higherground/models/Media.dart';
 import 'package:higherground/utils/my_colors.dart';
 import 'package:higherground/utils/Utility.dart';

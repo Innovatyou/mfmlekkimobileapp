@@ -50,20 +50,18 @@ class _AudioPlayout extends State<MiniPlayer> {
                         padding: EdgeInsets.all(5),
                         child: Row(
                           children: <Widget>[
-                            mediaItem == null
-                                ? Container()
-                                : (mediaItem.coverPhoto == ""
-                                    ? Icon(Icons.audiotrack)
-                                    : Container(
-                                        padding: EdgeInsets.all(5),
-                                        height: 50,
-                                        width: 60,
-                                        child: Image(
-                                          image: NetworkImage(
-                                              mediaItem.coverPhoto!),
-                                          fit: BoxFit.cover,
-                                        ),
-                                      )),
+                            mediaItem.coverPhoto == ""
+                                ? Icon(Icons.audiotrack)
+                                : Container(
+                                    padding: EdgeInsets.all(5),
+                                    height: 50,
+                                    width: 60,
+                                    child: Image(
+                                      image:
+                                          NetworkImage(mediaItem.coverPhoto!),
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
                             Container(
                               width: 12,
                             ),
@@ -71,7 +69,7 @@ class _AudioPlayout extends State<MiniPlayer> {
                               child: MarqueeWidget(
                                 direction: Axis.horizontal,
                                 child: Text(
-                                  mediaItem?.title ?? "",
+                                  mediaItem.title ?? "",
                                   maxLines: 1,
                                   style: TextStyles.subhead(context).copyWith(
                                       fontSize: 16,

@@ -182,8 +182,8 @@ class BibleViewScreenRouteState extends State<BibleViewScreen> {
                             selectedColor: Color(bibleModel.selectedColor),
                             allowShades: false,
                             onMainColorChange: (color) {
-                              bibleModel.selectedColor = color!.value;
-                              print(Color(color.value));
+                              bibleModel.selectedColor = color!.toARGB32();
+                              print(Color(color.toARGB32()));
                             },
                           ),
                         );

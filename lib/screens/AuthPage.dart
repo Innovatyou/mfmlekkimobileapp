@@ -10,7 +10,6 @@ import 'package:higherground/utils/Alerts.dart';
 import 'package:higherground/utils/ApiUrl.dart';
 import 'package:higherground/providers/DashboardModel.dart';
 import 'package:higherground/screens/HomePage.dart';
-import 'package:higherground/screens/UpdateProfile.dart';
 import 'package:higherground/utils/Utility.dart';
 import 'package:higherground/utils/my_colors.dart';
 import 'package:higherground/widgets/AppLogo.dart';
@@ -154,7 +153,7 @@ class _AuthPageState extends State<AuthPage> {
       print("[LOGIN] ===== Exception Caught =====");
       print("[LOGIN] Exception type: ${exception.runtimeType}");
       print("[LOGIN] Exception: $exception");
-      if (exception is DioError) {
+      if (exception is DioException) {
         print("[LOGIN] DioError type: ${exception.type}");
         print("[LOGIN] DioError message: ${exception.message}");
         print("[LOGIN] DioError response: ${exception.response}");

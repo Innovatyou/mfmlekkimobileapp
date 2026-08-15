@@ -115,10 +115,9 @@ class GroupsScreensModel with ChangeNotifier {
           await Utility.getDio().post(ApiUrl.JOIN_GROUP, data: formData);
       Navigator.of(context).pop();
       print(response.data);
-      Map<String, dynamic> res = Utility.decodeResponse(response.data);
       Alerts.show(context, t.success, t.successjoinedgroup);
       loadItems();
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       Navigator.of(context).pop();
       Alerts.show(context, t.error, e.message);
       if (e.response != null) {

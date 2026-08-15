@@ -118,8 +118,8 @@ class _ColoredHighightedVersesState extends State<ColoredHighightedVerses> {
                           selectedColor: Color(selectedColor),
                           allowShades: false,
                           onMainColorChange: (color) {
-                            print(Color(color!.value));
-                            selectedColor = color.value;
+                            print(Color(color!.toARGB32()));
+                            selectedColor = color.toARGB32();
                           },
                         ),
                       ),

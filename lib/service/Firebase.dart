@@ -448,9 +448,8 @@ class Firebase {
   //event notification preference
   static setEventNotifications() async {
     var prefs = await SharedPreferences.getInstance();
-    //prefs.setBool(_eventnotificationPreference);
-    if (prefs.getBool(_inboxnotificationPreference) != null) {
-      inboxnotifications = prefs.getBool(_inboxnotificationPreference);
+    if (prefs.getBool(_eventnotificationPreference) != null) {
+      eventnotifications = prefs.getBool(_eventnotificationPreference);
     }
   }
 

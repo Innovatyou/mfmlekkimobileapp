@@ -41,7 +41,7 @@ class _LiveBetterPlayerWidgetState extends State<LiveBetterPlayerWidget> {
 
     final betterPlayerDataSource = BetterPlayerDataSource(
       sourceType,
-      convertedUrl ?? '',
+      convertedUrl,
       videoFormat: _getVideoFormat(widget.media.type),
       liveStream: true,
       // Keeps the stream playing (with lock-screen/notification controls)
