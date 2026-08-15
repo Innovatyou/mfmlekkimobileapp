@@ -7,8 +7,8 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:higherground/utils/ApiUrl.dart';
 
 class TestimonyScreensModel with ChangeNotifier {
-  //List<Comments> _items = [];
   bool isError = false;
+  bool isLoading = false;
   List<Testimony>? itemList = [];
   RefreshController refreshController =
       RefreshController(initialRefresh: false);
@@ -20,8 +20,9 @@ class TestimonyScreensModel with ChangeNotifier {
   }
 
   loadItems() {
-    refreshController.requestRefresh();
     page = 0;
+    isLoading = true;
+    isError = false;
     notifyListeners();
     fetchItems();
   }
@@ -36,6 +37,7 @@ class TestimonyScreensModel with ChangeNotifier {
     itemList = item;
     refreshController.refreshCompleted();
     isError = false;
+    isLoading = false;
     notifyListeners();
   }
 
@@ -59,7 +61,7 @@ class TestimonyScreensModel with ChangeNotifier {
       if (response.statusCode == 200) {
         // If the server did return a 200 OK response,
         // then parse the JSON.
-        dynamic res = jsonDecode(response.data);
+        dynamic res = Utility.decodeResponse(response.data);
         List<Testimony>? mediaList = parseSliderMedia(res);
         if (page == 0) {
           setItems(mediaList);
@@ -87,6 +89,7 @@ class TestimonyScreensModel with ChangeNotifier {
   setFetchError() {
     if (page == 0) {
       isError = true;
+      isLoading = false;
       refreshController.refreshFailed();
       notifyListeners();
     } else {

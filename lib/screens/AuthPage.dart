@@ -12,8 +12,8 @@ import 'package:higherground/providers/DashboardModel.dart';
 import 'package:higherground/screens/HomePage.dart';
 import 'package:higherground/screens/UpdateProfile.dart';
 import 'package:higherground/utils/Utility.dart';
-import 'package:higherground/utils/img.dart';
 import 'package:higherground/utils/my_colors.dart';
+import 'package:higherground/widgets/AppLogo.dart';
 import 'package:provider/provider.dart';
 
 class AuthPage extends StatefulWidget {
@@ -31,10 +31,18 @@ class _AuthPageState extends State<AuthPage> {
   String email = "";
   // removed debug-only fields
 
-  final inputBorder = BorderRadius.vertical(
-    bottom: Radius.circular(0.0),
-    top: Radius.circular(0.0),
-  );
+  // Rendered logo image passed to FlutterLogin (which only accepts ImageProvider)
+  ImageProvider? _logoImage;
+
+  final inputBorder = BorderRadius.all(Radius.circular(8.0));
+
+  @override
+  void initState() {
+    super.initState();
+    AppLogo.toImageProvider(size: 80).then((img) {
+      if (mounted) setState(() => _logoImage = img);
+    });
+  }
 
   Future<void> resendVerificationLink() async {
     Alerts.showProgressDialog(context, t.processingpleasewait);
@@ -107,6 +115,18 @@ class _AuthPageState extends State<AuthPage> {
 
   // debug dialog removed
 
+  void _loginAsGuest() {
+    final bool appLogin =
+        Provider.of<DashboardModel>(context, listen: false)
+                .data['app_login'] as bool? ??
+            false;
+    if (appLogin) {
+      Navigator.of(context).pushReplacementNamed(HomePage.routeName);
+    } else {
+      Navigator.of(context).pop();
+    }
+  }
+
   Future<String?> _authUser(LoginData _data) async {
     email = _data.name;
     try {
@@ -117,7 +137,7 @@ class _AuthPageState extends State<AuthPage> {
       final response = await Utility.getDio()
           .post(ApiUrl.LOGIN_APP, data: jsonEncode({"data": data}));
       if (response.statusCode == 200) {
-        Map<String, dynamic> res = json.decode(response.data);
+        Map<String, dynamic> res = Utility.decodeResponse(response.data);
         if (res["status"] == "error") {
           if (res["statuscode"] == 1) {
             registerSuccessMessage(t.resendverifylink);
@@ -155,7 +175,7 @@ class _AuthPageState extends State<AuthPage> {
           .post(ApiUrl.CREATE_ACCOUNT, data: jsonEncode({"data": data}));
 
       if (response.statusCode == 200) {
-        Map<String, dynamic> res = json.decode(response.data);
+        Map<String, dynamic> res = Utility.decodeResponse(response.data);
         if (res["status"] == "error") {
           if (res.containsKey("statuscode") && res["statuscode"] == 1) {
             registerSuccessMessage(t.resendverifylink);
@@ -189,7 +209,7 @@ class _AuthPageState extends State<AuthPage> {
             height: double.infinity,
             child: FlutterLogin(
               title: t.appname,
-              logo: AssetImage(Img.get("login_logo.png")),
+              logo: _logoImage,
               onLogin: _authUser,
               onSignup: _signupUser,
               loginAfterSignUp: false,
@@ -267,61 +287,64 @@ class _AuthPageState extends State<AuthPage> {
                   color: Colors.white,
                 ),
                 cardTheme: CardTheme(
-                  //color: MyColors.primary,
+                  color: Colors.white,
                   elevation: 0,
-                  margin: EdgeInsets.only(top: 50),
-                  shape: ContinuousRectangleBorder(
-                      borderRadius: BorderRadius.circular(20.0)),
+                  margin: const EdgeInsets.only(top: 50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
                 inputTheme: InputDecorationTheme(
                   filled: true,
                   fillColor: Colors.white,
                   focusColor: MyColors.mainC0lor,
-                  contentPadding: EdgeInsets.zero,
-                  errorStyle: TextStyle(
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 14,
+                  ),
+                  errorStyle: const TextStyle(
                     backgroundColor: Colors.white,
                     color: Colors.red,
                   ),
-                  labelStyle: TextStyle(fontSize: 12, color: Colors.black),
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: MyColors.mainC0lor, width: 2),
-                    borderRadius: inputBorder,
-                  ),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: MyColors.mainC0lor, width: 2),
-                    borderRadius: inputBorder,
-                  ),
-                  errorBorder: UnderlineInputBorder(
+                  labelStyle:
+                      const TextStyle(fontSize: 13, color: Color(0xFF475569)),
+                  enabledBorder: OutlineInputBorder(
                     borderSide:
-                        BorderSide(color: Colors.red.shade700, width: 2),
+                        const BorderSide(color: Color(0xFFe2e8f0), width: 1.5),
                     borderRadius: inputBorder,
                   ),
-                  focusedErrorBorder: UnderlineInputBorder(
+                  focusedBorder: OutlineInputBorder(
+                    borderSide:
+                        BorderSide(color: MyColors.mainC0lor, width: 2),
+                    borderRadius: inputBorder,
+                  ),
+                  errorBorder: OutlineInputBorder(
+                    borderSide:
+                        BorderSide(color: Colors.red.shade700, width: 1.5),
+                    borderRadius: inputBorder,
+                  ),
+                  focusedErrorBorder: OutlineInputBorder(
                     borderSide:
                         BorderSide(color: Colors.red.shade400, width: 2),
                     borderRadius: inputBorder,
                   ),
-                  disabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.grey, width: 1),
+                  disabledBorder: OutlineInputBorder(
+                    borderSide:
+                        const BorderSide(color: Color(0xFFe2e8f0), width: 1),
                     borderRadius: inputBorder,
                   ),
-                  //prefixStyle: TextStyle(color: Colors.white),
-
-                  suffixIconColor: Colors.black,
-                  prefixIconColor: Colors.black,
+                  suffixIconColor: const Color(0xFF475569),
+                  prefixIconColor: const Color(0xFF475569),
                 ),
                 buttonTheme: LoginButtonTheme(
-                  splashColor: MyColors.mainC0lor,
+                  splashColor: MyColors.primaryDark,
                   backgroundColor: MyColors.mainC0lor,
-                  highlightColor: MyColors.mainC0lor,
+                  highlightColor: MyColors.primaryDark,
                   elevation: 0.0,
                   highlightElevation: 0.0,
-                  shape: BeveledRectangleBorder(
-                    borderRadius: BorderRadius.circular(5),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  // shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-                  // shape: CircleBorder(side: BorderSide(color: Colors.green)),
-                  // shape: ContinuousRectangleBorder(borderRadius: BorderRadius.circular(55.0)),
                 ),
               ),
             ),
@@ -339,6 +362,46 @@ class _AuthPageState extends State<AuthPage> {
                   color: Colors.white,
                 ),
               ),
+            ),
+          ),
+          Positioned(
+            bottom: 36,
+            left: 0,
+            right: 0,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  '— or —',
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.7),
+                    fontSize: 12,
+                    letterSpacing: 1,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                TextButton(
+                  onPressed: _loginAsGuest,
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 32, vertical: 10),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      side: BorderSide(
+                          color: Colors.white.withValues(alpha: 0.5), width: 1),
+                    ),
+                  ),
+                  child: const Text(
+                    'Continue as Guest',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.3,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],

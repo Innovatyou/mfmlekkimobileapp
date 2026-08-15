@@ -72,7 +72,7 @@ class _SocialActivityState extends State<SocialActivity> {
         title: Text(
           t.churchsocial,
           style: const TextStyle(
-            color: Color(0xFF23141D),
+            color: Color(0xFF0f172a),
             fontWeight: FontWeight.w700,
           ),
         ),

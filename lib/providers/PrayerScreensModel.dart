@@ -10,8 +10,8 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:higherground/utils/ApiUrl.dart';
 
 class PrayerScreensModel with ChangeNotifier {
-  //List<Comments> _items = [];
   bool isError = false;
+  bool isLoading = false;
   List<Prayers>? itemList = [];
   RefreshController refreshController =
       RefreshController(initialRefresh: false);
@@ -23,8 +23,9 @@ class PrayerScreensModel with ChangeNotifier {
   }
 
   loadItems() {
-    refreshController.requestRefresh();
     page = 0;
+    isLoading = true;
+    isError = false;
     notifyListeners();
     fetchItems();
   }
@@ -39,6 +40,7 @@ class PrayerScreensModel with ChangeNotifier {
     itemList = item;
     refreshController.refreshCompleted();
     isError = false;
+    isLoading = false;
     notifyListeners();
   }
 
@@ -64,7 +66,7 @@ class PrayerScreensModel with ChangeNotifier {
       if (response.statusCode == 200) {
         // If the server did return a 200 OK response,
         // then parse the JSON.
-        dynamic res = jsonDecode(response.data);
+        dynamic res = Utility.decodeResponse(response.data);
         List<Prayers>? mediaList = parseSliderMedia(res);
         if (page == 0) {
           setItems(mediaList);
@@ -77,9 +79,8 @@ class PrayerScreensModel with ChangeNotifier {
         setFetchError();
       }
     } catch (exception) {
-      // I get no exception here
       print(exception);
-      if (exception is DioError) {
+      if (exception is DioException) {
         print(exception.error);
         print(exception.message);
         print(exception.response);
@@ -97,6 +98,7 @@ class PrayerScreensModel with ChangeNotifier {
   setFetchError() {
     if (page == 0) {
       isError = true;
+      isLoading = false;
       refreshController.refreshFailed();
       notifyListeners();
     } else {

@@ -9,11 +9,16 @@ import 'package:higherground/notes/NotesListScreen.dart';
 import 'package:higherground/providers/AppStateManager.dart';
 import 'package:higherground/providers/DashboardModel.dart';
 import 'package:higherground/screens/DevotionalsScreen.dart';
+import 'package:higherground/screens/CounselingScreen.dart';
+import 'package:higherground/screens/WellnessScreen.dart';
+import 'package:higherground/screens/MarketplaceBrowseScreen.dart';
+import 'package:higherground/screens/PartnershipScreen.dart';
 import 'package:higherground/screens/EventsListScreen.dart';
 import 'package:higherground/screens/EventsViewerScreen.dart';
 import 'package:higherground/screens/HymnsListScreen.dart';
 import 'package:higherground/screens/LivestreamsScreen.dart';
 import 'package:higherground/screens/SearchScreen.dart';
+import 'package:higherground/screens/DonateScreen.dart';
 import 'package:higherground/screens/VideoScreen.dart';
 import 'package:higherground/utils/ApiUrl.dart';
 import 'package:higherground/utils/Utility.dart';
@@ -64,7 +69,7 @@ class DashboardScreenRouteState extends State<DashboardScreen> {
 
     return DecoratedBox(
       decoration: const BoxDecoration(
-        color: Color(0xFFF7F1F4),
+        color: Color(0xFFf0f2f5),
       ),
       child: SafeArea(
         top: false,
@@ -85,6 +90,8 @@ class DashboardScreenRouteState extends State<DashboardScreen> {
                 'Jump straight into today\'s most-used church tools.',
               ),
               const SizedBox(height: 14),
+              _buildCommunityRow(),
+              const SizedBox(height: 12),
               Wrap(
                 spacing: 12,
                 runSpacing: 12,
@@ -142,7 +149,7 @@ class DashboardScreenRouteState extends State<DashboardScreen> {
           colors: [
             MyColors.primaryDark,
             MyColors.mainC0lor,
-            const Color(0xFFC04B86),
+            MyColors.primaryLight,
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -270,7 +277,7 @@ class DashboardScreenRouteState extends State<DashboardScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: const Color(0xFFE6D7E0)),
+            border: Border.all(color: MyColors.border),
             boxShadow: const [
               BoxShadow(
                 color: Color(0x12000000),
@@ -301,7 +308,7 @@ class DashboardScreenRouteState extends State<DashboardScreen> {
                     const Text(
                       'Search messages, books, and resources',
                       style: TextStyle(
-                        color: Color(0xFF23141D),
+                        color: Color(0xFF0f172a),
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
                       ),
@@ -310,7 +317,7 @@ class DashboardScreenRouteState extends State<DashboardScreen> {
                     Text(
                       t.searchmessagesbooks,
                       style: const TextStyle(
-                        color: Color(0xFF7A6B75),
+                        color: Color(0xFF475569),
                         fontSize: 13,
                       ),
                     ),
@@ -319,7 +326,7 @@ class DashboardScreenRouteState extends State<DashboardScreen> {
               ),
               const Icon(
                 Icons.arrow_forward_rounded,
-                color: Color(0xFF7A6B75),
+                color: Color(0xFF475569),
               ),
             ],
           ),
@@ -335,7 +342,7 @@ class DashboardScreenRouteState extends State<DashboardScreen> {
         Text(
           title,
           style: const TextStyle(
-            color: Color(0xFF23141D),
+            color: Color(0xFF0f172a),
             fontSize: 22,
             fontWeight: FontWeight.w800,
           ),
@@ -344,7 +351,7 @@ class DashboardScreenRouteState extends State<DashboardScreen> {
         Text(
           subtitle,
           style: const TextStyle(
-            color: Color(0xFF7A6B75),
+            color: Color(0xFF475569),
             fontSize: 14,
             height: 1.45,
           ),
@@ -382,7 +389,7 @@ class DashboardScreenRouteState extends State<DashboardScreen> {
               Text(
                 action.title,
                 style: const TextStyle(
-                  color: Color(0xFF23141D),
+                  color: Color(0xFF0f172a),
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
                 ),
@@ -391,7 +398,7 @@ class DashboardScreenRouteState extends State<DashboardScreen> {
               Text(
                 action.description,
                 style: const TextStyle(
-                  color: Color(0xFF7A6B75),
+                  color: Color(0xFF475569),
                   fontSize: 13,
                   height: 1.45,
                 ),
@@ -453,11 +460,11 @@ class DashboardScreenRouteState extends State<DashboardScreen> {
                           child: media.thumbnail == null ||
                                   media.thumbnail!.isEmpty
                               ? Container(
-                                  color: const Color(0xFFF1E4EA),
+                                  color: MyColors.primaryVeryLight,
                                   alignment: Alignment.center,
                                   child: Icon(
                                     LineAwesomeIcons.calendar,
-                                    color: MyColors.mainC0lor,
+                                    color: MyColors.primary,
                                     size: 42,
                                   ),
                                 )
@@ -473,7 +480,7 @@ class DashboardScreenRouteState extends State<DashboardScreen> {
                                     alignment: Alignment.center,
                                     child: const Icon(
                                       Icons.image_not_supported_outlined,
-                                      color: Color(0xFF7A6B75),
+                                      color: Color(0xFF475569),
                                     ),
                                   ),
                                 ),
@@ -497,7 +504,7 @@ class DashboardScreenRouteState extends State<DashboardScreen> {
                                 child: Text(
                                   'Upcoming Event',
                                   style: TextStyle(
-                                    color: MyColors.mainC0lor,
+                                    color: MyColors.primary,
                                     fontSize: 12,
                                     fontWeight: FontWeight.w700,
                                   ),
@@ -509,7 +516,7 @@ class DashboardScreenRouteState extends State<DashboardScreen> {
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
-                                  color: Color(0xFF23141D),
+                                  color: Color(0xFF0f172a),
                                   fontSize: 17,
                                   fontWeight: FontWeight.w800,
                                   height: 1.3,
@@ -521,13 +528,13 @@ class DashboardScreenRouteState extends State<DashboardScreen> {
                                   Icon(
                                     Icons.arrow_forward_rounded,
                                     size: 18,
-                                    color: Color(0xFF7A6B75),
+                                    color: Color(0xFF475569),
                                   ),
                                   SizedBox(width: 6),
                                   Text(
                                     'View details',
                                     style: TextStyle(
-                                      color: Color(0xFF7A6B75),
+                                      color: Color(0xFF475569),
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
@@ -587,7 +594,7 @@ class DashboardScreenRouteState extends State<DashboardScreen> {
                     Text(
                       action.title,
                       style: const TextStyle(
-                        color: Color(0xFF23141D),
+                        color: Color(0xFF0f172a),
                         fontSize: 16,
                         fontWeight: FontWeight.w800,
                       ),
@@ -596,7 +603,7 @@ class DashboardScreenRouteState extends State<DashboardScreen> {
                     Text(
                       action.description,
                       style: const TextStyle(
-                        color: Color(0xFF7A6B75),
+                        color: Color(0xFF475569),
                         fontSize: 13,
                         height: 1.45,
                       ),
@@ -608,12 +615,62 @@ class DashboardScreenRouteState extends State<DashboardScreen> {
               const Icon(
                 Icons.arrow_forward_ios_rounded,
                 size: 16,
-                color: Color(0xFF7A6B75),
+                color: Color(0xFF475569),
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  // ── Community first row ─────────────────────────────────────────────────────
+
+  Widget _buildCommunityRow() {
+    final tiles = <Widget>[];
+
+    tiles.add(_CommunityTile(
+      icon: Icons.lock_rounded,
+      label: 'Counseling',
+      description: 'Request private pastoral support & guidance.',
+      color: const Color(0xFF6366f1),
+      bg: const Color(0xFFe0e7ff),
+      onTap: () => Navigator.of(context).pushNamed(CounselingScreen.routeName),
+    ));
+
+    tiles.add(_CommunityTile(
+      icon: Icons.handshake_rounded,
+      label: 'Partnership',
+      description: 'Pledge your commitment to advance the Kingdom.',
+      color: const Color(0xFF10b981),
+      bg: const Color(0xFFD1FAE5),
+      onTap: () => Navigator.of(context).pushNamed(PartnershipScreen.routeName),
+    ));
+
+    tiles.add(_CommunityTile(
+      icon: Icons.favorite_rounded,
+      label: 'My Wellness',
+      description: 'Check your spiritual engagement score and care history.',
+      color: const Color(0xFF8b5cf6),
+      bg: const Color(0xFFEDE9FE),
+      onTap: () {
+        final email = appStateManager.userdata?.email ?? '';
+        if (email.isEmpty) {
+          Navigator.of(context).pushNamed('/AuthPage', arguments: true);
+          return;
+        }
+        Navigator.of(context)
+            .pushNamed(WellnessScreen.routeName, arguments: email);
+      },
+    ));
+
+    return Row(
+      children: [
+        for (int i = 0; i < tiles.length; i++) ...[
+          if (i > 0) const SizedBox(width: 10),
+          Expanded(child: tiles[i]),
+        ],
+      ],
     );
   }
 
@@ -627,8 +684,8 @@ class DashboardScreenRouteState extends State<DashboardScreen> {
           title: t.events,
           description:
               'Track services, programs, and upcoming church gatherings.',
-          color: const Color(0xFFB2436D),
-          borderColor: const Color(0xFFF0D8E2),
+          color: const Color(0xFF6366f1),
+          borderColor: const Color(0xFFe0e7ff),
           onTap: () {
             Navigator.of(context).pushNamed(EventsListScreen.routeName);
           },
@@ -643,8 +700,8 @@ class DashboardScreenRouteState extends State<DashboardScreen> {
           title: t.notes,
           description:
               'Capture message insights and revisit your personal reflections.',
-          color: const Color(0xFF5A4BCF),
-          borderColor: const Color(0xFFE3E0FA),
+          color: const Color(0xFF6366f1),
+          borderColor: const Color(0xFFe0e7ff),
           onTap: () {
             Navigator.of(context).pushNamed(NotesListScreen.routeName);
           },
@@ -658,8 +715,8 @@ class DashboardScreenRouteState extends State<DashboardScreen> {
           icon: LineAwesomeIcons.bible,
           title: t.bible,
           description: 'Open scripture quickly and continue your daily study.',
-          color: const Color(0xFF8F3E88),
-          borderColor: const Color(0xFFECDCF0),
+          color: const Color(0xFF6366f1),
+          borderColor: const Color(0xFFe0e7ff),
           onTap: _openBible,
         ),
       );
@@ -709,6 +766,19 @@ class DashboardScreenRouteState extends State<DashboardScreen> {
       );
     }
 
+    actions.add(
+      _DashboardAction(
+        icon: Icons.storefront_outlined,
+        title: 'Marketplace',
+        description: 'Buy, sell, and give away items within the church family.',
+        color: const Color(0xFF8B5CF6),
+        borderColor: const Color(0xFFEDE9FE),
+        onTap: () {
+          Navigator.of(context).pushNamed(MarketplaceBrowseScreen.routeName);
+        },
+      ),
+    );
+
     return actions;
   }
 
@@ -721,8 +791,8 @@ class DashboardScreenRouteState extends State<DashboardScreen> {
           icon: LineAwesomeIcons.bible,
           title: t.bible,
           description: 'Dig deep into God\'s word and study at your own pace.',
-          color: const Color(0xFF8F3E88),
-          borderColor: const Color(0xFFECDCF0),
+          color: const Color(0xFF6366f1),
+          borderColor: const Color(0xFFe0e7ff),
           onTap: _openBible,
         ),
       );
@@ -743,7 +813,7 @@ class DashboardScreenRouteState extends State<DashboardScreen> {
       );
     }
 
-    if (dashboardModel.isFeatureAvailable('donations')) {
+    if (dashboardModel.isFeatureAvailable('devotionals')) {
       actions.add(
         _DashboardAction(
           icon: LineAwesomeIcons.book_reader,
@@ -778,13 +848,10 @@ class DashboardScreenRouteState extends State<DashboardScreen> {
 
   void _openDonation() {
     final donationsLink = dashboardModel.data['donations_link'];
-    final String linkStr =
-        donationsLink != null ? donationsLink.toString() : '';
-    if (linkStr.isEmpty) {
-      Utility.openBrowserTab(ApiUrl.DONATE, context: context, title: t.donate);
-    } else {
-      Utility.openBrowserTab(linkStr, context: context, title: t.donate);
-    }
+    final String url = (donationsLink != null && donationsLink.toString().isNotEmpty)
+        ? donationsLink.toString()
+        : ApiUrl.DONATE;
+    Navigator.of(context).pushNamed(DonateScreen.routeName, arguments: url);
   }
 
   void _openBible() {
@@ -875,4 +942,78 @@ class _DashboardAction {
   final Color color;
   final Color borderColor;
   final VoidCallback onTap;
+}
+
+class _CommunityTile extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String description;
+  final Color color;
+  final Color bg;
+  final VoidCallback onTap;
+
+  const _CommunityTile({
+    required this.icon,
+    required this.label,
+    required this.description,
+    required this.color,
+    required this.bg,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(24),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(24),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: bg),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.14),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(icon, color: color, size: 22),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF0f172a),
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                description,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 11,
+                  color: Color(0xFF475569),
+                  height: 1.4,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }

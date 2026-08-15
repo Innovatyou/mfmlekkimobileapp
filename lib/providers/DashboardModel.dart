@@ -15,7 +15,6 @@ import 'package:higherground/providers/events.dart';
 import 'package:higherground/screens/AuthPage.dart';
 import 'package:higherground/screens/HomePage.dart';
 import 'package:higherground/utils/ApiUrl.dart';
-import 'package:higherground/utils/StringsUtils.dart';
 import 'package:higherground/utils/Utility.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 
@@ -98,7 +97,7 @@ class DashboardModel with ChangeNotifier {
     } catch (e) {
       print("[DashboardModel] POST request failed, trying GET as fallback...");
       print("[DashboardModel] POST Error: $e");
-      final getUrl = "${ApiUrl.INIT_APP}?_p=${StringsUtils.API_TOKEN}";
+      final getUrl = ApiUrl.INIT_APP;
       response = await Utility.getDio().get(
         getUrl,
         options: Options(responseType: ResponseType.plain),
@@ -115,12 +114,22 @@ class DashboardModel with ChangeNotifier {
       try {
         // Handle both String and Map responses
         if (response.data is String) {
-          res = jsonDecode(response.data);
+          res = Utility.decodeResponse(response.data);
         } else {
           res = response.data;
         }
       } catch (parseError) {
-        print("[DashboardModel] ERROR: Failed to parse response as JSON");
+        // The backend /initapp endpoint is returning plain text or HTML
+        // instead of JSON.  This is almost always caused by one of:
+        //   1. The CodeIgniter debugbar is ON (application/config/config.php:
+        //      $config['show_error_detail'] = TRUE, or ENVIRONMENT = 'development').
+        //      FIX: set ENVIRONMENT to 'production' in index.php, or disable
+        //      the debug bar via spark/debugbar config.
+        //   2. The initapp controller is not yet implemented — it's echoing a
+        //      placeholder string.  FIX: implement the controller to return a
+        //      JSON response with a 'settings' key.
+        // The app will continue with a built-in default feature set.
+        print("[DashboardModel] ERROR: Failed to parse /initapp response as JSON");
         print("[DashboardModel] Parse Error: $parseError");
         print("[DashboardModel] Raw response was: ${response.data}");
         print("[DashboardModel] DIAGNOSIS: Backend /initapp endpoint is not returning valid JSON");
@@ -179,11 +188,12 @@ class DashboardModel with ChangeNotifier {
       var settings = res["settings"];
 
       data['features'] = settings['features'] ?? "";
-      data['app_login'] = settings['app_login'] == "0";
-      data['allow_downloads'] = settings['allow_downloads'] == "0";
-      data['join_groups'] = settings['join_groups'] == "0";
-      data['post_prayer'] = settings['post_prayer'] == "0";
-      data['post_testimony'] = settings['post_testimony'] == "0";
+      // "1" = feature enabled/required, "0" = disabled
+      data['app_login'] = settings['app_login'] == "1";
+      data['allow_downloads'] = settings['allow_downloads'] == "1";
+      data['join_groups'] = settings['join_groups'] == "1";
+      data['post_prayer'] = settings['post_prayer'] == "1";
+      data['post_testimony'] = settings['post_testimony'] == "1";
 
       data['facebook'] = settings['facebook'] ?? "";
       data['twitter'] = settings['twitter'] ?? "";
@@ -195,19 +205,19 @@ class DashboardModel with ChangeNotifier {
       print("[DashboardModel] Features available: ${data['features']}");
 
       // Parse all lists safely
-      recentmedia = settings.containsKey("latest_media")
+      recentmedia = res.containsKey("latest_media")
           ? parseMedia(res)
           : [];
-      recentarticles = settings.containsKey("latest_articles")
+      recentarticles = res.containsKey("latest_articles")
           ? parseArticles(res)
           : [];
-      recentbooks = settings.containsKey("latest_books")
+      recentbooks = res.containsKey("latest_books")
           ? parseBooks(res)
           : [];
       upcomingevents =
-          settings.containsKey("upcoming_events") ? parseEvents(res) : [];
+          res.containsKey("upcoming_events") ? parseEvents(res) : [];
       recentmembers =
-          settings.containsKey("members") ? parseMembers(res) : [];
+          res.containsKey("members") ? parseMembers(res) : [];
 
       print("[DashboardModel] Data parsed successfully");
       print("[DashboardModel] Media: ${recentmedia.length}, Articles: ${recentarticles.length}, Books: ${recentbooks.length}");
@@ -321,14 +331,14 @@ class DashboardModel with ChangeNotifier {
           title: t.hymns,
           description: t.hymns,
           photo: "hymns.jpg",
-          icon: FontAwesomeIcons.bookBible));
+          icon: FontAwesomeIcons.bookBible.data));
     }
     if (isFeatureAvailable("notes")) {
       listone.add(Items(3,
           title: t.notes,
           description: t.notes,
           photo: "notes.jpg",
-          icon: FontAwesomeIcons.list));
+          icon: FontAwesomeIcons.list.data));
     }
 
     //list three
@@ -357,7 +367,7 @@ class DashboardModel with ChangeNotifier {
       listthree.add(Items(4,
           title: t.radiostreams,
           description: t.radiohint,
-          icon: FontAwesomeIcons.radio));
+          icon: FontAwesomeIcons.radio.data));
     }
     if (isFeatureAvailable("livestreams")) {
       listthree.add(Items(5,
@@ -468,10 +478,13 @@ class DashboardModel with ChangeNotifier {
   bool isFeatureAvailable(String type) {
     final features = data['features'];
     if (features == null) return true;
-    
+
     // Convert to String safely
     String featureStr = (features is String ? features : features.toString())
         .toLowerCase();
+
+    // Empty features string means not yet configured — show everything
+    if (featureStr.isEmpty) return true;
     
     if (type == "media") {
       return (featureStr.contains("media") ||

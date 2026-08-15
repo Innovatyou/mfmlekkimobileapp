@@ -71,7 +71,7 @@ class ConnectPageRouteState extends State<ConnectPage> {
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFF23141D),
+                        color: Color(0xFF0f172a),
                       ),
                     ),
                   ),

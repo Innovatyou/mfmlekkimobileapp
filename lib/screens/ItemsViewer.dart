@@ -43,7 +43,7 @@ class _ArticleViewerState extends State<ItemsViewer> {
         data: jsonEncode({'data': data}),
       );
       if (response.statusCode == 200) {
-        final dynamic res = jsonDecode(response.data);
+        final dynamic res = Utility.decodeResponse(response.data);
         setState(() {
           if (widget.type == 'Devotional') {
             devotionals = Devotionals.fromJson(res['devotional']);
@@ -90,7 +90,7 @@ class _ArticleViewerState extends State<ItemsViewer> {
           widget.type ?? '',
           style: const TextStyle(
             fontWeight: FontWeight.w800,
-            color: Color(0xFF23141D),
+            color: Color(0xFF0f172a),
           ),
         ),
       ),
@@ -209,7 +209,7 @@ class _ArticleViewerState extends State<ItemsViewer> {
                   style: const TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF23141D),
+                    color: Color(0xFF0f172a),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -217,7 +217,7 @@ class _ArticleViewerState extends State<ItemsViewer> {
                   subtitle,
                   style: const TextStyle(
                     fontSize: 13,
-                    color: Color(0xFF7A6B75),
+                    color: Color(0xFF475569),
                   ),
                 ),
                 const SizedBox(height: 12),

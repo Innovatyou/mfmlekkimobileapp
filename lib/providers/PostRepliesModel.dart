@@ -104,7 +104,7 @@ class PostRepliesModel with ChangeNotifier {
         // If the server did return a 200 OK response,
         // then parse the JSON.
 
-        Map<String, dynamic> res = json.decode(response.data);
+        Map<String, dynamic> res = Utility.decodeResponse(response.data);
         hasMoreComments = res["has_more"];
         List<Replies> comments = parseComments(response.data);
         setComments(comments);
@@ -143,7 +143,7 @@ class PostRepliesModel with ChangeNotifier {
       if (response.statusCode == 200) {
         // If the server did return a 200 OK response,
         // then parse the JSON.
-        Map<String, dynamic> res = json.decode(response.data);
+        Map<String, dynamic> res = Utility.decodeResponse(response.data);
         hasMoreComments = res["has_more"];
         List<Replies> articles = parseComments(response.data);
         setMoreArticles(articles);
@@ -186,7 +186,7 @@ class PostRepliesModel with ChangeNotifier {
       if (response.statusCode == 200) {
         // If the server did return a 200 OK response,
         // then parse the JSON.
-        Map<String, dynamic> res = json.decode(response.data);
+        Map<String, dynamic> res = Utility.decodeResponse(response.data);
         print(res);
         String? _status = res["status"];
         if (_status == "ok") {
@@ -251,7 +251,7 @@ class PostRepliesModel with ChangeNotifier {
       if (response.statusCode == 200) {
         // If the server did return a 200 OK response,
         // then parse the JSON.
-        Map<String, dynamic> res = json.decode(response.data);
+        Map<String, dynamic> res = Utility.decodeResponse(response.data);
         print(res);
         String? _status = res["status"];
         if (_status == "ok") {
@@ -339,7 +339,7 @@ class PostRepliesModel with ChangeNotifier {
       if (response.statusCode == 200) {
         // If the server did return a 200 OK response,
         // then parse the JSON.
-        Map<String, dynamic> res = json.decode(response.data);
+        Map<String, dynamic> res = Utility.decodeResponse(response.data);
         print(res);
         String? _status = res["status"];
         if (_status == "ok") {
@@ -379,7 +379,7 @@ class PostRepliesModel with ChangeNotifier {
       if (response.statusCode == 200) {
         // If the server did return a 200 OK response,
         // then parse the JSON.
-        Map<String, dynamic> res = json.decode(response.data);
+        Map<String, dynamic> res = Utility.decodeResponse(response.data);
         print(res);
         String? _status = res["status"];
         if (_status == "ok") {

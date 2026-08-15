@@ -11,13 +11,13 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:higherground/database/SQLiteDbProvider.dart';
 import 'package:higherground/models/Userdata.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:higherground/utils/langs.dart';
 import 'package:higherground/i18n/strings.g.dart';
 
 class AppStateManager with ChangeNotifier {
   Userdata? userdata;
   bool? isUserSeenOnboardingPage = false;
+  Timer? _pollTimer;
   int DEFAULT_LANGUAGE = 0;
   int preferredLanguage = 0;
   bool inboxnotifications = true;
@@ -46,8 +46,6 @@ class AppStateManager with ChangeNotifier {
     registerEvents();
   }
 
-  // secure storage for apitoken
-  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
 
   registerEvents() {
     //logged in event
@@ -243,21 +241,31 @@ class AppStateManager with ChangeNotifier {
     prefs.setBool("user_seen_onboarding_page", seen);
   }
 
+  void _startPolling() {
+    _pollTimer?.cancel();
+    _pollTimer = Timer.periodic(const Duration(seconds: 30), (_) {
+      getunseennotificationcount();
+    });
+  }
+
+  void _stopPolling() {
+    _pollTimer?.cancel();
+    _pollTimer = null;
+  }
+
+  @override
+  void dispose() {
+    _stopPolling();
+    super.dispose();
+  }
+
   getUserData() async {
     userdata = await SQLiteDbProvider.db.getUserData();
     print("userdata " + userdata.toString());
     getunseennotificationcount();
     notifyListeners();
     if (userdata == null) return;
-    // try to read apitoken from secure storage and attach to userdata
-    try {
-      String? token = await _secureStorage.read(key: 'apitoken');
-      if (token != null) {
-        userdata!.apitoken = token;
-      }
-    } catch (e) {
-      print('Failed to read apitoken from secure storage: $e');
-    }
+    _startPolling();
     eventBus.fire(UserLoggedInEvent(userdata));
     updateUserToken();
   }
@@ -266,14 +274,7 @@ class AppStateManager with ChangeNotifier {
     await SQLiteDbProvider.db.deleteUserData();
     await SQLiteDbProvider.db.insertUser(_userdata);
     this.userdata = _userdata;
-    // persist apitoken securely if present
-    try {
-      if (_userdata.apitoken != null) {
-        await _secureStorage.write(key: 'apitoken', value: _userdata.apitoken);
-      }
-    } catch (e) {
-      print('Failed to write apitoken to secure storage: $e');
-    }
+    _startPolling();
     eventBus.fire(UserLoggedInEvent(userdata));
     updateUserToken();
     getunseennotificationcount();
@@ -283,6 +284,7 @@ class AppStateManager with ChangeNotifier {
   unsetUserData() async {
     await SQLiteDbProvider.db.deleteUserData();
     this.userdata = null;
+    _stopPolling();
     eventBus.fire(AppEvents.LOGOUT);
     unsetNotificationcount();
     unsetChatNotificationcount();
@@ -293,22 +295,23 @@ class AppStateManager with ChangeNotifier {
     if (userdata == null) return;
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString("firebase_token");
-    try {
-      final dio = await Utility.getAuthenticatedDio();
-      final response = await dio.post(
+    if (token == null || token.isEmpty) return;
+    final dio = await Utility.getAuthenticatedDio();
+    // Send to both endpoints as required after every login
+    final calls = [
+      dio.post(
+        ApiUrl.storeFcmToken,
+        data: jsonEncode({"data": {"token": token, "version": "v2"}}),
+      ),
+      dio.post(
         ApiUrl.updateUserSocialFcmToken,
-        data: jsonEncode({
-          "data": {"email": userdata!.email, "token": token}
-        }),
-      );
-      if (response.statusCode == 200) {
-        // If the server did return a 200 OK response,
-        // then parse the JSON.
-        print(response.data);
-      }
-    } catch (exception) {
-      // I get no exception here
-      print(exception);
+        data: jsonEncode({"data": {"email": userdata!.email, "token": token}}),
+      ),
+    ];
+    try {
+      await Future.wait(calls);
+    } catch (e) {
+      print("[AppStateManager] FCM token update failed: $e");
     }
   }
 
@@ -333,13 +336,13 @@ class AppStateManager with ChangeNotifier {
 
       if (response.statusCode == 200) {
         print(response.data);
-        dynamic res = jsonDecode(response.data);
+        dynamic res = Utility.decodeResponse(response.data);
         int _notificationcount =
             int.parse(res['notification_count'].toString());
         if (_notificationcount == 0) {
           notificationcount = "";
         } else if (_notificationcount <= 9) {
-          notificationcount = _notificationcount.toString();
+          notificationcount = (_notificationcount - 1).toString();
         } else {
           notificationcount = "9+";
         }
@@ -355,9 +358,8 @@ class AppStateManager with ChangeNotifier {
         notifyListeners();
       }
     } catch (exception) {
-      // I get no exception here
       print(exception);
-      if (exception is DioError) {
+      if (exception is DioException) {
         print(exception.stackTrace);
         print(exception.error);
         print(exception.message);

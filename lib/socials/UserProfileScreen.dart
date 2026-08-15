@@ -61,7 +61,7 @@ class UserProfileScreenRouteState extends State<UserProfileScreen> {
         // If the server did return a 200 OK response,
         // then parse the JSON.
         print(response.data);
-        dynamic res = jsonDecode(response.data);
+        dynamic res = Utility.decodeResponse(response.data);
         _user = Userdata.fromJson2(res['user']);
         postscount = int.parse(res['post_count'].toString());
         followerscount = int.parse(res['followers_count'].toString());
@@ -261,7 +261,7 @@ class UserProfileScreenRouteState extends State<UserProfileScreen> {
             }
           },
           child: Icon(
-            FontAwesomeIcons.comment,
+            FontAwesomeIcons.comment.data,
             color: Colors.white,
           ),
           //icon: Icon(Icons.add_circle),
@@ -314,7 +314,7 @@ class UserProfileScreenRouteState extends State<UserProfileScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: ListTile(
-                leading: Icon(FontAwesomeIcons.info),
+                leading: Icon(FontAwesomeIcons.info.data),
                 contentPadding: EdgeInsets.all(5),
                 title: Text(
                   t.aboutme,
@@ -329,7 +329,7 @@ class UserProfileScreenRouteState extends State<UserProfileScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: ListTile(
-                leading: Icon(FontAwesomeIcons.genderless),
+                leading: Icon(FontAwesomeIcons.genderless.data),
                 contentPadding: EdgeInsets.all(5),
                 title: Text(
                   t.gender,

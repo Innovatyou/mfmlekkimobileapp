@@ -78,7 +78,7 @@ class _InAppWebPageState extends State<InAppWebPage> {
                     Text(
                       widget.url,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(color: Color(0xFF7A6B75)),
+                      style: const TextStyle(color: Color(0xFF475569)),
                     ),
                     const SizedBox(height: 16),
                     ElevatedButton(

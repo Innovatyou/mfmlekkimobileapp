@@ -1,16 +1,19 @@
-import 'dart:io';
+import 'dart:io' show SecurityContext;
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:higherground/providers/AudioPlayerModel.dart';
 import 'package:higherground/providers/BibleModel.dart';
 import 'package:higherground/providers/BookmarksModel.dart';
 import 'package:higherground/providers/ChatManager.dart';
 import 'package:higherground/providers/DashboardModel.dart';
+import 'package:higherground/providers/MarketplaceModel.dart';
 import 'package:higherground/providers/DownloadsModel.dart';
 import 'package:higherground/providers/HymnsBookmarksModel.dart';
 import 'package:higherground/providers/NotesProvider.dart';
 import 'package:higherground/providers/PlaylistsModel.dart';
 import 'package:higherground/providers/translate_provider.dart';
+import 'package:higherground/providers/wellness_provider.dart';
 import 'package:higherground/utils/my_colors.dart';
 import 'package:isolated_download_manager/isolated_download_manager.dart';
 import 'package:provider/provider.dart';
@@ -53,12 +56,20 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  SecurityContext.defaultContext
-      .setTrustedCertificatesBytes(Uint8List.fromList(isrgRootX1.codeUnits));
-  
-  await Firebase.initializeApp();
-  await DownloadManager.instance.init(isolates: 5);
-  
+  // dart:io's SecurityContext doesn't exist on web; the browser handles
+  // TLS trust itself.
+  if (!kIsWeb) {
+    SecurityContext.defaultContext.setTrustedCertificatesBytes(
+        Uint8List.fromList(isrgRootX1.codeUnits));
+  }
+
+  // No Firebase Web app is registered for this project yet, so
+  // Firebase.initializeApp() has no credentials to use on web.
+  if (!kIsWeb) {
+    await Firebase.initializeApp();
+    await DownloadManager.instance.init(isolates: 5);
+  }
+
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
@@ -79,6 +90,8 @@ void main() async {
       ChangeNotifierProvider(create: (_) => TranslateProvider()),
       ChangeNotifierProvider(create: (_) => DashboardModel()),
       ChangeNotifierProvider(create: (_) => ChatManager()),
+      ChangeNotifierProvider(create: (_) => MarketplaceModel()),
+      ChangeNotifierProvider(create: (_) => WellnessProvider()),
     ], child: MyApp()));
 }
 

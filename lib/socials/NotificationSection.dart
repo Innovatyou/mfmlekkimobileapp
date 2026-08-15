@@ -105,7 +105,7 @@ class NotificationSectionRouteState extends State<NotificationSection>
         print(response.data);
           dynamic res;
           if (response.data is String) {
-            res = jsonDecode(response.data);
+            res = Utility.decodeResponse(response.data);
           } else {
             res = response.data;
           }
@@ -194,7 +194,7 @@ class NotificationSectionRouteState extends State<NotificationSection>
         title: Text(
           t.notifications,
           style: const TextStyle(
-            color: Color(0xFF23141D),
+            color: Color(0xFF0f172a),
             fontWeight: FontWeight.w700,
           ),
         ),

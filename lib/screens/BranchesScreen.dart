@@ -25,7 +25,7 @@ class BranchesScreen extends StatelessWidget {
           t.branches,
           style: const TextStyle(
             fontWeight: FontWeight.w800,
-            color: Color(0xFF23141D),
+            color: Color(0xFF0f172a),
           ),
         ),
       ),
@@ -52,10 +52,13 @@ class _BranchesPageBodyState extends State<BranchesPageBody> {
       isLoading = true;
     });
     try {
-      final response = await Utility.getDio().post(ApiUrl.FETCH_BRANCHES);
+      final response = await Utility.getDio().post(
+        ApiUrl.FETCH_BRANCHES,
+        data: jsonEncode({"data": {"page": "0"}}),
+      );
 
       if (response.statusCode == 200) {
-        final dynamic res = jsonDecode(response.data);
+        final dynamic res = Utility.decodeResponse(response.data);
         final List<Branches>? fetched = parseBranches(res);
         setState(() {
           isLoading = false;
@@ -133,7 +136,7 @@ class ItemTile extends StatelessWidget {
             color: const Color(0xFFF5EAF1),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(icon, color: const Color(0xFF8F3E88), size: 20),
+          child: Icon(icon, color: const Color(0xFF6366f1), size: 20),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -168,14 +171,14 @@ class ItemTile extends StatelessWidget {
             style: TextStyles.headline(context).copyWith(
               fontWeight: FontWeight.w700,
               fontSize: 18,
-              color: const Color(0xFF23141D),
+              color: const Color(0xFF0f172a),
             ),
           ),
           const SizedBox(height: 6),
           Text(
             branches.pastor ?? '',
             style: TextStyles.subhead(context).copyWith(
-              color: const Color(0xFF7A6B75),
+              color: const Color(0xFF475569),
             ),
           ),
           const SizedBox(height: 14),
@@ -208,13 +211,13 @@ class ItemTile extends StatelessWidget {
                     const Icon(
                       Icons.map_outlined,
                       size: 18,
-                      color: Color(0xFF8F3E88),
+                      color: Color(0xFF6366f1),
                     ),
                     const SizedBox(width: 8),
                     Text(
                       t.viewinmap,
                       style: TextStyles.subhead(context).copyWith(
-                        color: const Color(0xFF8F3E88),
+                        color: const Color(0xFF6366f1),
                         fontWeight: FontWeight.w600,
                       ),
                     ),

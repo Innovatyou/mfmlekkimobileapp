@@ -51,7 +51,7 @@ class _EventsListScreenState extends State<GroupEventsListScreen> {
       );
 
       if (response.statusCode == 200) {
-        final dynamic res = jsonDecode(response.data);
+        final dynamic res = Utility.decodeResponse(response.data);
         final List<Events> fetched = parseEvents(res);
         _events!.clear();
         for (final element in fetched) {
@@ -224,8 +224,8 @@ class _EventsListScreenState extends State<GroupEventsListScreen> {
                               border: Border.all(color: const Color(0xFFCF4E45)),
                               borderRadius: const BorderRadius.all(Radius.circular(20)),
                             ),
-                            defaultTextStyle: const TextStyle(color: Color(0xFF23141D)),
-                            weekendTextStyle: const TextStyle(color: Color(0xFF23141D)),
+                            defaultTextStyle: const TextStyle(color: Color(0xFF0f172a)),
+                            weekendTextStyle: const TextStyle(color: Color(0xFF0f172a)),
                             outsideTextStyle: const TextStyle(color: Color(0xFFB4A8B1)),
                             todayTextStyle: const TextStyle(
                               fontWeight: FontWeight.bold,
@@ -237,12 +237,12 @@ class _EventsListScreenState extends State<GroupEventsListScreen> {
                             headerMargin: const EdgeInsets.all(10),
                             titleCentered: true,
                             titleTextStyle: const TextStyle(
-                              color: Color(0xFF23141D),
+                              color: Color(0xFF0f172a),
                               fontWeight: FontWeight.w800,
                               fontSize: 16,
                             ),
                             formatButtonDecoration: BoxDecoration(
-                              color: const Color(0xFF8F3E88),
+                              color: const Color(0xFF6366f1),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             formatButtonTextStyle: const TextStyle(color: Colors.white),
@@ -343,7 +343,7 @@ class _EventsListScreenState extends State<GroupEventsListScreen> {
                               style: TextStyles.headline(context).copyWith(
                                 fontWeight: FontWeight.w800,
                                 fontSize: 18,
-                                color: const Color(0xFF23141D),
+                                color: const Color(0xFF0f172a),
                               ),
                             ),
                             const Spacer(),
@@ -356,7 +356,7 @@ class _EventsListScreenState extends State<GroupEventsListScreen> {
                               child: Text(
                                 '${items.length}',
                                 style: const TextStyle(
-                                  color: Color(0xFF7A6B75),
+                                  color: Color(0xFF475569),
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
@@ -381,7 +381,7 @@ class _EventsListScreenState extends State<GroupEventsListScreen> {
                                   textAlign: TextAlign.center,
                                   style: TextStyles.subhead(context).copyWith(
                                     fontSize: 14,
-                                    color: const Color(0xFF7A6B75),
+                                    color: const Color(0xFF475569),
                                   ),
                                 ),
                               ),
@@ -455,7 +455,7 @@ class ItemTile extends StatelessWidget {
               ),
               child: const Icon(
                 Icons.event_note_rounded,
-                color: Color(0xFF8F3E88),
+                color: Color(0xFF6366f1),
               ),
             ),
             const SizedBox(width: 12),
@@ -469,7 +469,7 @@ class ItemTile extends StatelessWidget {
                         child: Text(
                           DateFormat('EEE, MMM d, yyyy', 'en_US').format(tempDate),
                           style: TextStyles.caption(context).copyWith(
-                            color: const Color(0xFF7A6B75),
+                            color: const Color(0xFF475569),
                             fontWeight: FontWeight.w700,
                             fontSize: 12.5,
                           ),
@@ -478,7 +478,7 @@ class ItemTile extends StatelessWidget {
                       Text(
                         events!.time!,
                         style: TextStyles.caption(context).copyWith(
-                          color: const Color(0xFF7A6B75),
+                          color: const Color(0xFF475569),
                           fontWeight: FontWeight.w700,
                           fontSize: 12.5,
                         ),
@@ -492,7 +492,7 @@ class ItemTile extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: TextStyles.subhead(context).copyWith(
                       fontWeight: FontWeight.w700,
-                      color: const Color(0xFF23141D),
+                      color: const Color(0xFF0f172a),
                     ),
                   ),
                 ],

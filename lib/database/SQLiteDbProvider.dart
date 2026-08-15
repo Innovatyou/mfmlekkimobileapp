@@ -26,7 +26,7 @@ class SQLiteDbProvider {
   initDB() async {
     return await openDatabase(
       join(await getDatabasesPath(), 'streamit_database.db'),
-      version: 2,
+      version: 3,
       onOpen: (db) {},
       onCreate: (Database db, int version) async {
         await db.execute("CREATE TABLE ${Versions.TABLE} ("
@@ -158,7 +158,8 @@ class SQLiteDbProvider {
             "occupation TEXT,"
             "facebook TEXT,"
             "twitter TEXT,"
-            "linkedln TEXT"
+            "linkedln TEXT,"
+            "apiToken TEXT"
             ")");
       },
       onUpgrade: (Database db, int oldVersion, int newVersion) async {
@@ -172,6 +173,9 @@ class SQLiteDbProvider {
           await db
               .execute("ALTER TABLE ${Notes.TABLE}  ADD message_title TEXT");*/
 
+        }
+        if (oldVersion < 3) {
+          await db.execute("ALTER TABLE ${Userdata.TABLE} ADD apiToken TEXT");
         }
       },
     );

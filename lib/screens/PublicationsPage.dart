@@ -90,7 +90,7 @@ class _PublicationsPageState extends State<PublicationsPage> {
                               right: 0,
                               child: Container(
                                 height: 68,
-                                color: const Color(0xA623141D),
+                                color: const Color(0xA60f172a),
                                 padding: const EdgeInsets.all(10),
                                 child: Align(
                                   alignment: Alignment.center,
@@ -154,12 +154,12 @@ class _PublicationsPageState extends State<PublicationsPage> {
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                             fontWeight: FontWeight.w700,
-                            color: Color(0xFF23141D),
+                            color: Color(0xFF0f172a),
                           ),
                         ),
                         subtitle: Text(
                           '${articles.date!} | ${articles.author!}',
-                          style: const TextStyle(color: Color(0xFF7A6B75)),
+                          style: const TextStyle(color: Color(0xFF475569)),
                         ),
                         trailing: ClipRRect(
                           borderRadius: BorderRadius.circular(10),
@@ -199,14 +199,14 @@ class _PublicationsPageState extends State<PublicationsPage> {
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF23141D),
+                color: Color(0xFF0f172a),
               ),
             ),
           ),
           IconButton(
             icon: const Icon(
               Icons.keyboard_arrow_right_rounded,
-              color: Color(0xFF8F3E88),
+              color: Color(0xFF6366f1),
             ),
             onPressed: onTap,
           ),

@@ -142,11 +142,16 @@ class Firebase {
 
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
+    // getToken() throws on devices/emulators without Google Play Services.
+    // Catching the error prevents an unhandled exception crash.
     FirebaseMessaging.instance.getToken().then((token) async {
+      if (token == null) return;
       print("Push Messaging token: $token");
       sendFirebaseTokenToServer(token);
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      prefs.setString("firebase_token", token!);
+      prefs.setString("firebase_token", token);
+    }).catchError((Object e) {
+      print("Firebase: getToken failed (GMS unavailable or network error): $e");
     });
 
     /*final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
@@ -417,7 +422,7 @@ class Firebase {
           // If the server did return a 200 OK response,
           // then parse the JSON.
           print(response.data);
-          Map<String, dynamic> res = json.decode(response.data);
+          Map<String, dynamic> res = Utility.decodeResponse(response.data);
           if (res["status"] == "ok") {
             prefs.setBool("token_sent_to_server", true);
           }

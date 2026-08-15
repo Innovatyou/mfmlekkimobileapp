@@ -102,7 +102,7 @@ class FollowPeopleSectionRouteState extends State<FollowPeopleSection>
         // If the server did return a 200 OK response,
         // then parse the JSON.
         print(response.data);
-        dynamic res = jsonDecode(response.data);
+        dynamic res = Utility.decodeResponse(response.data);
         List<Userdata>? userList = parseUsers(res);
         if (page == 0) {
           setItems(userList);
@@ -157,7 +157,7 @@ class FollowPeopleSectionRouteState extends State<FollowPeopleSection>
         title: Text(
           t.members,
           style: const TextStyle(
-            color: Color(0xFF23141D),
+            color: Color(0xFF0f172a),
             fontWeight: FontWeight.w700,
           ),
         ),
@@ -383,7 +383,7 @@ class _PeopleListState extends State<PeopleList> {
                   }
                 },
                 icon: Icon(
-                  FontAwesomeIcons.comment,
+                  FontAwesomeIcons.comment.data,
                   color: MyColors.mainC0lor,
                 )),
         onTap: () {},

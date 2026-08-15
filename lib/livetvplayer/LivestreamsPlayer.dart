@@ -48,7 +48,7 @@ class _VideoViewerScreenState extends State<LivestreamsPlayer> {
         }),
       );
       if (response.statusCode == 200) {
-        final dynamic res = jsonDecode(response.data);
+        final dynamic res = Utility.decodeResponse(response.data);
         final List<dynamic> raw = (res['livestreams'] ?? []) as List<dynamic>;
         final list = raw
             .map((e) => LiveStreams.fromJson(e as Map<String, dynamic>))
@@ -168,7 +168,7 @@ class _VideoViewerScreenState extends State<LivestreamsPlayer> {
                     ),
                     child: const Text(
                       'No more streamed videos available right now. Tap to view all streams.',
-                      style: TextStyle(color: Color(0xFF7A6B75)),
+                      style: TextStyle(color: Color(0xFF475569)),
                     ),
                   ),
                 ),
@@ -206,7 +206,7 @@ class _VideoViewerScreenState extends State<LivestreamsPlayer> {
                               width: 120,
                               height: 68,
                               child: CachedNetworkImage(
-                                imageUrl: live.coverphoto ?? '',
+                                imageUrl: Utility.convertLocalhostToEmulator(live.coverphoto),
                                 fit: BoxFit.cover,
                                 placeholder: (_, __) => const Center(
                                   child: CupertinoActivityIndicator(),
@@ -225,7 +225,7 @@ class _VideoViewerScreenState extends State<LivestreamsPlayer> {
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
-                                color: Color(0xFF23141D),
+                                color: Color(0xFF0f172a),
                                 fontSize: 15,
                                 fontWeight: FontWeight.w600,
                                 height: 1.35,
@@ -260,7 +260,7 @@ class _VideoViewerScreenState extends State<LivestreamsPlayer> {
           Text(
             currentMedia?.title ?? '',
             style: const TextStyle(
-              color: Color(0xFF23141D),
+              color: Color(0xFF0f172a),
               fontSize: 22,
               fontWeight: FontWeight.w500,
               height: 1.35,
@@ -272,14 +272,14 @@ class _VideoViewerScreenState extends State<LivestreamsPlayer> {
               Text(
                 'Streamed video',
                 style: TextStyle(
-                  color: Color(0xFF7A6B75),
+                  color: Color(0xFF475569),
                   fontSize: 14,
                 ),
               ),
               Spacer(),
               Icon(
                 Icons.keyboard_arrow_down_rounded,
-                color: Color(0xFF7A6B75),
+                color: Color(0xFF475569),
               ),
             ],
           ),

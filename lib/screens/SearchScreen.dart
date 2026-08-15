@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
-import 'package:higherground/utils/TextStyles.dart';
+import 'package:higherground/utils/my_colors.dart';
 import 'package:higherground/models/Media.dart';
 import 'package:higherground/providers/AppStateManager.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -56,45 +55,69 @@ class SearchScreenRouteState extends State<SearchScreenBody> {
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F2F5),
+      backgroundColor: const Color(0xFFF1F4F9),
       appBar: AppBar(
         title: const Text(
           'Search Library',
-          style: TextStyle(fontWeight: FontWeight.w800),
-        ),
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back,
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w700,
+            fontSize: 18,
           ),
-          onPressed: () {
-            Navigator.pop(context);
-          },
+        ),
+        backgroundColor: MyColors.navBackground,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Icon(Icons.arrow_back_ios_new_rounded,
+                color: Colors.white, size: 16),
+          ),
+          onPressed: () => Navigator.pop(context),
         ),
       ),
       body: SmartRefresher(
           enablePullDown: false,
           enablePullUp: searchModel.items.length > 20 ? true : false,
-          header: WaterDropHeader(),
-          footer: CustomFooter(
-            builder: (BuildContext context, LoadStatus? mode) {
-              Widget body;
-              if (mode == LoadStatus.idle) {
-                body = Text(t.pulluploadmore);
-              } else if (mode == LoadStatus.loading) {
-                body = CupertinoActivityIndicator();
-              } else if (mode == LoadStatus.failed) {
-                body = Text(t.loadfailedretry);
-              } else if (mode == LoadStatus.canLoading) {
-                body = Text(t.releaseloadmore);
-              } else {
-                body = Text(t.nomoredata);
-              }
-              return Container(
-                height: 55.0,
-                child: Center(child: body),
-              );
-            },
-          ),
+          header: const WaterDropMaterialHeader(
+          backgroundColor: MyColors.primary,
+          color: Colors.white,
+        ),
+        footer: CustomFooter(
+          builder: (BuildContext context, LoadStatus? mode) {
+            late Widget body;
+            if (mode == LoadStatus.idle) {
+              body = Text(t.pulluploadmore,
+                  style: const TextStyle(
+                      color: MyColors.textSecondary, fontSize: 12));
+            } else if (mode == LoadStatus.loading) {
+              body = const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                      strokeWidth: 2, color: MyColors.primary));
+            } else if (mode == LoadStatus.failed) {
+              body = Text(t.loadfailedretry,
+                  style:
+                      const TextStyle(color: MyColors.danger, fontSize: 12));
+            } else if (mode == LoadStatus.canLoading) {
+              body = Text(t.releaseloadmore,
+                  style: const TextStyle(
+                      color: MyColors.textSecondary, fontSize: 12));
+            } else {
+              body = Text(t.nomoredata,
+                  style: const TextStyle(
+                      color: MyColors.textDisabled, fontSize: 12));
+            }
+            return SizedBox(height: 55, child: Center(child: body));
+          },
+        ),
           controller: searchModel.refreshController,
           onLoading: _onLoading,
           child: buildContent(context, searchModel, appState, items)),
@@ -106,19 +129,19 @@ class SearchScreenRouteState extends State<SearchScreenBody> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFE8DDE4)),
+        border: Border.all(color: const Color(0xFFe2e8f0)),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x12000000),
+            color: Color(0x08000000),
             blurRadius: 10,
-            offset: Offset(0, 4),
+            offset: Offset(0, 2),
           ),
         ],
       ),
       child: TextField(
         maxLines: 1,
         controller: inputController,
-        style: const TextStyle(fontSize: 15, color: Color(0xFF23141D)),
+        style: const TextStyle(fontSize: 15, color: Color(0xFF0f172a)),
         keyboardType: TextInputType.text,
         textInputAction: TextInputAction.search,
         onSubmitted: (query) {
@@ -134,15 +157,15 @@ class SearchScreenRouteState extends State<SearchScreenBody> {
         decoration: InputDecoration(
           border: InputBorder.none,
           hintText: t.searchhint,
-          hintStyle: const TextStyle(fontSize: 14.5, color: Color(0xFF8A7D86)),
+          hintStyle: const TextStyle(fontSize: 14.5, color: MyColors.textDisabled),
           prefixIcon: const Icon(
             Icons.search_rounded,
-            color: Color(0xFF8A7D86),
+            color: MyColors.textDisabled,
           ),
           suffixIcon: showClear
               ? IconButton(
                   icon: const Icon(Icons.close_rounded),
-                  color: const Color(0xFF8A7D86),
+                  color: MyColors.textDisabled,
                   onPressed: () {
                     inputController.clear();
                     setState(() {
@@ -164,7 +187,7 @@ class SearchScreenRouteState extends State<SearchScreenBody> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(22),
         gradient: const LinearGradient(
-          colors: [Color(0xFF7F375E), Color(0xFFA84978)],
+          colors: [Color(0xFF4f46e5), Color(0xFF6366f1)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -234,12 +257,16 @@ class SearchScreenRouteState extends State<SearchScreenBody> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: const Color(0xFFE8DDE4)),
+          border: Border.all(color: const Color(0xFFe2e8f0)),
         ),
         child: const Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            CupertinoActivityIndicator(radius: 24),
+            SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                    strokeWidth: 2, color: MyColors.primary)),
             SizedBox(height: 10),
             Text(
               'Searching library...',
@@ -259,7 +286,7 @@ class SearchScreenRouteState extends State<SearchScreenBody> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: const Color(0xFFE8DDE4)),
+          border: Border.all(color: const Color(0xFFe2e8f0)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -267,19 +294,22 @@ class SearchScreenRouteState extends State<SearchScreenBody> {
             const Icon(
               Icons.search_off_rounded,
               size: 42,
-              color: Color(0xFF8A7D86),
+              color: MyColors.textDisabled,
             ),
             const SizedBox(height: 8),
             Text(
               t.nosearchresult,
-              style: TextStyles.caption(context)
-                  .copyWith(fontWeight: FontWeight.bold, fontSize: 15),
+              style: const TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 15,
+                  color: MyColors.textBody),
             ),
             const SizedBox(height: 4),
             Text(
               t.nosearchresulthint,
               textAlign: TextAlign.center,
-              style: TextStyles.medium(context).copyWith(fontSize: 13),
+              style: const TextStyle(
+                  fontSize: 13, color: MyColors.textSecondary),
             ),
           ],
         ),
@@ -291,21 +321,18 @@ class SearchScreenRouteState extends State<SearchScreenBody> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: const Color(0xFFE8DDE4)),
+          border: Border.all(color: const Color(0xFFe2e8f0)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Icon(
-              Icons.travel_explore_rounded,
-              color: Colors.grey[500],
-              size: 54,
-            ),
+          children: [
+            const Icon(Icons.travel_explore_rounded,
+                color: MyColors.textDisabled, size: 54),
             const SizedBox(height: 8),
             const Text(
               'Start typing to search',
               style: TextStyle(
-                color: Color(0xFF2A1A24),
+                color: MyColors.textBody,
                 fontWeight: FontWeight.w700,
                 fontSize: 15,
               ),
@@ -314,10 +341,7 @@ class SearchScreenRouteState extends State<SearchScreenBody> {
             const Text(
               'Find messages, books, and resources instantly.',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Color(0xFF7D7079),
-                fontSize: 13,
-              ),
+              style: TextStyle(color: MyColors.textSecondary, fontSize: 13),
             ),
           ],
         ),

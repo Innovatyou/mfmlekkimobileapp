@@ -91,7 +91,7 @@ class MediaScreenRouteState extends State<PlaylistsScreen> {
           t.myplaylists,
           style: const TextStyle(
             fontWeight: FontWeight.w800,
-            color: Color(0xFF23141D),
+            color: Color(0xFF0f172a),
           ),
         ),
       ),
@@ -210,7 +210,7 @@ class MediaScreenRouteState extends State<PlaylistsScreen> {
                                         ? '0 item'
                                         : '${value.data} item(s)',
                                     style: const TextStyle(
-                                      color: Color(0xFF7A6B75),
+                                      color: Color(0xFF475569),
                                       fontWeight: FontWeight.w600,
                                     ),
                                   );

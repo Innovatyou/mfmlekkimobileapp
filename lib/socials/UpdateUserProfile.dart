@@ -6,7 +6,6 @@ import 'package:higherground/utils/Utility.dart';
 import 'package:higherground/utils/Alerts.dart';
 import 'package:higherground/models/Userdata.dart';
 import 'dart:io';
-import 'dart:convert';
 import 'dart:async';
 import 'package:higherground/socials/FollowPeople.dart';
 import 'package:higherground/models/ScreenArguements.dart';
@@ -176,7 +175,7 @@ class UpdateUserProfileState extends State<UpdateUserProfile> {
       });
       Navigator.of(context).pop();
       print(response.data);
-      Map<String, dynamic> res = json.decode(response.data);
+      Map<String, dynamic> res = Utility.decodeResponse(response.data);
       if (res["status"] == "error") {
         Alerts.show(context, t.error, res["msg"]);
         return;

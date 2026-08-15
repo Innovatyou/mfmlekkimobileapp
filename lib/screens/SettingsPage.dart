@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:higherground/models/UserEvents.dart';
 import 'package:higherground/providers/events.dart';
-
 import 'package:higherground/utils/my_colors.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
@@ -11,14 +10,14 @@ import 'package:higherground/providers/AppStateManager.dart';
 import 'package:higherground/providers/DashboardModel.dart';
 import 'package:higherground/screens/AuthPage.dart';
 import 'package:higherground/screens/UserProfile.dart';
+import 'package:higherground/screens/WellnessScreen.dart';
+import 'package:higherground/providers/wellness_provider.dart';
 import 'package:higherground/utils/Alerts.dart';
 import 'package:higherground/utils/ApiUrl.dart';
 import 'package:higherground/utils/Utility.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:higherground/models/Userdata.dart';
-import 'package:higherground/utils/TextStyles.dart';
-// replaced launch_review plugin usage with direct Play Store URL opener
 
 class SettingsPage extends StatefulWidget {
   static const routeName = "/SettingsPage";
@@ -32,792 +31,895 @@ class _SettingsPageState extends State<SettingsPage> {
   bool phoneSwitch = false;
   bool dobSwitch = false, followSwitch = false;
   bool commentSwitch = false, likeSwitch = false;
+  bool _settingsLoaded = false; // ignore: unused_field
 
   Future<void> loadItems(Userdata userdata) async {
     try {
       final response = await Utility.getDio().post(ApiUrl.fetchUserSettings,
           data: jsonEncode({
-            "data": {
-              "email": userdata.email,
-            }
+            "data": {"email": userdata.email}
           }));
-
       if (response.statusCode == 200) {
-        // If the server did return a 200 OK response,
-        // then parse the JSON.
-        print(response.data);
-        dynamic res = jsonDecode(response.data);
-        if (res == null || res['user'] == null) {
-          print('[SettingsPage] No user settings payload found: ${response.data}');
-          return;
-        }
+        dynamic res = Utility.decodeResponse(response.data);
+        if (res == null || res['user'] == null) return;
         setState(() {
           phoneSwitch = int.parse(res['user']['show_phone'].toString()) == 0;
-          dobSwitch =
-              int.parse(res['user']['show_dateofbirth'].toString()) == 0;
-          followSwitch =
-              int.parse(res['user']['notify_follows'].toString()) == 0;
-          commentSwitch =
-              int.parse(res['user']['notify_comments'].toString()) == 0;
+          dobSwitch = int.parse(res['user']['show_dateofbirth'].toString()) == 0;
+          followSwitch = int.parse(res['user']['notify_follows'].toString()) == 0;
+          commentSwitch = int.parse(res['user']['notify_comments'].toString()) == 0;
           likeSwitch = int.parse(res['user']['notify_likes'].toString()) == 0;
+          _settingsLoaded = true;
         });
-      } else {
-        // If the server did not return a 200 OK response,
-        // then throw an exception.
       }
-    } catch (exception) {
-      // I get no exception here
-      print(exception);
+    } catch (e) {
+      print(e);
     }
   }
 
   Future<void> updateUserSettings(Userdata userdata) async {
     Alerts.showProgressDialog(context, t.processingpleasewait);
     try {
-        final response = await Utility.getDio().post(
-          ApiUrl.updateUserSettings,
-          data: jsonEncode({
+      final response = await Utility.getDio().post(
+        ApiUrl.updateUserSettings,
+        data: jsonEncode({
           "data": {
             "email": userdata.email,
             "show_dateofbirth": dobSwitch ? 0 : 1,
             "show_phone": phoneSwitch ? 0 : 1,
             "notify_follows": followSwitch ? 0 : 1,
             "notify_comments": commentSwitch ? 0 : 1,
-            "notify_likes": likeSwitch ? 0 : 1
+            "notify_likes": likeSwitch ? 0 : 1,
           }
         }),
       );
       Navigator.of(context).pop();
       if (response.statusCode == 200) {
-        // If the server did return a 200 OK response,
-        // then parse the JSON.
-        print(response.data);
-        Map<String, dynamic> res = json.decode(response.data);
+        Map<String, dynamic> res = Utility.decodeResponse(response.data);
         if (res["status"] == "error") {
           Alerts.show(context, t.error, res["msg"]);
         } else {
-          print(res["user"]);
           Alerts.show(context, t.success, res["msg"]);
         }
       }
-    } catch (exception) {
-      // I get no exception here
+    } catch (e) {
       Navigator.of(context).pop();
-      Alerts.show(context, t.error, exception.toString());
-      print(exception);
+      Alerts.show(context, t.error, e.toString());
     }
   }
 
-  final TextStyle headerStyle = TextStyle(
-    color: Colors.grey.shade800,
-    fontWeight: FontWeight.bold,
-    fontSize: 16.0,
-  );
-
   Future<void> showLogoutAlert() async {
     return showDialog(
-        context: context,
-        builder: (BuildContext context) => CupertinoAlertDialog(
-              title: new Text(t.logoutfromapp),
-              content: new Text(t.logoutfromapphint),
-              actions: <Widget>[
-                CupertinoDialogAction(
-                  isDefaultAction: false,
-                  child: Text(t.ok),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    appManager.unsetUserData();
-                  },
-                ),
-                CupertinoDialogAction(
-                  isDefaultAction: false,
-                  child: Text(t.cancel),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
-            ));
+      context: context,
+      builder: (_) => CupertinoAlertDialog(
+        title: Text(t.logoutfromapp),
+        content: Text(t.logoutfromapphint),
+        actions: [
+          CupertinoDialogAction(
+            child: Text(t.cancel),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          CupertinoDialogAction(
+            isDestructiveAction: true,
+            child: Text(t.ok),
+            onPressed: () {
+              Navigator.of(context).pop();
+              context.read<WellnessProvider>().clear();
+              appManager.unsetUserData();
+            },
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> showDeleteAccountAlert() async {
     return showDialog(
-        context: context,
-        builder: (BuildContext context) => CupertinoAlertDialog(
-              title: new Text(t.deleteaccount),
-              content: new Text(t.deleteaccounthint),
-              actions: <Widget>[
-                CupertinoDialogAction(
-                  isDefaultAction: false,
-                  child: Text(t.ok),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    deleteAccountServer(userdata!.email!);
-                  },
-                ),
-                CupertinoDialogAction(
-                  isDefaultAction: false,
-                  child: Text(t.cancel),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
-            ));
+      context: context,
+      builder: (_) => CupertinoAlertDialog(
+        title: Text(t.deleteaccount),
+        content: Text(t.deleteaccounthint),
+        actions: [
+          CupertinoDialogAction(
+            child: Text(t.cancel),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          CupertinoDialogAction(
+            isDestructiveAction: true,
+            child: Text(t.ok),
+            onPressed: () {
+              Navigator.of(context).pop();
+              deleteAccountServer(userdata!.email!);
+            },
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> deleteAccountServer(String email) async {
     Alerts.showProgressDialog(context, t.processingpleasewait);
     try {
-      var data = {
-        "email": email,
-      };
       final response = await Utility.getDio()
-          .post(ApiUrl.DELETE_ACCOUNT, data: jsonEncode({"data": data}));
+          .post(ApiUrl.DELETE_ACCOUNT, data: jsonEncode({"data": {"email": email}}));
       Navigator.of(context).pop();
       if (response.statusCode == 200) {
-        print(response.data);
         Alerts.show(context, "", t.deleteaccountsuccess);
+        context.read<WellnessProvider>().clear();
         appManager.unsetUserData();
       } else {
         Alerts.show(context, "", t.cannotprocess);
       }
-    } catch (exception) {
+    } catch (e) {
       Navigator.of(context).pop();
-      Alerts.show(context, "", exception.toString());
+      Alerts.show(context, "", e.toString());
     }
   }
 
   @override
   void initState() {
-    Future.delayed(const Duration(milliseconds: 0), () {
-      Userdata? user =
-          Provider.of<AppStateManager>(context, listen: false).userdata;
+    super.initState();
+    Future.microtask(() {
+      final user = Provider.of<AppStateManager>(context, listen: false).userdata;
       if (user != null) {
         loadItems(user);
+        if ((user.email ?? '').isNotEmpty) {
+          context.read<WellnessProvider>().load(user.email!);
+        }
       }
     });
     eventBus.on<UserLoggedInEvent>().listen((event) {
-      print(event);
-      loadItems(event.user!);
+      if (event.user != null) loadItems(event.user!);
     });
-    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     appManager = Provider.of<AppStateManager>(context);
     userdata = appManager.userdata;
-    final String youVersionLabel = t.youversionbible.trim().isEmpty
-        ? 'Use Youversion Bible Reader'
-        : t.youversionbible;
+    final dashModel = Provider.of<DashboardModel>(context);
+    final website = dashModel.data['website']?.toString() ?? '';
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text(t.appsettings),
-      ),
-      backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(
-              t.account,
-              style: headerStyle,
-            ),
-            const SizedBox(height: 10.0),
-            userdata == null
-                ? Card(
-                    elevation: 0.5,
-                    margin: const EdgeInsets.symmetric(
-                      vertical: 4.0,
-                      horizontal: 0,
-                    ),
-                    child: Column(
-                      children: <Widget>[
-                        ListTile(
-                          leading: CircleAvatar(
-                            child: Icon(LineAwesomeIcons.user),
-                          ),
-                          title: Text(t.guestuser),
-                          subtitle: Text(t.createanaccounthint),
-                          trailing: Icon(Icons.navigate_next),
-                          onTap: () {
-                            Navigator.of(context)
-                                .pushNamed(AuthPage.routeName, arguments: true);
-                          },
-                        ),
-                      ],
-                    ),
-                  )
-                : Card(
-                    elevation: 0.5,
-                    margin: const EdgeInsets.symmetric(
-                      vertical: 4.0,
-                      horizontal: 0,
-                    ),
-                    child: Column(
-                      children: <Widget>[
-                        ListTile(
-                          leading: userdata!.photo! == ""
-                              ? CircleAvatar(
-                                  radius: 0, child: Icon(LineAwesomeIcons.user))
-                              : Card(
-                                  margin: EdgeInsets.all(0),
-                                  elevation: 0,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  clipBehavior: Clip.antiAliasWithSaveLayer,
-                                  child: Container(
-                                    height: 40,
-                                    width: 40,
-                                    child: CachedNetworkImage(
-                                      imageUrl: userdata!.photo!,
-                                      imageBuilder: (context, imageProvider) =>
-                                          Container(
-                                        decoration: BoxDecoration(
-                                          image: DecorationImage(
-                                              image: imageProvider,
-                                              fit: BoxFit.cover,
-                                              colorFilter: ColorFilter.mode(
-                                                  Colors.black12,
-                                                  BlendMode.darken)),
-                                        ),
-                                      ),
-                                      placeholder: (context, url) => Center(
-                                          child: CupertinoActivityIndicator()),
-                                      errorWidget: (context, url, error) =>
-                                          Center(
-                                              child: Icon(
-                                        Icons.error,
-                                        color: Colors.grey,
-                                      )),
-                                    ),
-                                  )),
-                          title: Text(userdata!.firstname!.toTitleCase() +
-                              " " +
-                              userdata!.lastname!.toTitleCase()),
-                          subtitle: Text(t.viewmyprofile),
-                          onTap: () {
-                            Navigator.of(context).pushNamed(
-                                UserProfile.routeName,
-                                arguments: userdata);
-                          },
-                        ),
-                        _buildDivider(),
-                        ListTile(
-                          leading: Icon(LineAwesomeIcons.alternate_sign_out),
-                          title: Text(t.logoutfromapp),
-                          trailing: Icon(Icons.navigate_next),
-                          onTap: () {
-                            showLogoutAlert();
-                          },
-                        ),
-                        _buildDivider(),
-                        ListTile(
-                          leading: Icon(
-                            LineAwesomeIcons.remove_user,
-                            color: Colors.red,
-                          ),
-                          title: Text(t.deletemyaccount),
-                          trailing: Icon(Icons.navigate_next),
-                          onTap: () {
-                            showDeleteAccountAlert();
-                          },
-                        ),
-                      ],
-                    ),
+      backgroundColor: const Color(0xFFF1F4F9),
+      body: CustomScrollView(
+        slivers: [
+          _buildAppBar(context),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _ProfileCard(
+                    userdata: userdata,
+                    onTapProfile: () {
+                      if (userdata != null) {
+                        Navigator.of(context).pushNamed(
+                          UserProfile.routeName,
+                          arguments: userdata,
+                        );
+                      } else {
+                        Navigator.of(context)
+                            .pushNamed(AuthPage.routeName, arguments: true);
+                      }
+                    },
                   ),
-            Visibility(
-              visible: userdata != null,
-              child: Container(
-                height: 30,
-                //color: Colors.grey[200],
-              ),
-            ),
-            Visibility(
-              visible: userdata != null,
-              child: Padding(
-                padding: EdgeInsets.zero,
-                child: Row(
-                  children: [
-                    Text(t.personal,
-                        style: TextStyles.subhead(context)
-                            .copyWith(fontWeight: FontWeight.bold)),
-                    Spacer(),
-                    SizedBox(
-                      width: 120,
-                      height: 35,
-                      child: ElevatedButton(
-                        child: Text(
-                          t.update,
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: MyColors.mainC0lor,
+                  if (userdata != null) ...[
+                    const SizedBox(height: 16),
+                    _WellnessTile(email: userdata!.email ?? ''),
+                    const SizedBox(height: 28),
+                    _SectionLabel(label: 'ACCOUNT'),
+                    const SizedBox(height: 8),
+                    _SettingsGroup(children: [
+                      _SettingsTile(
+                        icon: LineAwesomeIcons.alternate_sign_out,
+                        iconColor: const Color(0xFFf59e0b),
+                        iconBg: const Color(0xFFFEF3C7),
+                        title: t.logoutfromapp,
+                        onTap: showLogoutAlert,
+                      ),
+                      _SettingsTile(
+                        icon: LineAwesomeIcons.remove_user,
+                        iconColor: const Color(0xFFef4444),
+                        iconBg: const Color(0xFFFEE2E2),
+                        title: t.deletemyaccount,
+                        titleColor: const Color(0xFFef4444),
+                        isLast: true,
+                        onTap: showDeleteAccountAlert,
+                      ),
+                    ]),
+                    const SizedBox(height: 28),
+                    _SectionLabel(label: 'PRIVACY'),
+                    const SizedBox(height: 8),
+                    _SettingsGroup(children: [
+                      _SwitchTile(
+                        icon: LineAwesomeIcons.phone,
+                        iconColor: const Color(0xFF6366f1),
+                        iconBg: const Color(0xFFe0e7ff),
+                        title: t.phonenumber,
+                        subtitle: t.showmyphonenumber,
+                        value: phoneSwitch,
+                        onChanged: (v) => setState(() => phoneSwitch = v),
+                      ),
+                      _SwitchTile(
+                        icon: LineAwesomeIcons.birthday_cake,
+                        iconColor: const Color(0xFF8b5cf6),
+                        iconBg: const Color(0xFFede9fe),
+                        title: t.dateofbirth,
+                        subtitle: t.showmyfulldateofbirth,
+                        value: dobSwitch,
+                        isLast: true,
+                        onChanged: (v) => setState(() => dobSwitch = v),
+                      ),
+                    ]),
+                    const SizedBox(height: 28),
+                    _SectionLabel(label: 'NOTIFICATIONS'),
+                    const SizedBox(height: 8),
+                    _SettingsGroup(children: [
+                      _SwitchTile(
+                        icon: LineAwesomeIcons.comment,
+                        iconColor: const Color(0xFF0ea5e9),
+                        iconBg: const Color(0xFFe0f2fe),
+                        title: t.notifymewhenusercommentsonmypost,
+                        value: commentSwitch,
+                        onChanged: (v) => setState(() => commentSwitch = v),
+                      ),
+                      _SwitchTile(
+                        icon: LineAwesomeIcons.heart,
+                        iconColor: const Color(0xFFec4899),
+                        iconBg: const Color(0xFFfce7f3),
+                        title: t.notifymewhenuserlikesmypost,
+                        value: likeSwitch,
+                        isLast: true,
+                        onChanged: (v) => setState(() => likeSwitch = v),
+                      ),
+                    ]),
+                    const SizedBox(height: 12),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: FilledButton.icon(
+                        onPressed: () => updateUserSettings(userdata!),
+                        icon: const Icon(Icons.check_rounded, size: 18),
+                        label: Text(t.update),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: MyColors.primary,
                           shape: RoundedRectangleBorder(
-                              borderRadius: new BorderRadius.circular(10)),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 12,
+                          ),
                         ),
-                        onPressed: () {
-                          updateUserSettings(userdata!);
-                        },
                       ),
                     ),
                   ],
-                ),
-              ),
-            ),
-            Visibility(
-              visible: userdata != null,
-              child: Card(
-                margin: const EdgeInsets.symmetric(
-                  vertical: 8.0,
-                  horizontal: 0,
-                ),
-                child: Column(children: [
-                  SwitchListTile(
-                      activeThumbColor: Colors.purple,
-                    value: phoneSwitch,
-                    title: Text(
-                      t.phonenumber,
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                  const SizedBox(height: 28),
+                  _SectionLabel(label: 'APP EXPERIENCE'),
+                  const SizedBox(height: 8),
+                  _SettingsGroup(children: [
+                    _SwitchTile(
+                      icon: LineAwesomeIcons.bible,
+                      iconColor: const Color(0xFF6366f1),
+                      iconBg: const Color(0xFFe0e7ff),
+                      title: t.youversionbible.trim().isEmpty
+                          ? 'You version Bible Reader'
+                          : t.youversionbible,
+                      subtitle: 'Launch verses in You version for a smoother reading flow.',
+                      value: appManager.youversionbible,
+                      isLast: true,
+                      onChanged: (v) => appManager.setYouVersionBiblePreference(v),
                     ),
-                    subtitle: Text(t.showmyphonenumber),
-                    onChanged: (value) {
-                      setState(() {
-                        phoneSwitch = value;
-                      });
-                    },
-                  ),
-                  _buildDivider(),
-                  SwitchListTile(
-                      activeThumbColor: Colors.purple,
-                    value: dobSwitch,
-                    title: Text(
-                      t.dateofbirth,
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: Text(t.showmyfulldateofbirth),
-                    onChanged: (value) {
-                      setState(() {
-                        dobSwitch = value;
-                      });
-                    },
-                  ),
-                  _buildDivider(),
-                  /*SwitchListTile(
-                      activeThumbColor: Colors.purple,
-                    value: followSwitch,
-                    title: Text(t.notifywhenuserfollowsme),
-                    onChanged: (value) {
-                      setState(() {
-                        followSwitch = value;
-                      });
-                    },
-                  ),
-                  _buildDivider(),*/
-                  SwitchListTile(
-                      activeThumbColor: Colors.purple,
-                    value: commentSwitch,
-                    title: Text(
-                      t.notifymewhenusercommentsonmypost,
-                    ),
-                    onChanged: (value) {
-                      setState(() {
-                        commentSwitch = value;
-                      });
-                    },
-                  ),
-                  _buildDivider(),
-                  SwitchListTile(
-                      activeThumbColor: Colors.purple,
-                    value: likeSwitch,
-                    title: Text(
-                      t.notifymewhenuserlikesmypost,
-                    ),
-                    onChanged: (value) {
-                      setState(() {
-                        likeSwitch = value;
-                      });
-                    },
-                  ),
-                ]),
-              ),
-            ),
-            const SizedBox(height: 20.0),
-            Text(
-              t.appsettings,
-              style: headerStyle,
-            ),
-            Container(
-              margin: const EdgeInsets.symmetric(
-                vertical: 8.0,
-                horizontal: 0,
-              ),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFFBFD),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xFFEADAE3)),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Color(0x1A8F3E88),
-                    blurRadius: 18,
-                    offset: Offset(0, 8),
-                  ),
-                ],
-              ),
-              child: Column(
-                children: [
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
-                    decoration: const BoxDecoration(
-                      borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(20),
-                      ),
-                      gradient: LinearGradient(
-                        colors: [Color(0xFFF9EEF5), Color(0xFFFDF7FA)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 42,
-                          height: 42,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: const Color(0xFFEBD8E5)),
-                          ),
-                          child: Icon(
-                            LineAwesomeIcons.cog,
-                            size: 22,
-                            color: MyColors.mainC0lor,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        const Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'App Experience',
-                                style: TextStyle(
-                                  color: Color(0xFF23141D),
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w800,
-                                ),
-                              ),
-                              SizedBox(height: 2),
-                              Text(
-                                'Customize how scripture opens in the app.',
-                                style: TextStyle(
-                                  color: Color(0xFF7A6B75),
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 5,
-                          ),
-                          decoration: BoxDecoration(
-                            color: appManager.youversionbible
-                                ? const Color(0xFFE7F7EF)
-                                : const Color(0xFFF3EAF0),
-                            borderRadius: BorderRadius.circular(999),
-                          ),
-                          child: Text(
-                            appManager.youversionbible ? 'Enabled' : 'Disabled',
-                            style: TextStyle(
-                              color: appManager.youversionbible
-                                  ? const Color(0xFF167C4A)
-                                  : const Color(0xFF7A6B75),
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const Divider(height: 1, thickness: 1, color: Color(0xFFF1E6EC)),
-                  Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      borderRadius: const BorderRadius.vertical(
-                        bottom: Radius.circular(20),
-                      ),
-                      onTap: () {
-                        appManager.setYouVersionBiblePreference(
-                          !appManager.youversionbible,
-                        );
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 12, 12, 12),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 42,
-                              height: 42,
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFF1E7F7),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: const Icon(
-                                LineAwesomeIcons.bible,
-                                color: Color(0xFF8F3E88),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    youVersionLabel,
-                                    style: const TextStyle(
-                                      color: Color(0xFF23141D),
-                                      fontWeight: FontWeight.w800,
-                                      fontSize: 15,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  const Text(
-                                    'Launch verses in YouVersion for a smoother reading flow.',
-                                    style: TextStyle(
-                                      color: Color(0xFF7A6B75),
-                                      fontSize: 13,
-                                      height: 1.35,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Transform.scale(
-                              scale: 0.95,
-                              child: Switch.adaptive(
-                                value: appManager.youversionbible,
-                                activeTrackColor: MyColors.mainC0lor,
-                                onChanged: (val) {
-                                  appManager.setYouVersionBiblePreference(val);
-                                },
-                              ),
-                            ),
-                          ],
+                  ]),
+                  const SizedBox(height: 28),
+                  _SectionLabel(label: 'INFORMATION'),
+                  const SizedBox(height: 8),
+                  _SettingsGroup(children: [
+                    if (website.isNotEmpty)
+                      _SettingsTile(
+                        icon: LineAwesomeIcons.chrome,
+                        iconColor: const Color(0xFF10b981),
+                        iconBg: const Color(0xFFd1fae5),
+                        title: t.website,
+                        onTap: () => Utility.openBrowserTab(
+                          website,
+                          context: context,
+                          title: t.website,
                         ),
                       ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            /* const SizedBox(height: 10.0),
-            Text(
-              "App Notifications",
-              style: headerStyle,
-            ),
-            Card(
-              margin: const EdgeInsets.symmetric(
-                vertical: 8.0,
-                horizontal: 0,
-              ),
-              child: Column(
-                children: <Widget>[
-                  SwitchListTile(
-                      activeThumbColor: Colors.purple,
-                    value: appManager.inboxnotifications,
-                    title: Text(t.recieveinbox),
-                    onChanged: (val) {
-                      appManager.setInboxNotifications(val);
-                    },
-                  ),
-                  _buildDivider(),
-                  SwitchListTile(
-                    activeColor: Colors.purple,
-                    value: appManager.sermonnotifications,
-                    title: Text(
-                      t.sermonnotification,
-                      // style: TextStyle(
-                      //     fontSize: 13, fontWeight: FontWeight.bold),
-                    ),
-                    onChanged: (val) {
-                      appManager.setSermonNotifications(val);
-                    },
-                  ),
-                  _buildDivider(),
-                  SwitchListTile(
-                    activeColor: Colors.purple,
-                    value: appManager.eventnotifications,
-                    title: Text(
-                      t.recieveevents,
-                      // style: TextStyle(
-                      //     fontSize: 13, fontWeight: FontWeight.bold),
-                    ),
-                    onChanged: (val) {
-                      appManager.setEventNotifications(val);
-                    },
-                  ),
-                  _buildDivider(),
-                  SwitchListTile(
-                    activeColor: Colors.purple,
-                    value: appManager.articlesnotifications,
-                    title: Text(
-                      t.articlenotification,
-                      //style:
-                      //    TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-                    ),
-                    onChanged: (val) {
-                      appManager.setArticleNotifications(val);
-                    },
-                  ),
-                  _buildDivider(),
-                  SwitchListTile(
-                    activeColor: Colors.purple,
-                    value: appManager.devotionalsnotifications,
-                    title: Text(
-                      t.devotionalnotification,
-                      //style:
-                      //    TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-                    ),
-                    onChanged: (val) {
-                      appManager.setDevotionalNotifications(val);
-                    },
-                  ),
-                  _buildDivider(),
-                ],
-              ),
-            ),*/
-            const SizedBox(height: 10.0),
-            Card(
-              elevation: 0.5,
-              margin: const EdgeInsets.symmetric(
-                vertical: 4.0,
-                horizontal: 0,
-              ),
-              child: Column(
-                children: <Widget>[
-                  ListTile(
-                    title: Text(
-                      t.appname,
-                      style: TextStyle(fontWeight: FontWeight.w500),
-                    ),
-                    trailing: Text("V" + appManager.version),
-                  ),
-                  Visibility(
-                    visible: (Provider.of<DashboardModel>(context)
-                            .data['website']?.toString() ?? 
-                        "") !=
-                        "",
-                    child: _buildDivider(),
-                  ),
-                  Visibility(
-                    visible: (Provider.of<DashboardModel>(context)
-                            .data['website']?.toString() ?? 
-                        "") !=
-                        "",
-                    child: ListTile(
-                      leading: Icon(LineAwesomeIcons.chrome),
-                      title: Text(t.website),
-                      trailing: Icon(Icons.navigate_next),
-                      onTap: () {
-                        final website = Provider.of<DashboardModel>(context).data['website'];
-                        if (website != null) {
-                          Utility.openBrowserTab(
-                            website.toString(),
-                            context: context,
-                            title: t.website,
-                          );
-                        }
-                      },
-                    ),
-                  ),
-                  _buildDivider(),
-                  ListTile(
-                    leading: Icon(LineAwesomeIcons.tags),
-                    title: Text(t.terms),
-                    trailing: Icon(Icons.navigate_next),
-                    onTap: () {
-                      Utility.openBrowserTab(
+                    _SettingsTile(
+                      icon: LineAwesomeIcons.tags,
+                      iconColor: const Color(0xFF6366f1),
+                      iconBg: const Color(0xFFe0e7ff),
+                      title: t.terms,
+                      onTap: () => Utility.openBrowserTab(
                         ApiUrl.TERMS,
                         context: context,
                         title: t.terms,
-                      );
-                    },
-                  ),
-                  _buildDivider(),
-                  ListTile(
-                    leading: Icon(
-                      LineAwesomeIcons.th_list,
+                      ),
                     ),
-                    title: Text(t.privacy),
-                    trailing: Icon(Icons.navigate_next),
-                    onTap: () {
-                      Utility.openBrowserTab(
+                    _SettingsTile(
+                      icon: LineAwesomeIcons.th_list,
+                      iconColor: const Color(0xFF0ea5e9),
+                      iconBg: const Color(0xFFe0f2fe),
+                      title: t.privacy,
+                      onTap: () => Utility.openBrowserTab(
                         ApiUrl.PRIVACY,
                         context: context,
                         title: t.privacy,
-                      );
-                    },
-                  ),
-                  _buildDivider(),
-                  ListTile(
-                    leading: Icon(
-                      LineAwesomeIcons.info,
+                      ),
                     ),
-                    title: Text(t.about),
-                    trailing: Icon(Icons.navigate_next),
-                    onTap: () {
-                      Utility.openBrowserTab(
+                    _SettingsTile(
+                      icon: LineAwesomeIcons.info,
+                      iconColor: const Color(0xFF8b5cf6),
+                      iconBg: const Color(0xFFede9fe),
+                      title: t.about,
+                      onTap: () => Utility.openBrowserTab(
                         ApiUrl.ABOUT,
                         context: context,
                         title: t.about,
-                      );
-                    },
-                  ),
-                  _buildDivider(),
-                  ListTile(
-                    leading: Icon(
-                      LineAwesomeIcons.app_store,
+                      ),
                     ),
-                    title: Text(t.rateapp),
-                    trailing: Icon(Icons.navigate_next),
-                    onTap: () async {
-                      Utility.openBrowserTab(
+                    _SettingsTile(
+                      icon: LineAwesomeIcons.app_store,
+                      iconColor: const Color(0xFF0ea5e9),
+                      iconBg: const Color(0xFFe0f2fe),
+                      title: t.rateapp,
+                      isLast: true,
+                      onTap: () => Utility.openBrowserTab(
                         "https://play.google.com/store/apps/details?id=org.mfmlekki.app",
                         context: context,
                         title: t.rateapp,
-                      );
-                    },
+                      ),
+                    ),
+                  ]),
+                  const SizedBox(height: 16),
+                  Center(
+                    child: Text(
+                      '${t.appname}  •  v${appManager.version}',
+                      style: const TextStyle(
+                        color: Color(0xFF94a3b8),
+                        fontSize: 12,
+                        letterSpacing: 0.3,
+                      ),
+                    ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 20.0),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
-  Container _buildDivider() {
-    return Container(
-      margin: const EdgeInsets.symmetric(
-        horizontal: 8.0,
+  SliverAppBar _buildAppBar(BuildContext context) {
+    return SliverAppBar(
+      expandedHeight: 120,
+      pinned: true,
+      elevation: 0,
+      backgroundColor: MyColors.primary,
+      flexibleSpace: FlexibleSpaceBar(
+        titlePadding: const EdgeInsets.fromLTRB(20, 0, 20, 14),
+        title: Text(
+          t.appsettings,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+            letterSpacing: -0.3,
+          ),
+        ),
+        background: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF4f46e5), Color(0xFF6366f1)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
       ),
-      width: double.infinity,
-      height: 1.0,
-      color: Colors.grey.shade300,
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back_ios_new_rounded,
+            color: Colors.white, size: 20),
+        onPressed: () => Navigator.of(context).pop(),
+      ),
     );
   }
 }
 
+// ─────────────────────────────────────────────────────────────
+// Profile Card
+// ─────────────────────────────────────────────────────────────
 
+class _ProfileCard extends StatelessWidget {
+  final Userdata? userdata;
+  final VoidCallback onTapProfile;
 
+  const _ProfileCard({required this.userdata, required this.onTapProfile});
+
+  @override
+  Widget build(BuildContext context) {
+    final bool loggedIn = userdata != null;
+    final String name = loggedIn
+        ? '${userdata!.firstname?.toTitleCase() ?? ''} ${userdata!.lastname?.toTitleCase() ?? ''}'.trim()
+        : 'Guest';
+    final String sub = loggedIn ? (userdata!.email ?? '') : 'Sign in to access your account';
+
+    return Container(
+      margin: const EdgeInsets.only(top: 20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFe2e8f0)),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0A000000),
+            blurRadius: 16,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(20),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: onTapProfile,
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Row(
+              children: [
+                _Avatar(userdata: userdata),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        name,
+                        style: const TextStyle(
+                          color: Color(0xFF0f172a),
+                          fontWeight: FontWeight.w700,
+                          fontSize: 17,
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        sub,
+                        style: const TextStyle(
+                          color: Color(0xFF64748b),
+                          fontSize: 13,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: MyColors.primaryVeryLight,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Text(
+                    loggedIn ? 'View Profile' : 'Sign In',
+                    style: const TextStyle(
+                      color: MyColors.primary,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _Avatar extends StatelessWidget {
+  final Userdata? userdata;
+  const _Avatar({required this.userdata});
+
+  @override
+  Widget build(BuildContext context) {
+    if (userdata?.photo != null && userdata!.photo!.isNotEmpty) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(50),
+        child: CachedNetworkImage(
+          imageUrl: userdata!.photo!,
+          width: 60,
+          height: 60,
+          fit: BoxFit.cover,
+          placeholder: (_, __) => _DefaultAvatar(),
+          errorWidget: (_, __, ___) => _DefaultAvatar(),
+        ),
+      );
+    }
+    return _DefaultAvatar();
+  }
+}
+
+class _DefaultAvatar extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 60,
+      height: 60,
+      decoration: const BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: LinearGradient(
+          colors: [Color(0xFF6366f1), Color(0xFF818cf8)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: const Icon(Icons.person_rounded, color: Colors.white, size: 30),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// Section label
+// ─────────────────────────────────────────────────────────────
+
+class _SectionLabel extends StatelessWidget {
+  final String label;
+  const _SectionLabel({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 4),
+      child: Text(
+        label,
+        style: const TextStyle(
+          color: Color(0xFF6366f1),
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 1.2,
+        ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// Settings group container
+// ─────────────────────────────────────────────────────────────
+
+class _SettingsGroup extends StatelessWidget {
+  final List<Widget> children;
+  const _SettingsGroup({required this.children});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFe2e8f0)),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x08000000),
+            blurRadius: 10,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: children,
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// Navigation tile
+// ─────────────────────────────────────────────────────────────
+
+class _SettingsTile extends StatelessWidget {
+  final IconData icon;
+  final Color iconColor;
+  final Color iconBg;
+  final String title;
+  final Color? titleColor;
+  final bool isLast;
+  final VoidCallback? onTap;
+
+  const _SettingsTile({
+    required this.icon,
+    required this.iconColor,
+    required this.iconBg,
+    required this.title,
+    this.titleColor,
+    this.isLast = false,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: isLast
+                ? const BorderRadius.vertical(bottom: Radius.circular(16))
+                : BorderRadius.zero,
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              child: Row(
+                children: [
+                  _IconBadge(icon: icon, color: iconColor, bg: iconBg),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: TextStyle(
+                        color: titleColor ?? const Color(0xFF0f172a),
+                        fontWeight: FontWeight.w500,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ),
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    color: titleColor?.withValues(alpha: 0.5) ??
+                        const Color(0xFFcbd5e1),
+                    size: 20,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        if (!isLast)
+          const Divider(
+            height: 1,
+            thickness: 1,
+            indent: 58,
+            endIndent: 0,
+            color: Color(0xFFf1f5f9),
+          ),
+      ],
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// Switch tile
+// ─────────────────────────────────────────────────────────────
+
+class _SwitchTile extends StatelessWidget {
+  final IconData icon;
+  final Color iconColor;
+  final Color iconBg;
+  final String title;
+  final String? subtitle;
+  final bool value;
+  final bool isLast;
+  final ValueChanged<bool> onChanged;
+
+  const _SwitchTile({
+    required this.icon,
+    required this.iconColor,
+    required this.iconBg,
+    required this.title,
+    this.subtitle,
+    required this.value,
+    this.isLast = false,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: [
+              _IconBadge(icon: icon, color: iconColor, bg: iconBg),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        color: Color(0xFF0f172a),
+                        fontWeight: FontWeight.w500,
+                        fontSize: 15,
+                      ),
+                    ),
+                    if (subtitle != null) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        subtitle!,
+                        style: const TextStyle(
+                          color: Color(0xFF94a3b8),
+                          fontSize: 12,
+                          height: 1.3,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              CupertinoSwitch(
+                value: value,
+                activeTrackColor: MyColors.primary,
+                onChanged: onChanged,
+              ),
+            ],
+          ),
+        ),
+        if (!isLast)
+          const Divider(
+            height: 1,
+            thickness: 1,
+            indent: 58,
+            endIndent: 0,
+            color: Color(0xFFf1f5f9),
+          ),
+      ],
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// Icon badge
+// ─────────────────────────────────────────────────────────────
+
+class _IconBadge extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final Color bg;
+
+  const _IconBadge({required this.icon, required this.color, required this.bg});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 38,
+      height: 38,
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Icon(icon, color: color, size: 20),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// Wellness tile
+// ─────────────────────────────────────────────────────────────
+
+class _WellnessTile extends StatelessWidget {
+  final String email;
+  const _WellnessTile({required this.email});
+
+  static Color _gradeColor(String grade) {
+    switch (grade) {
+      case 'high':   return const Color(0xFF10b981);
+      case 'medium': return const Color(0xFF3b82f6);
+      case 'low':    return const Color(0xFFf59e0b);
+      default:       return const Color(0xFF8b5cf6);
+    }
+  }
+
+  static String _gradeLabel(String grade) {
+    switch (grade) {
+      case 'high':   return 'Active Member';
+      case 'medium': return 'Growing';
+      case 'low':    return 'Developing';
+      default:       return 'Getting Started';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<WellnessProvider>(
+      builder: (ctx, prov, _) {
+        final profile = prov.profile;
+        return Material(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(16),
+            onTap: () => Navigator.of(context)
+                .pushNamed(WellnessScreen.routeName, arguments: email),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: const Color(0xFFe2e8f0)),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 38,
+                    height: 38,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFfce7f3),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(Icons.favorite_rounded,
+                        color: Color(0xFFec4899), size: 20),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'My Spiritual Wellness',
+                          style: TextStyle(
+                            color: Color(0xFF0f172a),
+                            fontWeight: FontWeight.w600,
+                            fontSize: 15,
+                          ),
+                        ),
+                        const SizedBox(height: 3),
+                        if (prov.loading && profile == null)
+                          Container(
+                            width: 110,
+                            height: 10,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFe2e8f0),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          )
+                        else if (profile != null)
+                          Row(
+                            children: [
+                              Container(
+                                width: 8,
+                                height: 8,
+                                decoration: BoxDecoration(
+                                  color: _gradeColor(profile.grade),
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              const SizedBox(width: 5),
+                              Text(
+                                'Score: ${profile.score} · ${_gradeLabel(profile.grade)}',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Color(0xFF64748b),
+                                ),
+                              ),
+                            ],
+                          )
+                        else
+                          const Text(
+                            'View your engagement & care history',
+                            style: TextStyle(
+                                fontSize: 12, color: Color(0xFF94a3b8)),
+                          ),
+                      ],
+                    ),
+                  ),
+                  const Icon(Icons.chevron_right_rounded,
+                      color: Color(0xFFcbd5e1), size: 20),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}

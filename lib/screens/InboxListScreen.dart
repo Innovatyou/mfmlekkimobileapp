@@ -33,7 +33,7 @@ class InboxListScreenState extends StatelessWidget {
           t.inbox,
           style: const TextStyle(
             fontWeight: FontWeight.w800,
-            color: Color(0xFF23141D),
+            color: Color(0xFF0f172a),
           ),
         ),
       ),
@@ -107,7 +107,7 @@ class InboxScreenBodyRouteState extends State<InboxScreenBody> {
       );
 
       if (response.statusCode == 200) {
-        final dynamic res = jsonDecode(response.data);
+        final dynamic res = Utility.decodeResponse(response.data);
         final List<Inbox>? mediaList = parseSliderMedia(res);
         if (page == 0) {
           Provider.of<AppStateManager>(context, listen: false)
@@ -237,7 +237,7 @@ class ItemTile extends StatelessWidget {
                   style: TextStyles.caption(context).copyWith(
                     fontSize: 12.5,
                     fontWeight: FontWeight.w700,
-                    color: const Color(0xFF7A6B75),
+                    color: const Color(0xFF475569),
                   ),
                 ),
                 const Spacer(),
@@ -246,7 +246,7 @@ class ItemTile extends StatelessWidget {
                   style: TextStyles.caption(context).copyWith(
                     fontSize: 12.5,
                     fontWeight: FontWeight.w700,
-                    color: const Color(0xFF7A6B75),
+                    color: const Color(0xFF475569),
                   ),
                 ),
               ],
@@ -259,7 +259,7 @@ class ItemTile extends StatelessWidget {
               style: const TextStyle(
                 fontWeight: FontWeight.w700,
                 fontSize: 18,
-                color: Color(0xFF23141D),
+                color: Color(0xFF0f172a),
               ),
             ),
             const SizedBox(height: 8),

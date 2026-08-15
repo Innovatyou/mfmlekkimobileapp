@@ -31,7 +31,7 @@ class _PrayerViewerState extends State<PrayerViewer> {
           t.Prayerrequests,
           style: const TextStyle(
             fontWeight: FontWeight.w800,
-            color: Color(0xFF23141D),
+            color: Color(0xFF0f172a),
           ),
         ),
         actions: <Widget>[
@@ -67,7 +67,7 @@ class _PrayerViewerState extends State<PrayerViewer> {
                     style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF23141D),
+                      color: Color(0xFF0f172a),
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -75,7 +75,7 @@ class _PrayerViewerState extends State<PrayerViewer> {
                     '${prayer.date!} ${t.by} ${prayer.requester!}',
                     style: const TextStyle(
                       fontSize: 13,
-                      color: Color(0xFF7A6B75),
+                      color: Color(0xFF475569),
                     ),
                   ),
                   const SizedBox(height: 12),

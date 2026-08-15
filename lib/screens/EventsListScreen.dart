@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:higherground/utils/Utility.dart';
 import 'package:higherground/utils/my_colors.dart';
 import 'package:higherground/screens/EventsViewerScreen.dart';
@@ -36,7 +35,6 @@ class _EventsListScreenState extends State<EventsListScreen> {
     });
     try {
       var data = {"month": _selectedDate!.month, "year": _selectedDate!.year};
-      print(data);
       final response = await Utility.getDio().post(
         ApiUrl.EVENTS,
         data: jsonEncode({"data": data}),
@@ -45,8 +43,7 @@ class _EventsListScreenState extends State<EventsListScreen> {
       if (response.statusCode == 200) {
         // If the server did return a 200 OK response,
         // then parse the JSON.
-        dynamic res = jsonDecode(response.data);
-        print(res);
+        dynamic res = Utility.decodeResponse(response.data);
         List<Events> _items = parseBranches(res);
         _items.forEach((element) {
           _events!.putIfAbsent(DateTime.parse(element.date!), () => [element]);
@@ -65,8 +62,6 @@ class _EventsListScreenState extends State<EventsListScreen> {
         });
       }
     } catch (exception) {
-      // I get no exception here
-      print(exception);
       setState(() {
         isLoading = false;
         isError = true;
@@ -83,9 +78,7 @@ class _EventsListScreenState extends State<EventsListScreen> {
   }
 
   List<dynamic> _getEventsForDay(DateTime day) {
-    //print(_events);
     DateTime onlyDate = DateTime(day.year, day.month, day.day);
-    print(onlyDate);
     return _events![onlyDate] ?? [];
   }
 
@@ -113,18 +106,40 @@ class _EventsListScreenState extends State<EventsListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F2F5),
+      backgroundColor: const Color(0xFFf0f2f5),
       appBar: AppBar(
         title: Text(
           t.events,
-          style: const TextStyle(fontWeight: FontWeight.w800),
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w700,
+            fontSize: 18,
+          ),
+        ),
+        backgroundColor: MyColors.navBackground,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Icon(Icons.arrow_back_ios_new_rounded,
+                color: Colors.white, size: 16),
+          ),
+          onPressed: () => Navigator.of(context).pop(),
         ),
       ),
       body: isLoading
-          ? Center(
-              child: CupertinoActivityIndicator(
-              radius: 20,
-            ))
+          ? const Center(
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: MyColors.primary,
+              ),
+            )
           : isError
               ? NoitemScreen(
                   title: t.oops,
@@ -143,7 +158,7 @@ class _EventsListScreenState extends State<EventsListScreen> {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(22),
                           gradient: const LinearGradient(
-                            colors: [Color(0xFF7F375E), Color(0xFFA84978)],
+                            colors: [Color(0xFF4f46e5), Color(0xFF6366f1)],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
@@ -202,7 +217,7 @@ class _EventsListScreenState extends State<EventsListScreen> {
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: const Color(0xFFE8DDE4)),
+                          border: Border.all(color: const Color(0xFFe2e8f0)),
                         ),
                         child: TableCalendar(
                         availableCalendarFormats: {
@@ -239,9 +254,9 @@ class _EventsListScreenState extends State<EventsListScreen> {
                             //todayDecoration: Colors.orange,
                             //selectedDecoration: Colors.orange,
                             defaultTextStyle:
-                              const TextStyle(color: Color(0xFF23141D)),
+                              const TextStyle(color: Color(0xFF0f172a)),
                             weekendTextStyle:
-                              const TextStyle(color: Color(0xFF23141D)),
+                              const TextStyle(color: Color(0xFF0f172a)),
                             outsideTextStyle:
                               const TextStyle(color: Color(0xFFB4A8B1)),
                             todayTextStyle: TextStyle(
@@ -254,12 +269,12 @@ class _EventsListScreenState extends State<EventsListScreen> {
                           //rightChevronVisible: false,
                           titleCentered: true,
                           titleTextStyle: const TextStyle(
-                            color: Color(0xFF23141D),
+                            color: Color(0xFF0f172a),
                             fontWeight: FontWeight.w800,
                             fontSize: 16,
                           ),
                           formatButtonDecoration: BoxDecoration(
-                            color: const Color(0xFF8F3E88),
+                            color: const Color(0xFF6366f1),
                             borderRadius: BorderRadius.circular(20.0),
                           ),
                           formatButtonTextStyle: TextStyle(color: Colors.white),
@@ -271,24 +286,21 @@ class _EventsListScreenState extends State<EventsListScreen> {
                             setState(() {
                               _focusedDate = focusedDay;
                               _selectedDate = selectedDay;
-                              // _selectedEvents = _getEventsForDay(selectedDay);
                             });
                           }
-                          List<dynamic> _event = _getEventsForDay(selectedDay);
-                          print(_event.toString());
-                          if (_event.length > 0) {
-                            Events _events = (_event[0] as Events);
-                            Navigator.of(context)
-                                .pushNamed(EventsViewerScreen.routeName,
-                                    arguments: ScreenArguements(
-                                      position: 0,
-                                      items: _events,
-                                      itemsList: [],
-                                    ));
+                          final List<dynamic> event = _getEventsForDay(selectedDay);
+                          if (event.isNotEmpty) {
+                            final Events ev = event[0] as Events;
+                            Navigator.of(context).pushNamed(
+                                EventsViewerScreen.routeName,
+                                arguments: ScreenArguements(
+                                  position: 0,
+                                  items: ev,
+                                  itemsList: [],
+                                ));
                           }
                         },
                         onPageChanged: (date) {
-                          print("date changed to = " + date.toString());
                           if (date.month != _selectedDate!.month) {
                             setState(() {
                               _selectedDate = date;
@@ -297,28 +309,12 @@ class _EventsListScreenState extends State<EventsListScreen> {
                             loadItems();
                           }
                         },
-                        /*onDaySelected: (date, events, holidays) {
-                          print(events);
-                          if (events.length > 0) {
-                            Events _events = (events[0] as Events);
-                            Navigator.of(context)
-                                .pushNamed(EventsViewerScreen.routeName,
-                                    arguments: ScreenArguements(
-                                      position: 0,
-                                      items: _events,
-                                      itemsList: [],
-                                    ));
-                          }
-                          //setState(() {
-                          // _selectedEvents = events;
-                          // });
-                        },*/
-                        calendarBuilders: CalendarBuilders(
+                        /*onDaySelected: (date, events, holidays) {*/                        calendarBuilders: CalendarBuilders(
                           selectedBuilder: (context, date, events) => Container(
                               margin: const EdgeInsets.all(4.0),
                               alignment: Alignment.center,
                               decoration: BoxDecoration(
-                                  color: MyColors.mainC0lor,
+                                  color: MyColors.primary,
                                   borderRadius: BorderRadius.circular(10.0)),
                               child: Text(
                                 date.day.toString(),
@@ -369,7 +365,7 @@ class _EventsListScreenState extends State<EventsListScreen> {
                               style: TextStyles.headline(context).copyWith(
                                 fontWeight: FontWeight.w800,
                                 fontSize: 18,
-                                color: const Color(0xFF23141D),
+                                color: const Color(0xFF0f172a),
                               ),
                             ),
                             const Spacer(),
@@ -377,13 +373,13 @@ class _EventsListScreenState extends State<EventsListScreen> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 5),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFF3EAF0),
+                                color: const Color(0xFFe0e7ff),
                                 borderRadius: BorderRadius.circular(999),
                               ),
                               child: Text(
                                 '${items.length}',
                                 style: const TextStyle(
-                                  color: Color(0xFF7A6B75),
+                                  color: Color(0xFF475569),
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
@@ -402,14 +398,14 @@ class _EventsListScreenState extends State<EventsListScreen> {
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(18),
                                   border: Border.all(
-                                      color: const Color(0xFFE8DDE4)),
+                                      color: const Color(0xFFe2e8f0)),
                                 ),
                                 child: Text(
                                   t.noevents,
                                   textAlign: TextAlign.center,
                                   style: TextStyles.subhead(context).copyWith(
                                     fontSize: 14,
-                                    color: const Color(0xFF7A6B75),
+                                    color: const Color(0xFF475569),
                                   ),
                                 ),
                               ),
@@ -507,7 +503,7 @@ class ItemTile extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFE8DDE4)),
+          border: Border.all(color: const Color(0xFFe2e8f0)),
           boxShadow: const [
             BoxShadow(
               color: Color(0x12000000),
@@ -522,12 +518,12 @@ class ItemTile extends StatelessWidget {
               width: 46,
               height: 46,
               decoration: BoxDecoration(
-                color: const Color(0xFFF5EAF1),
+                color: const Color(0xFFe0e7ff),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Icon(
                 Icons.event_note_rounded,
-                color: Color(0xFF8F3E88),
+                color: Color(0xFF6366f1),
               ),
             ),
             const SizedBox(width: 12),
@@ -542,7 +538,7 @@ class ItemTile extends StatelessWidget {
                           DateFormat('EEE, MMM d, yyyy', 'en_US')
                               .format(tempDate),
                           style: TextStyles.caption(context).copyWith(
-                            color: const Color(0xFF7A6B75),
+                            color: const Color(0xFF475569),
                             fontWeight: FontWeight.w700,
                             fontSize: 12.5,
                           ),
@@ -551,7 +547,7 @@ class ItemTile extends StatelessWidget {
                       Text(
                         events!.time!,
                         style: TextStyles.caption(context).copyWith(
-                          color: const Color(0xFF7A6B75),
+                          color: const Color(0xFF475569),
                           fontWeight: FontWeight.w700,
                           fontSize: 12.5,
                         ),
@@ -565,7 +561,7 @@ class ItemTile extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: TextStyles.subhead(context).copyWith(
                       fontWeight: FontWeight.w700,
-                      color: const Color(0xFF23141D),
+                      color: const Color(0xFF0f172a),
                     ),
                   ),
                 ],

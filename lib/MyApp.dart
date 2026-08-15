@@ -1,4 +1,6 @@
+import 'package:flutter_quill/flutter_quill.dart' show FlutterQuillLocalizations;
 import 'package:higherground/audio_player/player_page.dart';
+import 'package:higherground/widgets/AppLogo.dart';
 import 'package:higherground/audio_player/radio_player.dart';
 import 'package:higherground/bible/BibleScreen.dart';
 import 'package:higherground/bible/BibleSearchScreen.dart';
@@ -91,14 +93,29 @@ import 'package:higherground/socials/UserProfileScreen.dart';
 import 'package:higherground/socials/UserdataPosts.dart';
 import 'package:higherground/socials/chat/ChatConversations.dart';
 import 'package:higherground/socials/chat/ChatUsersScreen.dart';
+import 'package:higherground/models/MarketplaceItem.dart';
+import 'package:higherground/screens/CounselingScreen.dart';
+import 'package:higherground/screens/DonateScreen.dart';
+import 'package:higherground/screens/MarketplaceBrowseScreen.dart';
+import 'package:higherground/screens/MarketplaceItemDetailScreen.dart';
+import 'package:higherground/screens/MarketplaceSubmitScreen.dart';
+import 'package:higherground/screens/MyMarketplaceListingsScreen.dart';
+import 'package:higherground/screens/SubmitCounselingScreen.dart';
+import 'package:higherground/screens/WellnessScreen.dart';
+import 'package:higherground/screens/PartnershipScreen.dart';
+import 'package:higherground/screens/MyPartnershipScreen.dart';
+import 'package:higherground/screens/PartnershipHistoryScreen.dart';
+import 'package:higherground/screens/SubmitPartnershipScreen.dart';
+import 'package:higherground/screens/PartnershipPaymentScreen.dart';
+import 'package:higherground/models/PartnershipTier.dart';
 import 'package:higherground/socials/chat/SelectChatPeople.dart';
 import 'package:higherground/socials/chat/photoviewer.dart';
 import 'package:higherground/socials/likesPostPeople.dart';
 import 'package:higherground/utils/app_themes.dart';
-import 'package:higherground/utils/my_colors.dart';
 import 'package:higherground/video_player/VideoPlayer.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import './screens/HomePage.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -183,14 +200,18 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   void initState() {
-    Firebase(
-      navigateMedia,
-      navigateSocials,
-      navigateInbox,
-      navigateLivestreams,
-      navigateChat,
-      navigateItem,
-    ).init();
+    // No Firebase Web app is registered for this project, so FCM/push
+    // setup (which needs Firebase.initializeApp() to have run) is skipped on web.
+    if (!kIsWeb) {
+      Firebase(
+        navigateMedia,
+        navigateSocials,
+        navigateInbox,
+        navigateLivestreams,
+        navigateChat,
+        navigateItem,
+      ).init();
+    }
     Provider.of<ChatManager>(context, listen: false).init();
 
     WidgetsBinding.instance.addObserver(this);
@@ -249,13 +270,12 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         return false;
       },
       //autoLoad: true,
-      child: Directionality(
-        textDirection: TextDirection.rtl,
-        child: MaterialApp(
+      child: MaterialApp(
           theme: appThemeData[AppTheme.White],
           navigatorKey: navigatorKey,
           title: 'MFM Lekki',
           localizationsDelegates: [
+            FlutterQuillLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -935,6 +955,97 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
               );
             }
 
+            if (settings.name == MarketplaceBrowseScreen.routeName) {
+              return MaterialPageRoute(
+                builder: (context) => const MarketplaceBrowseScreen(),
+              );
+            }
+
+            if (settings.name == MarketplaceSubmitScreen.routeName) {
+              final item = settings.arguments as MarketplaceItem?;
+              return MaterialPageRoute(
+                builder: (context) => MarketplaceSubmitScreen(item: item),
+              );
+            }
+
+            if (settings.name == MarketplaceItemDetailScreen.routeName) {
+              final itemId = settings.arguments as int;
+              return MaterialPageRoute(
+                builder: (context) =>
+                    MarketplaceItemDetailScreen(itemId: itemId),
+              );
+            }
+
+            if (settings.name == MyMarketplaceListingsScreen.routeName) {
+              return MaterialPageRoute(
+                builder: (context) => const MyMarketplaceListingsScreen(),
+              );
+            }
+
+            if (settings.name == DonateScreen.routeName) {
+              final url = settings.arguments as String? ?? '';
+              return MaterialPageRoute(
+                builder: (context) => DonateScreen(url: url),
+              );
+            }
+
+            if (settings.name == CounselingScreen.routeName) {
+              return MaterialPageRoute(
+                builder: (context) => const CounselingScreen(),
+              );
+            }
+
+            if (settings.name == SubmitCounselingScreen.routeName) {
+              return MaterialPageRoute(
+                builder: (context) => const SubmitCounselingScreen(),
+              );
+            }
+
+            if (settings.name == WellnessScreen.routeName) {
+              return MaterialPageRoute(
+                builder: (context) => WellnessScreen(
+                  email: settings.arguments as String,
+                ),
+              );
+            }
+
+            if (settings.name == PartnershipScreen.routeName) {
+              return MaterialPageRoute(
+                builder: (context) => const PartnershipScreen(),
+              );
+            }
+
+            if (settings.name == MyPartnershipScreen.routeName) {
+              return MaterialPageRoute(
+                builder: (context) => const MyPartnershipScreen(),
+              );
+            }
+
+            if (settings.name == PartnershipHistoryScreen.routeName) {
+              return MaterialPageRoute(
+                builder: (context) => const PartnershipHistoryScreen(),
+                settings: settings,
+              );
+            }
+
+            if (settings.name == SubmitPartnershipScreen.routeName) {
+              final tiers = settings.arguments as List<PartnershipTier>? ?? [];
+              return MaterialPageRoute(
+                builder: (context) => const SubmitPartnershipScreen(),
+                settings: RouteSettings(
+                  name: SubmitPartnershipScreen.routeName,
+                  arguments: tiers,
+                ),
+              );
+            }
+
+            if (settings.name == PartnershipPaymentScreen.routeName) {
+              return MaterialPageRoute(
+                builder: (context) => const PartnershipPaymentScreen(),
+                settings: settings,
+              );
+            }
+
             if (settings.name == LikesPostPeople.routeName) {
               // Cast the arguments to the correct type: ScreenArguments.
               final ScreenArguements? args =
@@ -980,80 +1091,118 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             );
           },
         ),
-      ),
     );
   }
 }
 
 class SplashScreen extends StatefulWidget {
   @override
-  SplashScreenState createState() {
-    return SplashScreenState();
-  }
+  SplashScreenState createState() => SplashScreenState();
 }
 
-class SplashScreenState extends State<SplashScreen> {
-  getFirstScreen() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (prefs.getBool("user_seen_onboarding_page") == null ||
-        prefs.getBool("user_seen_onboarding_page") == false) {
-      Navigator.of(context).pushReplacementNamed(OnboardingPage.routeName);
-    } else {
-      Navigator.of(context).pushReplacementNamed(InitPage.routeName);
-    }
-  }
+class SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _ctrl;
+  late Animation<double> _fade;
+  late Animation<double> _scale;
+  late Animation<Offset> _slide;
 
   @override
   void initState() {
     super.initState();
 
-    Future.delayed(const Duration(milliseconds: 100), () {
-      getFirstScreen();
-    });
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    )..forward();
+
+    _fade = CurvedAnimation(parent: _ctrl, curve: Curves.easeOut);
+    _scale = Tween<double>(begin: 0.65, end: 1.0).animate(
+      CurvedAnimation(parent: _ctrl, curve: Curves.easeOutBack),
+    );
+    _slide = Tween<Offset>(
+      begin: const Offset(0, 0.25),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOut));
+
+    Future.delayed(const Duration(milliseconds: 2400), _navigate);
+  }
+
+  Future<void> _navigate() async {
+    if (!mounted) return;
+    final prefs = await SharedPreferences.getInstance();
+    final seen = prefs.getBool('user_seen_onboarding_page') ?? false;
+    if (!mounted) return;
+    Navigator.of(context).pushReplacementNamed(
+      seen ? InitPage.routeName : OnboardingPage.routeName,
+    );
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: Align(
-        child: Container(
-          width: double.infinity,
-          height: 500,
-          alignment: Alignment.center,
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF4338ca), Color(0xFF6366f1), Color(0xFF818cf8)],
+          ),
+        ),
+        child: SafeArea(
           child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Container(
-                height: 15,
-              ),
-              /*Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Image(
-                  image: AssetImage(Img.get("logo.png")),
-                  //height: 30,
-                  //width: 30,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Animated logo icon
+              ScaleTransition(
+                scale: _scale,
+                child: FadeTransition(
+                  opacity: _fade,
+                  child: AppLogo(size: 100, radius: 28),
                 ),
-              ),*/
-              Container(height: 20),
-              Align(
-                alignment: Alignment.center,
-                child: RichText(
-                  textAlign: TextAlign.center,
-                  text: TextSpan(
-                    text: t.appname,
-                    style: Theme.of(context).textTheme.displayLarge!.copyWith(
-                          fontSize: 30,
-                          fontWeight: FontWeight.w700,
-                          color: MyColors.mainC0lor,
+              ),
+              const SizedBox(height: 32),
+              // Animated text block
+              SlideTransition(
+                position: _slide,
+                child: FadeTransition(
+                  opacity: _fade,
+                  child: Column(
+                    children: [
+                      Text(
+                        t.appname,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 34,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: -0.5,
                         ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        'Your faith community, always with you',
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.68),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                          letterSpacing: 0.2,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
             ],
           ),
         ),
-        alignment: Alignment.center,
       ),
     );
   }

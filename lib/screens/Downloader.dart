@@ -67,7 +67,7 @@ class _DownloaderState extends State<Downloader> {
           t.downloads,
           style: const TextStyle(
             fontWeight: FontWeight.w800,
-            color: Color(0xFF23141D),
+            color: Color(0xFF0f172a),
           ),
         ),
       ),
@@ -84,7 +84,7 @@ class _DownloaderState extends State<Downloader> {
               child: TextField(
                 controller: inputController,
                 maxLines: 1,
-                style: const TextStyle(fontSize: 16, color: Color(0xFF23141D)),
+                style: const TextStyle(fontSize: 16, color: Color(0xFF0f172a)),
                 textInputAction: TextInputAction.search,
                 decoration: InputDecoration(
                   border: InputBorder.none,
@@ -217,7 +217,7 @@ class ItemTile extends StatelessWidget {
                               TimUtil.timeFormatter(object.duration ?? 0),
                               style: const TextStyle(
                                 fontSize: 12,
-                                color: Color(0xFF7A6B75),
+                                color: Color(0xFF475569),
                               ),
                             ),
                             const Spacer(),
@@ -225,7 +225,7 @@ class ItemTile extends StatelessWidget {
                               '${object.viewsCount ?? 0} view(s)',
                               style: const TextStyle(
                                 fontSize: 12,
-                                color: Color(0xFF7A6B75),
+                                color: Color(0xFF475569),
                               ),
                             ),
                           ],
@@ -238,7 +238,7 @@ class ItemTile extends StatelessWidget {
                           style: const TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 15,
-                            color: Color(0xFF23141D),
+                            color: Color(0xFF0f172a),
                           ),
                         ),
                       ],

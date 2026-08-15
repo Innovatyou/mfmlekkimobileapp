@@ -106,7 +106,7 @@ class UserPostsSectionRouteState extends State<UserPostsSection>
         // If the server did return a 200 OK response,
         // then parse the JSON.
         print(response.data);
-        dynamic res = jsonDecode(response.data);
+        dynamic res = Utility.decodeResponse(response.data);
         List<UserPosts>? postsList = parsePosts(res);
         if (page == 0) {
           setItems(postsList);

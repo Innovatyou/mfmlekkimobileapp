@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:floating/floating.dart';
 import 'package:higherground/models/Media.dart';
 import 'package:higherground/utils/Utility.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
@@ -16,11 +17,18 @@ class YoutubePlayerIFrame extends StatefulWidget {
 
 class _YoutubePlayerIFrameState extends State<YoutubePlayerIFrame> {
   late YoutubePlayerController _controller;
+  // Embedded webview playback can't survive true backgrounding/lock (neither
+  // Android WebView nor iOS WKWebView keep running JS-driven media, and
+  // YouTube's own player pauses on visibility loss). Picture-in-Picture is the
+  // one legitimate, ToS-compliant way to keep the video going while
+  // multitasking — Android only, doesn't survive screen lock.
+  final _floating = Floating();
 
   @override
   void initState() {
     super.initState();
     _initializeController();
+    _floating.enable(const OnLeavePiP());
   }
 
   void _initializeController() {
@@ -47,6 +55,7 @@ class _YoutubePlayerIFrameState extends State<YoutubePlayerIFrame> {
 
   @override
   void dispose() {
+    _floating.cancelOnLeavePiP();
     _controller.close();
     super.dispose();
   }

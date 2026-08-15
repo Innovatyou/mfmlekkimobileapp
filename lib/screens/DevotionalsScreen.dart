@@ -43,7 +43,7 @@ class _DevotionalsScreenState extends State<DevotionalsScreen> {
       );
 
       if (response.statusCode == 200) {
-        final dynamic res = jsonDecode(response.data);
+        final dynamic res = Utility.decodeResponse(response.data);
         final List<Devotionals> fetched = parseDevotionals(res);
         _events!.clear();
         for (final element in fetched) {
@@ -95,18 +95,9 @@ class _DevotionalsScreenState extends State<DevotionalsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F2F5),
+      backgroundColor: const Color(0xFFf0f2f5),
       appBar: AppBar(
-        elevation: 0,
-        backgroundColor: const Color(0xFFF7F2F5),
-        surfaceTintColor: Colors.transparent,
-        title: Text(
-          t.devotionals,
-          style: const TextStyle(
-            fontWeight: FontWeight.w800,
-            color: Color(0xFF23141D),
-          ),
-        ),
+        title: Text(t.devotionals),
       ),
       body: isLoading
           ? const Center(child: CupertinoActivityIndicator(radius: 20))
@@ -127,7 +118,7 @@ class _DevotionalsScreenState extends State<DevotionalsScreen> {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(22),
                           gradient: const LinearGradient(
-                            colors: [Color(0xFF7F375E), Color(0xFFA84978)],
+                            colors: [Color(0xFF4f46e5), Color(0xFF6366f1)],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
@@ -179,7 +170,7 @@ class _DevotionalsScreenState extends State<DevotionalsScreen> {
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: const Color(0xFFE8DDE4)),
+                          border: Border.all(color: const Color(0xFFe2e8f0)),
                         ),
                         child: TableCalendar(
                           availableCalendarFormats: const {
@@ -202,8 +193,8 @@ class _DevotionalsScreenState extends State<DevotionalsScreen> {
                               border: Border.all(color: const Color(0xFFCF4E45)),
                               borderRadius: const BorderRadius.all(Radius.circular(20)),
                             ),
-                            defaultTextStyle: const TextStyle(color: Color(0xFF23141D)),
-                            weekendTextStyle: const TextStyle(color: Color(0xFF23141D)),
+                            defaultTextStyle: const TextStyle(color: Color(0xFF0f172a)),
+                            weekendTextStyle: const TextStyle(color: Color(0xFF0f172a)),
                             outsideTextStyle: const TextStyle(color: Color(0xFFB4A8B1)),
                             todayTextStyle: const TextStyle(
                               fontWeight: FontWeight.bold,
@@ -215,12 +206,12 @@ class _DevotionalsScreenState extends State<DevotionalsScreen> {
                             headerMargin: const EdgeInsets.all(10),
                             titleCentered: true,
                             titleTextStyle: const TextStyle(
-                              color: Color(0xFF23141D),
+                              color: Color(0xFF0f172a),
                               fontWeight: FontWeight.w800,
                               fontSize: 16,
                             ),
                             formatButtonDecoration: BoxDecoration(
-                              color: const Color(0xFF8F3E88),
+                              color: const Color(0xFF6366f1),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             formatButtonTextStyle: const TextStyle(color: Colors.white),
@@ -321,20 +312,20 @@ class _DevotionalsScreenState extends State<DevotionalsScreen> {
                               style: TextStyles.headline(context).copyWith(
                                 fontWeight: FontWeight.w800,
                                 fontSize: 18,
-                                color: const Color(0xFF23141D),
+                                color: const Color(0xFF0f172a),
                               ),
                             ),
                             const Spacer(),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFF3EAF0),
+                                color: const Color(0xFFe0e7ff),
                                 borderRadius: BorderRadius.circular(999),
                               ),
                               child: Text(
                                 '${items.length}',
                                 style: const TextStyle(
-                                  color: Color(0xFF7A6B75),
+                                  color: Color(0xFF475569),
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
@@ -352,14 +343,14 @@ class _DevotionalsScreenState extends State<DevotionalsScreen> {
                                 decoration: BoxDecoration(
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(18),
-                                  border: Border.all(color: const Color(0xFFE8DDE4)),
+                                  border: Border.all(color: const Color(0xFFe2e8f0)),
                                 ),
                                 child: Text(
                                   t.nodevotionals,
                                   textAlign: TextAlign.center,
                                   style: TextStyles.subhead(context).copyWith(
                                     fontSize: 14,
-                                    color: const Color(0xFF7A6B75),
+                                    color: const Color(0xFF475569),
                                   ),
                                 ),
                               ),
@@ -413,7 +404,7 @@ class ItemTile extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFE8DDE4)),
+          border: Border.all(color: const Color(0xFFe2e8f0)),
           boxShadow: const [
             BoxShadow(
               color: Color(0x12000000),
@@ -428,12 +419,12 @@ class ItemTile extends StatelessWidget {
               width: 46,
               height: 46,
               decoration: BoxDecoration(
-                color: const Color(0xFFF5EAF1),
+                color: const Color(0xFFe0e7ff),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Icon(
                 Icons.menu_book_rounded,
-                color: Color(0xFF8F3E88),
+                color: Color(0xFF6366f1),
               ),
             ),
             const SizedBox(width: 12),
@@ -444,7 +435,7 @@ class ItemTile extends StatelessWidget {
                   Text(
                     DateFormat('EEE, MMM d, yyyy', 'en_US').format(tempDate),
                     style: TextStyles.caption(context).copyWith(
-                      color: const Color(0xFF7A6B75),
+                      color: const Color(0xFF475569),
                       fontWeight: FontWeight.w700,
                       fontSize: 12.5,
                     ),
@@ -456,7 +447,7 @@ class ItemTile extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: TextStyles.subhead(context).copyWith(
                       fontWeight: FontWeight.w700,
-                      color: const Color(0xFF23141D),
+                      color: const Color(0xFF0f172a),
                     ),
                   ),
                 ],
