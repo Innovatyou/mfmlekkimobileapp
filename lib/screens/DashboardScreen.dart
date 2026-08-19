@@ -42,6 +42,7 @@ class DashboardScreenRouteState extends State<DashboardScreen> {
   late AppStateManager appStateManager;
   Set<String> _hiddenDashboardItems = {};
   Map<String, String> _dashboardLabels = {};
+  Map<String, List<String>> _dashboardOrder = {};
 
   @override
   void initState() {
@@ -59,6 +60,12 @@ class DashboardScreenRouteState extends State<DashboardScreen> {
       _dashboardLabels = stored == null
           ? {}
           : Map<String, String>.from(jsonDecode(stored) as Map);
+      final order = prefs.getString('dashboard_order');
+      if (order != null) {
+        final decoded = Map<String, dynamic>.from(jsonDecode(order) as Map);
+        _dashboardOrder = decoded.map(
+            (key, value) => MapEntry(key, List<String>.from(value as List)));
+      }
     });
   }
 
@@ -67,13 +74,26 @@ class DashboardScreenRouteState extends State<DashboardScreen> {
     await prefs.setStringList(
         'dashboard_hidden_items', _hiddenDashboardItems.toList());
     await prefs.setString('dashboard_labels', jsonEncode(_dashboardLabels));
+    await prefs.setString('dashboard_order', jsonEncode(_dashboardOrder));
   }
 
   String _label(String value) => _dashboardLabels[value] ?? value;
 
+  List<_DashboardAction> _ordered(
+      String section, List<_DashboardAction> actions) {
+    final order = _dashboardOrder[section] ?? [];
+    actions.sort((left, right) {
+      final leftIndex = order.indexOf(left.title);
+      final rightIndex = order.indexOf(right.title);
+      return (leftIndex < 0 ? 999 : leftIndex)
+          .compareTo(rightIndex < 0 ? 999 : rightIndex);
+    });
+    return actions;
+  }
+
   List<_DashboardAction> _visible(
           String section, List<_DashboardAction> actions) =>
-      actions
+      _ordered(section, actions)
           .where((action) =>
               !_hiddenDashboardItems.contains('$section:${action.title}'))
           .toList();
@@ -921,8 +941,8 @@ class DashboardScreenRouteState extends State<DashboardScreen> {
   }
 
   Future<void> _showDashboardEditor(String section) async {
-    final actions =
-        section == 'quick' ? _buildQuickActions() : _buildServiceActions();
+    final actions = _ordered(section,
+        section == 'quick' ? _buildQuickActions() : _buildServiceActions());
     final sectionName = section == 'quick' ? 'Quick Access' : 'Grow This Week';
     await showDialog<void>(
       context: context,
@@ -943,31 +963,54 @@ class DashboardScreenRouteState extends State<DashboardScreen> {
                       _renameDashboardText(sectionName, setDialogState),
                 ),
                 const Divider(),
-                ...actions.map((action) {
-                  final key = '$section:${action.title}';
-                  final visible = !_hiddenDashboardItems.contains(key);
-                  return ListTile(
-                    leading: Checkbox(
-                      value: visible,
-                      onChanged: (value) {
-                        setState(() {
-                          value == true
-                              ? _hiddenDashboardItems.remove(key)
-                              : _hiddenDashboardItems.add(key);
-                        });
-                        setDialogState(() {});
-                        _saveDashboardPreferences();
-                      },
-                    ),
-                    title: Text(_label(action.title)),
-                    subtitle: Text(visible ? 'Shown' : 'Hidden'),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.edit_outlined),
-                      onPressed: () =>
-                          _renameDashboardText(action.title, setDialogState),
-                    ),
-                  );
-                }),
+                ReorderableListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: actions.length,
+                  onReorder: (oldIndex, newIndex) {
+                    if (newIndex > oldIndex) newIndex--;
+                    final moved = actions.removeAt(oldIndex);
+                    actions.insert(newIndex, moved);
+                    _dashboardOrder[section] =
+                        actions.map((action) => action.title).toList();
+                    setState(() {});
+                    setDialogState(() {});
+                    _saveDashboardPreferences();
+                  },
+                  itemBuilder: (context, index) {
+                    final action = actions[index];
+                    final key = '$section:${action.title}';
+                    final visible = !_hiddenDashboardItems.contains(key);
+                    return ListTile(
+                      key: ValueKey(key),
+                      leading: Checkbox(
+                        value: visible,
+                        onChanged: (value) {
+                          setState(() {
+                            value == true
+                                ? _hiddenDashboardItems.remove(key)
+                                : _hiddenDashboardItems.add(key);
+                          });
+                          setDialogState(() {});
+                          _saveDashboardPreferences();
+                        },
+                      ),
+                      title: Text(_label(action.title)),
+                      subtitle: Text(visible ? 'Shown' : 'Hidden'),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.edit_outlined),
+                            onPressed: () => _renameDashboardText(
+                                action.title, setDialogState),
+                          ),
+                          const Icon(Icons.drag_handle_rounded),
+                        ],
+                      ),
+                    );
+                  },
+                ),
               ],
             ),
           ),
