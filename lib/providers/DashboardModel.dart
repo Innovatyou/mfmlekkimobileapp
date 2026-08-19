@@ -55,6 +55,7 @@ class DashboardModel with ChangeNotifier {
   List<Books> recentbooks = [];
   List<Events> upcomingevents = [];
   List<Userdata> recentmembers = [];
+  List<Map<String, dynamic>> mobileAdverts = [];
   BuildContext? context;
 
   DashboardModel() {
@@ -108,6 +109,25 @@ class DashboardModel with ChangeNotifier {
       notifyListeners();
     } catch (error) {
       debugPrint('[DashboardModel] Branding load failed: $error');
+    }
+    await loadMobileAdverts();
+  }
+
+  Future<void> loadMobileAdverts() async {
+    try {
+      final response = await Utility.getDio().get(ApiUrl.MOBILE_ADVERTS);
+      final decoded = response.data is String
+          ? Utility.decodeResponse(response.data)
+          : response.data;
+      if (decoded is Map && decoded['adverts'] is List) {
+        mobileAdverts = (decoded['adverts'] as List)
+            .whereType<Map>()
+            .map((advert) => Map<String, dynamic>.from(advert))
+            .toList();
+        notifyListeners();
+      }
+    } catch (error) {
+      debugPrint('[DashboardModel] Mobile adverts load failed: $error');
     }
   }
 

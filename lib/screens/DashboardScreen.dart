@@ -43,11 +43,20 @@ class DashboardScreenRouteState extends State<DashboardScreen> {
   Set<String> _hiddenDashboardItems = {};
   Map<String, String> _dashboardLabels = {};
   Map<String, List<String>> _dashboardOrder = {};
+  final PageController _advertController = PageController();
+  bool _advertDismissed = false;
+  int _advertIndex = 0;
 
   @override
   void initState() {
     super.initState();
     _loadDashboardPreferences();
+  }
+
+  @override
+  void dispose() {
+    _advertController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadDashboardPreferences() async {
@@ -146,75 +155,178 @@ class DashboardScreenRouteState extends State<DashboardScreen> {
         isWide ? (width - 56) / 3 : (width - 44) / 2;
     final double serviceWidth = isWide ? (width - 56) / 2 : width - 32;
 
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: dashboardModel.brandingColor(
-            'mobile_background_color', const Color(0xFFf0f2f5)),
-      ),
+    return Stack(
+      children: [
+        DecoratedBox(
+          decoration: BoxDecoration(
+            color: dashboardModel.brandingColor(
+                'mobile_background_color', const Color(0xFFf0f2f5)),
+          ),
+          child: SafeArea(
+            top: false,
+            bottom: false,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildHeroCard(),
+                  const SizedBox(height: 20),
+                  if (dashboardModel.isFeatureAvailable('media')) ...[
+                    _buildSearchCard(),
+                    const SizedBox(height: 20),
+                  ],
+                  _buildSectionHeader(
+                    _label('Quick Access'),
+                    'Jump straight into today\'s most-used church tools.',
+                    onEdit: () => _showDashboardEditor('quick'),
+                  ),
+                  const SizedBox(height: 14),
+                  _buildCommunityRow(),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 12,
+                    runSpacing: 12,
+                    children: _visible('quick', _buildQuickActions())
+                        .map(
+                          (action) => SizedBox(
+                            width: quickActionWidth,
+                            child: _buildActionCard(action),
+                          ),
+                        )
+                        .toList(),
+                  ),
+                  if (dashboardModel.isFeatureAvailable('events') &&
+                      dashboardModel.upcomingevents.isNotEmpty) ...[
+                    const SizedBox(height: 28),
+                    _buildSectionHeader(
+                      t.upcomingevents,
+                      'See what is coming up and plan your next moment of fellowship.',
+                    ),
+                    const SizedBox(height: 14),
+                    _buildUpcomingEvents(),
+                  ],
+                  const SizedBox(height: 28),
+                  _buildSectionHeader(
+                    _label('Grow This Week'),
+                    'Worship, study, and stay connected from one place.',
+                    onEdit: () => _showDashboardEditor('grow'),
+                  ),
+                  const SizedBox(height: 14),
+                  Wrap(
+                    spacing: 12,
+                    runSpacing: 12,
+                    children: _visible('grow', _buildServiceActions())
+                        .map(
+                          (action) => SizedBox(
+                            width: serviceWidth,
+                            child: _buildServiceCard(action),
+                          ),
+                        )
+                        .toList(),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        if (!_advertDismissed && dashboardModel.mobileAdverts.isNotEmpty)
+          Positioned.fill(child: _buildAdvertOverlay()),
+      ],
+    );
+  }
+
+  Widget _buildAdvertOverlay() {
+    final adverts = dashboardModel.mobileAdverts;
+    final primary = dashboardModel.brandingColor(
+        'mobile_primary_color', MyColors.mainC0lor);
+    return ColoredBox(
+      color: Colors.black.withValues(alpha: 0.66),
       child: SafeArea(
-        top: false,
-        bottom: false,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildHeroCard(),
-              const SizedBox(height: 20),
-              if (dashboardModel.isFeatureAvailable('media')) ...[
-                _buildSearchCard(),
-                const SizedBox(height: 20),
-              ],
-              _buildSectionHeader(
-                _label('Quick Access'),
-                'Jump straight into today\'s most-used church tools.',
-                onEdit: () => _showDashboardEditor('quick'),
-              ),
-              const SizedBox(height: 14),
-              _buildCommunityRow(),
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 12,
-                runSpacing: 12,
-                children: _visible('quick', _buildQuickActions())
-                    .map(
-                      (action) => SizedBox(
-                        width: quickActionWidth,
-                        child: _buildActionCard(action),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 560),
+            child: Padding(
+              padding: const EdgeInsets.all(18),
+              child: Material(
+                color: Colors.white,
+                elevation: 24,
+                borderRadius: BorderRadius.circular(26),
+                clipBehavior: Clip.antiAlias,
+                child: Stack(
+                  children: [
+                    AspectRatio(
+                      aspectRatio: 4 / 5,
+                      child: PageView.builder(
+                        controller: _advertController,
+                        itemCount: adverts.length,
+                        onPageChanged: (index) =>
+                            setState(() => _advertIndex = index),
+                        itemBuilder: (context, index) {
+                          final advert = adverts[index];
+                          final link = advert['link']?.toString() ?? '';
+                          return InkWell(
+                            onTap: link.isEmpty
+                                ? null
+                                : () => Utility.openBrowserTab(link,
+                                    context: context,
+                                    title: advert['title']?.toString() ??
+                                        'Advert'),
+                            child: CachedNetworkImage(
+                              imageUrl: advert['image']?.toString() ?? '',
+                              fit: BoxFit.cover,
+                              placeholder: (_, __) => Center(
+                                  child: CircularProgressIndicator(
+                                      color: primary)),
+                              errorWidget: (_, __, ___) => const Center(
+                                  child: Icon(Icons.broken_image_outlined,
+                                      size: 52)),
+                            ),
+                          );
+                        },
                       ),
-                    )
-                    .toList(),
-              ),
-              if (dashboardModel.isFeatureAvailable('events') &&
-                  dashboardModel.upcomingevents.isNotEmpty) ...[
-                const SizedBox(height: 28),
-                _buildSectionHeader(
-                  t.upcomingevents,
-                  'See what is coming up and plan your next moment of fellowship.',
+                    ),
+                    Positioned(
+                      top: 12,
+                      right: 12,
+                      child: IconButton.filled(
+                        style: IconButton.styleFrom(
+                            backgroundColor:
+                                Colors.black.withValues(alpha: 0.62)),
+                        color: Colors.white,
+                        icon: const Icon(Icons.close_rounded),
+                        onPressed: () =>
+                            setState(() => _advertDismissed = true),
+                      ),
+                    ),
+                    if (adverts.length > 1)
+                      Positioned(
+                        left: 0,
+                        right: 0,
+                        bottom: 16,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: List.generate(
+                            adverts.length,
+                            (index) => AnimatedContainer(
+                              duration: const Duration(milliseconds: 220),
+                              width: index == _advertIndex ? 22 : 8,
+                              height: 8,
+                              margin: const EdgeInsets.symmetric(horizontal: 3),
+                              decoration: BoxDecoration(
+                                color: index == _advertIndex
+                                    ? primary
+                                    : Colors.white.withValues(alpha: 0.8),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
-                const SizedBox(height: 14),
-                _buildUpcomingEvents(),
-              ],
-              const SizedBox(height: 28),
-              _buildSectionHeader(
-                _label('Grow This Week'),
-                'Worship, study, and stay connected from one place.',
-                onEdit: () => _showDashboardEditor('grow'),
               ),
-              const SizedBox(height: 14),
-              Wrap(
-                spacing: 12,
-                runSpacing: 12,
-                children: _visible('grow', _buildServiceActions())
-                    .map(
-                      (action) => SizedBox(
-                        width: serviceWidth,
-                        child: _buildServiceCard(action),
-                      ),
-                    )
-                    .toList(),
-              ),
-            ],
+            ),
           ),
         ),
       ),
