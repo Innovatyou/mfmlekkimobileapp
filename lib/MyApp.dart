@@ -1,7 +1,6 @@
 import 'package:flutter_quill/flutter_quill.dart'
     show FlutterQuillLocalizations;
 import 'package:higherground/audio_player/player_page.dart';
-import 'package:higherground/widgets/AppLogo.dart';
 import 'package:higherground/audio_player/radio_player.dart';
 import 'package:higherground/bible/BibleScreen.dart';
 import 'package:higherground/bible/BibleSearchScreen.dart';
@@ -1200,7 +1199,7 @@ class SplashScreenState extends State<SplashScreen>
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Color(0xFF4338ca), Color(0xFF6366f1), Color(0xFF818cf8)],
+            colors: [Color(0xFF6F174D), Color(0xFFA13C76), Color(0xFFC15B91)],
           ),
         ),
         child: SafeArea(
@@ -1212,7 +1211,12 @@ class SplashScreenState extends State<SplashScreen>
                 scale: _scale,
                 child: FadeTransition(
                   opacity: _fade,
-                  child: AppLogo(size: 100, radius: 28),
+                  child: Image.asset(
+                    'assets/icon/logo.png',
+                    width: 124,
+                    height: 124,
+                    fit: BoxFit.contain,
+                  ),
                 ),
               ),
               const SizedBox(height: 32),
@@ -1234,7 +1238,7 @@ class SplashScreenState extends State<SplashScreen>
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        'Your faith community, always with you',
+                        'Surely the LORD is in this PLACE...',
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.68),
                           fontSize: 14,

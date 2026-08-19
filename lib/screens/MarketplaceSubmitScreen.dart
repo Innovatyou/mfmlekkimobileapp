@@ -194,8 +194,8 @@ class _MarketplaceSubmitScreenState extends State<MarketplaceSubmitScreen> {
       });
 
       for (int i = 0; i < _photoPaths.length; i++) {
-        setState(() =>
-            _uploadStatus = 'Uploading photo ${i + 1} of ${_photoPaths.length}…');
+        setState(() => _uploadStatus =
+            'Uploading photo ${i + 1} of ${_photoPaths.length}…');
         await model.uploadPhoto(itemId, _photoPaths[i]);
       }
 
@@ -287,9 +287,11 @@ class _MarketplaceSubmitScreenState extends State<MarketplaceSubmitScreen> {
                     child: TextFormField(
                       controller: _titleCtrl,
                       maxLength: 200,
-                      decoration: _inputDeco('e.g. iPhone 12, Sofa, Bible Study Book'),
-                      validator: (v) =>
-                          (v == null || v.trim().isEmpty) ? 'Title is required' : null,
+                      decoration:
+                          _inputDeco('e.g. iPhone 12, Sofa, Bible Study Book'),
+                      validator: (v) => (v == null || v.trim().isEmpty)
+                          ? 'Title is required'
+                          : null,
                     ),
                   ),
                   _field(
@@ -303,8 +305,7 @@ class _MarketplaceSubmitScreenState extends State<MarketplaceSubmitScreen> {
                           .map((c) => DropdownMenuItem(
                               value: c.id, child: Text(c.name)))
                           .toList(),
-                      onChanged: (v) =>
-                          setState(() => _selectedCategoryId = v),
+                      onChanged: (v) => setState(() => _selectedCategoryId = v),
                       validator: (v) =>
                           v == null ? 'Please select a category' : null,
                     ),
@@ -338,8 +339,7 @@ class _MarketplaceSubmitScreenState extends State<MarketplaceSubmitScreen> {
                             ),
                             const Text('This item is FREE',
                                 style: TextStyle(
-                                    fontSize: 14,
-                                    color: MyColors.textPrimary)),
+                                    fontSize: 14, color: MyColors.textPrimary)),
                           ],
                         ),
                         if (!_isFree)
@@ -380,10 +380,9 @@ class _MarketplaceSubmitScreenState extends State<MarketplaceSubmitScreen> {
                     child: TextFormField(
                       controller: _sellerNameCtrl,
                       decoration: _inputDeco('Your name'),
-                      validator: (v) =>
-                          (v == null || v.trim().isEmpty)
-                              ? 'Seller name is required'
-                              : null,
+                      validator: (v) => (v == null || v.trim().isEmpty)
+                          ? 'Seller name is required'
+                          : null,
                     ),
                   ),
                   _field(
@@ -410,7 +409,8 @@ class _MarketplaceSubmitScreenState extends State<MarketplaceSubmitScreen> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  _section(_isEditMode ? 'Add More Photos' : 'Photos (up to 10)'),
+                  _section(
+                      _isEditMode ? 'Add More Photos' : 'Photos (up to 10)'),
                   if (_isEditMode)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8),
@@ -422,8 +422,7 @@ class _MarketplaceSubmitScreenState extends State<MarketplaceSubmitScreen> {
                           child: Text(
                             'Existing photos are kept. Add new ones below.',
                             style: TextStyle(
-                                fontSize: 12,
-                                color: MyColors.textSecondary),
+                                fontSize: 12, color: MyColors.textSecondary),
                           ),
                         ),
                       ]),
@@ -503,12 +502,10 @@ class _MarketplaceSubmitScreenState extends State<MarketplaceSubmitScreen> {
             borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
         focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide:
-                const BorderSide(color: MyColors.primary, width: 1.5)),
+            borderSide: BorderSide(color: MyColors.primary, width: 1.5)),
         errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide:
-                const BorderSide(color: MyColors.danger)),
+            borderSide: const BorderSide(color: MyColors.danger)),
       );
 
   Widget _conditionToggle() {
@@ -526,17 +523,15 @@ class _MarketplaceSubmitScreenState extends State<MarketplaceSubmitScreen> {
                 color: selected ? MyColors.primary : Colors.white,
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
-                    color: selected
-                        ? MyColors.primary
-                        : const Color(0xFFE2E8F0)),
+                    color:
+                        selected ? MyColors.primary : const Color(0xFFE2E8F0)),
               ),
               child: Text(
                 cond == 'new' ? 'New' : 'Used',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                     fontWeight: FontWeight.w600,
-                    color:
-                        selected ? Colors.white : MyColors.textSecondary),
+                    color: selected ? Colors.white : MyColors.textSecondary),
               ),
             ),
           ),
@@ -565,8 +560,7 @@ class _MarketplaceSubmitScreenState extends State<MarketplaceSubmitScreen> {
                 icon: const Icon(Icons.add_photo_alternate_outlined,
                     size: 16, color: MyColors.primary),
                 label: const Text('Add Photos',
-                    style:
-                        TextStyle(fontSize: 12, color: MyColors.primary)),
+                    style: TextStyle(fontSize: 12, color: MyColors.primary)),
                 style: TextButton.styleFrom(padding: EdgeInsets.zero),
               ),
           ],
@@ -577,9 +571,7 @@ class _MarketplaceSubmitScreenState extends State<MarketplaceSubmitScreen> {
           physics: const NeverScrollableScrollPhysics(),
           itemCount: slots,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 5,
-              crossAxisSpacing: 6,
-              mainAxisSpacing: 6),
+              crossAxisCount: 5, crossAxisSpacing: 6, mainAxisSpacing: 6),
           itemBuilder: (ctx, i) {
             if (i < count) {
               return Stack(children: [
@@ -634,8 +626,7 @@ class _MarketplaceSubmitScreenState extends State<MarketplaceSubmitScreen> {
                   color: const Color(0xFFF1F5F9),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                      color: const Color(0xFFE2E8F0),
-                      style: BorderStyle.solid),
+                      color: const Color(0xFFE2E8F0), style: BorderStyle.solid),
                 ),
                 child: const Icon(Icons.add_rounded,
                     color: Color(0xFFCBD5E1), size: 22),
@@ -664,4 +655,3 @@ class _MarketplaceSubmitScreenState extends State<MarketplaceSubmitScreen> {
     );
   }
 }
-

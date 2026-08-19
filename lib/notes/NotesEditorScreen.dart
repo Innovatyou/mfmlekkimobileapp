@@ -85,7 +85,7 @@ class _NotesEditorPageState extends State<NotesEditorScreen> {
             hintStyle: const TextStyle(color: MyColors.textDisabled),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(color: MyColors.primary),
+              borderSide: BorderSide(color: MyColors.primary),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
@@ -110,10 +110,10 @@ class _NotesEditorPageState extends State<NotesEditorScreen> {
                 Provider.of<NotesProvider>(context, listen: false).saveNote(
                   Notes(
                     title: name,
-                    color: Colors.primaries[
-                        Random().nextInt(Colors.primaries.length)],
-                    content: jsonEncode(
-                        _controller!.document.toDelta().toJson()),
+                    color: Colors
+                        .primaries[Random().nextInt(Colors.primaries.length)],
+                    content:
+                        jsonEncode(_controller!.document.toDelta().toJson()),
                     plaincontent: _controller!.document.toPlainText(),
                     date: widget.notes!.date,
                     id: widget.notes!.id,
@@ -127,10 +127,11 @@ class _NotesEditorPageState extends State<NotesEditorScreen> {
         ],
       ),
     ).then((_) {
-      if (mounted) setState(() {
-        _edit = false;
-        _controller!.readOnly = true;
-      });
+      if (mounted)
+        setState(() {
+          _edit = false;
+          _controller!.readOnly = true;
+        });
     });
   }
 

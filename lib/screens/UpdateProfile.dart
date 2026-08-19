@@ -57,7 +57,7 @@ class UpdateUserProfileState extends State<UpdateProfile> {
       locale: const Locale('en', 'US'),
       builder: (context, child) => Theme(
         data: Theme.of(context).copyWith(
-          colorScheme: const ColorScheme.light(primary: MyColors.primary),
+          colorScheme: ColorScheme.light(primary: MyColors.primary),
         ),
         child: child!,
       ),
@@ -117,7 +117,8 @@ class UpdateUserProfileState extends State<UpdateProfile> {
       final bytes = await File(path).readAsBytes();
       final decoded = img.decodeImage(bytes);
       if (decoded == null) return null;
-      final resized = img.copyResize(decoded, width: decoded.width > 1024 ? 1024 : decoded.width);
+      final resized = img.copyResize(decoded,
+          width: decoded.width > 1024 ? 1024 : decoded.width);
       return img.encodeJpg(resized, quality: 75);
     } catch (_) {
       return null;
@@ -166,7 +167,8 @@ class UpdateUserProfileState extends State<UpdateProfile> {
         fields["cover_photo_ext"] = "jpg";
       }
     }
-    print("[UpdateProfile] Sending fields: email=${fields['email']}, hasAvatar=${fields.containsKey('avatar_base64')}");
+    print(
+        "[UpdateProfile] Sending fields: email=${fields['email']}, hasAvatar=${fields.containsKey('avatar_base64')}");
     try {
       final response = await Utility.getDio().post(
         ApiUrl.updateUserProfile,
@@ -181,12 +183,17 @@ class UpdateUserProfileState extends State<UpdateProfile> {
         return;
       }
       if (res["user"] == null) {
-        Alerts.show(context, t.error, res["msg"]?.toString() ?? "Profile update failed. Please try again.");
+        Alerts.show(
+            context,
+            t.error,
+            res["msg"]?.toString() ??
+                "Profile update failed. Please try again.");
         return;
       }
       final Userdata updated = Userdata.fromJson(res["user"]);
       Provider.of<AppStateManager>(context, listen: false).setUserData(updated);
-      if (Provider.of<AppStateManager>(context, listen: false).userdata == null) {
+      if (Provider.of<AppStateManager>(context, listen: false).userdata ==
+          null) {
         Navigator.of(context).pushReplacementNamed(HomePage.routeName);
       } else {
         Navigator.of(context).pop();
@@ -425,7 +432,8 @@ class UpdateUserProfileState extends State<UpdateProfile> {
         ),
         onPressed: () {
           final appLogin = Provider.of<DashboardModel>(context, listen: false)
-              .data['app_login'] as bool? ?? false;
+                  .data['app_login'] as bool? ??
+              false;
           if (appLogin) {
             Navigator.of(context).pushReplacementNamed(HomePage.routeName);
           } else {

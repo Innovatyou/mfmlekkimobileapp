@@ -160,8 +160,7 @@ class _NewNotesScreenState extends State<NewNotesScreen> {
       context: context,
       barrierDismissible: true,
       builder: (ctx) => AlertDialog(
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(t.savenotetitle,
             style: const TextStyle(
                 fontWeight: FontWeight.w700, color: MyColors.textPrimary)),
@@ -172,12 +171,10 @@ class _NewNotesScreenState extends State<NewNotesScreen> {
           onChanged: (text) => name = text,
           decoration: InputDecoration(
             hintText: 'Note title',
-            hintStyle:
-                const TextStyle(color: MyColors.textDisabled),
+            hintStyle: const TextStyle(color: MyColors.textDisabled),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide:
-                  const BorderSide(color: MyColors.primary),
+              borderSide: BorderSide(color: MyColors.primary),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
@@ -202,8 +199,8 @@ class _NewNotesScreenState extends State<NewNotesScreen> {
                 Provider.of<NotesProvider>(context, listen: false).saveNote(
                   Notes(
                     title: name,
-                    color: Colors.primaries[
-                        Random().nextInt(Colors.primaries.length)],
+                    color: Colors
+                        .primaries[Random().nextInt(Colors.primaries.length)],
                     content:
                         jsonEncode(_controller!.document.toDelta().toJson()),
                     plaincontent: _controller!.document.toPlainText(),

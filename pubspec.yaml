@@ -83,7 +83,14 @@ dependencies:
   select_dialog: ^2.0.1
   highlight_text: ^1.6.0
   flutter_widget_from_html: ^0.15.2
-  flutter_quill: ^11.5.0
+  # Pinned to a commit past 11.5.1 (the latest pub.dev release): fixes
+  # missing TextInputClient.onFocusReceived, required by this Flutter SDK
+  # (3.44.4) and merged upstream (PR #2726) but not yet published as a
+  # release. Switch back to a version constraint once a release picks it up.
+  flutter_quill:
+    git:
+      url: https://github.com/singerdmx/flutter-quill.git
+      ref: 1643f56b51a8f2442c63863dde7584a61fe222a9
   flutter_login: any
   pull_to_refresh: ^2.0.0
   line_awesome_flutter: ^2.0.0
@@ -168,14 +175,22 @@ flutter_native_splash:
   # splash screen to a png image.  This is useful for gradients. The image will be stretch to the
   # size of the app. Only one parameter can be used, color and background_image cannot both be set.
   #color: "#42a5f5"
-  background_image: "assets/images/screen.png"
+  color: "#A13C76"
 
   # Optional parameters are listed below.  To enable a parameter, uncomment the line by removing
   # the leading # character.
 
   # The image parameter allows you to specify an image used in the splash screen.  It must be a
   # png file and should be sized for 4x pixel density.
-  #image: assets/splash.png
+  image: assets/icon/logo.png
+  color_dark: "#6F174D"
+  image_dark: assets/icon/logo.png
+  android_12:
+    color: "#A13C76"
+    image: assets/icon/logo.png
+    color_dark: "#6F174D"
+    image_dark: assets/icon/logo.png
+  web: false
 
   # This property allows you to specify an image used as branding in the splash screen. It must be
   # a png file. Currently, it is only supported for Android and iOS.
