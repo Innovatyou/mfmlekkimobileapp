@@ -27,6 +27,10 @@ class DrawerView extends StatelessWidget {
     final Userdata? userdata = appManager.userdata;
     final dashboard = Provider.of<DashboardModel>(context);
     final website = dashboard.data['website']?.toString() ?? '';
+    final showMarketplace = dashboard.isFeatureAvailable('marketplace');
+    final showCounseling = dashboard.isFeatureAvailable('counseling');
+    final showPartnership = dashboard.isFeatureAvailable('partnership');
+    final showCommunity = showMarketplace || showCounseling || showPartnership;
 
     return Drawer(
       backgroundColor: Colors.transparent,
@@ -65,57 +69,63 @@ class DrawerView extends StatelessWidget {
                   const SizedBox(height: 20),
 
                   // ── Community section ────────────────────────────────
-                  _SectionLabel('COMMUNITY'),
+                  if (showCommunity) _SectionLabel('COMMUNITY'),
                   const SizedBox(height: 6),
-                  _DrawerTile(
-                    icon: Icons.storefront_outlined,
-                    iconColor: const Color(0xFF8B5CF6),
-                    iconBg: const Color(0xFF1e1535),
-                    label: 'Church Marketplace',
-                    onTap: () {
-                      Navigator.of(context).pop();
-                      Navigator.of(context)
-                          .pushNamed(MarketplaceBrowseScreen.routeName);
-                    },
-                  ),
-                  _divider(),
-                  _DrawerTile(
-                    icon: Icons.lock_rounded,
-                    iconColor: const Color(0xFF6366f1),
-                    iconBg: const Color(0xFF1a1f3a),
-                    label: 'Counseling',
-                    onTap: () {
-                      Navigator.of(context).pop();
-                      Navigator.of(context)
-                          .pushNamed(CounselingScreen.routeName);
-                    },
-                  ),
-                  _divider(),
-                  _DrawerTile(
-                    icon: Icons.handshake_rounded,
-                    iconColor: const Color(0xFF10b981),
-                    iconBg: const Color(0xFF0d2b22),
-                    label: 'Partnership',
-                    onTap: () {
-                      Navigator.of(context).pop();
-                      Navigator.of(context)
-                          .pushNamed(PartnershipScreen.routeName);
-                    },
-                  ),
-                  _divider(),
-                  _DrawerTile(
-                    icon: Icons.receipt_long_rounded,
-                    iconColor: const Color(0xFF10b981),
-                    iconBg: const Color(0xFF0d2b22),
-                    label: 'My Partnerships',
-                    onTap: () {
-                      Navigator.of(context).pop();
-                      Navigator.of(context)
-                          .pushNamed(MyPartnershipScreen.routeName);
-                    },
-                  ),
+                  if (showMarketplace) ...[
+                    _DrawerTile(
+                      icon: Icons.storefront_outlined,
+                      iconColor: const Color(0xFF8B5CF6),
+                      iconBg: const Color(0xFF1e1535),
+                      label: 'Church Marketplace',
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        Navigator.of(context)
+                            .pushNamed(MarketplaceBrowseScreen.routeName);
+                      },
+                    ),
+                    _divider(),
+                  ],
+                  if (showCounseling) ...[
+                    _DrawerTile(
+                      icon: Icons.lock_rounded,
+                      iconColor: const Color(0xFF6366f1),
+                      iconBg: const Color(0xFF1a1f3a),
+                      label: 'Counseling',
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        Navigator.of(context)
+                            .pushNamed(CounselingScreen.routeName);
+                      },
+                    ),
+                    _divider(),
+                  ],
+                  if (showPartnership) ...[
+                    _DrawerTile(
+                      icon: Icons.handshake_rounded,
+                      iconColor: const Color(0xFF10b981),
+                      iconBg: const Color(0xFF0d2b22),
+                      label: 'Partnership',
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        Navigator.of(context)
+                            .pushNamed(PartnershipScreen.routeName);
+                      },
+                    ),
+                    _divider(),
+                    _DrawerTile(
+                      icon: Icons.receipt_long_rounded,
+                      iconColor: const Color(0xFF10b981),
+                      iconBg: const Color(0xFF0d2b22),
+                      label: 'My Partnerships',
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        Navigator.of(context)
+                            .pushNamed(MyPartnershipScreen.routeName);
+                      },
+                    ),
+                  ],
 
-                  const SizedBox(height: 24),
+                  if (showCommunity) const SizedBox(height: 24),
 
                   // ── Links section ────────────────────────────────────
                   if (website.isNotEmpty) ...[
