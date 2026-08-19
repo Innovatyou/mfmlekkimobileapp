@@ -307,6 +307,10 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       ),
     );
     final darkTheme = appThemeData[AppTheme.Dark]!.copyWith(
+      colorScheme: appThemeData[AppTheme.Dark]!.colorScheme.copyWith(
+        primary: primary,
+        secondary: accent,
+      ),
       appBarTheme: appThemeData[AppTheme.Dark]!.appBarTheme.copyWith(
         backgroundColor: primary,
         foregroundColor: Colors.white,

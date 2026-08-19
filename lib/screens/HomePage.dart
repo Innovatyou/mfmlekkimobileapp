@@ -118,7 +118,7 @@ class _HomePageItemState extends State<HomePageItem>
     final safeIndex = currentIndex.clamp(0, tabs.length - 1);
     return Scaffold(
       key: scaffoldKey,
-      backgroundColor: MyColors.surface,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       endDrawer: const DrawerView(),
       appBar: AppBar(
         automaticallyImplyLeading: false,

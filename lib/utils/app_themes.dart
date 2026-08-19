@@ -100,7 +100,7 @@ final appThemeData = {
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         foregroundColor: MyColors.primary,
-        side: const BorderSide(color: MyColors.primary, width: 1.5),
+        side: BorderSide(color: MyColors.primary, width: 1.5),
         minimumSize: const Size(double.infinity, 48),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
@@ -154,7 +154,7 @@ final appThemeData = {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: MyColors.primary, width: 2),
+        borderSide: BorderSide(color: MyColors.primary, width: 2),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
@@ -398,39 +398,40 @@ final appThemeData = {
   //  DARK theme — preserved from existing implementation
   // ──────────────────────────────────────────────────────────────────────────
   AppTheme.Dark: ThemeData(
-    scaffoldBackgroundColor: Colors.black,
-    fontFamily: null,
-    primaryColor: MyColors.backgroundColor,
-    canvasColor: MyColors.backgroundColor,
-    brightness: Brightness.light,
-    dialogTheme: const DialogThemeData(
-      titleTextStyle: TextStyle(color: Colors.black),
+    useMaterial3: true,
+    brightness: Brightness.dark,
+    colorScheme: ColorScheme.fromSeed(
+      seedColor: MyColors.primary,
+      brightness: Brightness.dark,
+      surface: const Color(0xFF111827),
     ),
+    scaffoldBackgroundColor: const Color(0xFF0B1120),
+    canvasColor: const Color(0xFF0B1120),
+    cardColor: const Color(0xFF111827),
+    dividerColor: const Color(0xFF263244),
     appBarTheme: const AppBarTheme(
-      systemOverlayStyle: SystemUiOverlayStyle(statusBarColor: Colors.black),
-      backgroundColor: Colors.black,
-      iconTheme: IconThemeData(color: Colors.black),
-      titleTextStyle: TextStyle(color: Colors.white),
+      systemOverlayStyle: SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+      ),
+      foregroundColor: Colors.white,
+      iconTheme: IconThemeData(color: Colors.white),
+      surfaceTintColor: Colors.transparent,
     ),
-    bottomSheetTheme: const BottomSheetThemeData(),
-    bottomNavigationBarTheme: BottomNavigationBarThemeData(
-      backgroundColor: MyColors.backgroundColor,
+    cardTheme: const CardThemeData(
+      color: Color(0xFF111827),
+      elevation: 0,
     ),
-    dividerColor: Colors.grey.shade800,
-    cardTheme: CardThemeData(color: MyColors.backgroundColor, elevation: 20),
-    iconTheme: const IconThemeData(color: Colors.white),
-    textTheme: const TextTheme(
-      titleLarge: TextStyle(color: Colors.black, fontSize: 20.0),
-      titleSmall: TextStyle(color: Colors.black, fontSize: 18.0),
-      headlineMedium: TextStyle(color: Colors.black),
-      displaySmall: TextStyle(color: Colors.black),
-      displayMedium: TextStyle(color: Colors.black),
-      displayLarge: TextStyle(color: Colors.black),
-      titleMedium: TextStyle(color: Colors.black),
-      bodyMedium: TextStyle(color: Colors.black),
-      bodyLarge: TextStyle(color: Colors.black),
-      labelSmall: TextStyle(color: Colors.black),
-      bodySmall: TextStyle(color: Colors.black),
+    inputDecorationTheme: const InputDecorationTheme(
+      filled: true,
+      fillColor: Color(0xFF172033),
+      border: OutlineInputBorder(),
+    ),
+    bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+      backgroundColor: Color(0xFF111827),
+      selectedItemColor: MyColors.primary,
+      unselectedItemColor: Color(0xFF94A3B8),
+      type: BottomNavigationBarType.fixed,
     ),
   ),
 };
