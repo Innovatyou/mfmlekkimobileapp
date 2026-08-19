@@ -1,33 +1,15 @@
 import 'package:dio/dio.dart';
-import 'package:higherground/database/SQLiteDbProvider.dart';
 import 'package:higherground/models/wellness.dart';
 import 'package:higherground/utils/ApiUrl.dart';
+import 'package:higherground/utils/Utility.dart';
 
 class WellnessService {
-  final Dio _dio;
-
-  WellnessService()
-      : _dio = Dio(BaseOptions(
-          connectTimeout: const Duration(seconds: 15),
-          receiveTimeout: const Duration(seconds: 15),
-          headers: {'Accept': 'application/json'},
-        ));
-
-  Future<Options> _authOptions() async {
-    final userdata = await SQLiteDbProvider.db.getUserData();
-    final token = userdata?.apiToken;
-    return Options(
-      headers: (token != null && token.isNotEmpty)
-          ? {'Authorization': 'Bearer $token'}
-          : null,
-    );
-  }
+  Future<Dio> _client() => Utility.getAuthenticatedDio();
 
   Future<WellnessProfile> fetchProfile(String email) async {
-    final resp = await _dio.post<Map<String, dynamic>>(
+    final resp = await (await _client()).post<Map<String, dynamic>>(
       ApiUrl.MY_WELLNESS_PROFILE,
       data: FormData.fromMap({'email': email}),
-      options: await _authOptions(),
     );
     final body = resp.data!;
     if (body['status'] != 'ok') {
@@ -41,14 +23,13 @@ class WellnessService {
     required String careType,
     String message = '',
   }) async {
-    final resp = await _dio.post<Map<String, dynamic>>(
+    final resp = await (await _client()).post<Map<String, dynamic>>(
       ApiUrl.REQUEST_PASTORAL_CARE,
       data: FormData.fromMap({
         'email': email,
         'care_type': careType,
         'message': message,
       }),
-      options: await _authOptions(),
     );
     final body = resp.data!;
     if (body['status'] != 'ok') {
@@ -59,10 +40,9 @@ class WellnessService {
 
   Future<List<BirthdayMember>> fetchGroupBirthdays(String email,
       {int days = 7}) async {
-    final resp = await _dio.post<Map<String, dynamic>>(
+    final resp = await (await _client()).post<Map<String, dynamic>>(
       ApiUrl.GROUP_MEMBER_BIRTHDAYS,
       data: FormData.fromMap({'email': email, 'days': days}),
-      options: await _authOptions(),
     );
     final body = resp.data!;
     if (body['status'] != 'ok') {
