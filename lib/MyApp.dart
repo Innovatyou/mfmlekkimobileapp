@@ -120,6 +120,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:higherground/utils/my_colors.dart';
 import './screens/HomePage.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import './service/Firebase.dart';
@@ -273,6 +274,9 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         dashboard.data['mobile_accent_color'], const Color(0xFFF59E0B));
     final background = _brandingColor(
         dashboard.data['mobile_background_color'], const Color(0xFFF0F2F5));
+    MyColors.mainC0lor = primary;
+    MyColors.navBackground = primary;
+    MyColors.kBlueColor = primary;
     final lightTheme = appThemeData[AppTheme.White]!.copyWith(
       colorScheme: appThemeData[AppTheme.White]!.colorScheme.copyWith(
             primary: primary,
@@ -280,6 +284,18 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             surface: background,
           ),
       scaffoldBackgroundColor: background,
+      appBarTheme: appThemeData[AppTheme.White]!.appBarTheme.copyWith(
+            backgroundColor: primary,
+            foregroundColor: Colors.white,
+            iconTheme: const IconThemeData(color: Colors.white),
+          ),
+    );
+    final darkTheme = appThemeData[AppTheme.Dark]!.copyWith(
+      appBarTheme: appThemeData[AppTheme.Dark]!.appBarTheme.copyWith(
+            backgroundColor: primary,
+            foregroundColor: Colors.white,
+            iconTheme: const IconThemeData(color: Colors.white),
+          ),
     );
     //appStateManager = Provider.of<AppStateManager>(context);
     final platform = Theme.of(context).platform;
@@ -296,7 +312,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       //autoLoad: true,
       child: MaterialApp(
         theme: lightTheme,
-        darkTheme: appThemeData[AppTheme.Dark],
+        darkTheme: darkTheme,
         themeMode: appState.darkMode ? ThemeMode.dark : ThemeMode.light,
         navigatorKey: navigatorKey,
         title: dashboard.data['mobile_app_name']?.toString().isNotEmpty == true

@@ -6,6 +6,7 @@ import 'package:higherground/screens/NoitemScreen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:higherground/providers/events.dart';
 import 'package:higherground/providers/ChatManager.dart';
+import 'package:higherground/providers/DashboardModel.dart';
 import 'package:flutter/material.dart';
 import 'components/chat_bubble.dart';
 import 'package:provider/provider.dart';
@@ -31,6 +32,9 @@ class _ChatConversationsState extends State<ChatConversations> {
   @override
   Widget build(BuildContext context) {
     chatManager = Provider.of<ChatManager>(context);
+    final dashboard = Provider.of<DashboardModel>(context);
+    final chatBackground = dashboard.brandingColor(
+        'mobile_chat_background_color', const Color(0xFFF8F5F8));
     selectedChat = chatManager!.selectedChat;
 
     // ignore: deprecated_member_use
@@ -46,6 +50,7 @@ class _ChatConversationsState extends State<ChatConversations> {
         }
       },
       child: Scaffold(
+        backgroundColor: chatBackground,
         appBar: AppBar(
           elevation: 3,
           leading: IconButton(
@@ -182,8 +187,11 @@ class _ChatConversationsState extends State<ChatConversations> {
                 : Container(),
           ],
         ),
-        body: GetPartnerChatBody(
-            selectedChat: selectedChat, chatManager: chatManager),
+        body: ColoredBox(
+          color: chatBackground,
+          child: GetPartnerChatBody(
+              selectedChat: selectedChat, chatManager: chatManager),
+        ),
       ),
     );
   }
@@ -353,8 +361,8 @@ class _GetPartnerChatBodyState extends State<GetPartnerChatBody> {
                               );
                               if (mounted) {
                                 if (result != null) {
-                                    PlatformFile file = result.files.first;
-                                    final filePath = file.path!;
+                                  PlatformFile file = result.files.first;
+                                  final filePath = file.path!;
                                   //Toast.show(filePath, context);
                                   /* if (file.size > (1024 * 1)) {
                                     Alerts.showToast(
@@ -461,7 +469,3 @@ class _GetPartnerChatBodyState extends State<GetPartnerChatBody> {
     );
   }
 }
-
-
-
-

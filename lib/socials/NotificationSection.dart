@@ -103,17 +103,17 @@ class NotificationSectionRouteState extends State<NotificationSection>
         // If the server did return a 200 OK response,
         // then parse the JSON.
         print(response.data);
-          dynamic res;
-          if (response.data is String) {
-            res = Utility.decodeResponse(response.data);
-          } else {
-            res = response.data;
-          }
-        List<Notifications>? itmsList = parseNotifications(res);
+        dynamic res;
+        if (response.data is String) {
+          res = Utility.decodeResponse(response.data);
+        } else {
+          res = response.data;
+        }
+        final itmsList = parseNotifications(res);
         if (page == 0) {
           setItems(itmsList);
         } else {
-          setMoreItems(itmsList!);
+          setMoreItems(itmsList);
         }
       } else {
         // If the server did not return a 200 OK response,
@@ -133,9 +133,11 @@ class NotificationSectionRouteState extends State<NotificationSection>
     }
   }
 
-  static List<Notifications>? parseNotifications(dynamic res) {
-    //final res = jsonDecode(responseBody);
-    final parsed = res["notifications"].cast<Map<String, dynamic>>();
+  static List<Notifications> parseNotifications(dynamic res) {
+    if (res is! Map || res['notifications'] is! List) return [];
+    final parsed = (res['notifications'] as List)
+        .whereType<Map>()
+        .map((item) => Map<String, dynamic>.from(item));
     return parsed
         .map<Notifications>((json) => Notifications.fromJson(json))
         .toList();
@@ -321,9 +323,8 @@ class _NotificationsListState extends State<NotificationsList> {
               imageUrl: widget.object.avatar ?? '',
               imageBuilder: (context, imageProvider) => Container(
                 decoration: BoxDecoration(
-                  image: DecorationImage(
-                      image: imageProvider,
-                      fit: BoxFit.cover),
+                  image:
+                      DecorationImage(image: imageProvider, fit: BoxFit.cover),
                 ),
               ),
               placeholder: (context, url) =>
@@ -461,6 +462,3 @@ class InboxTile extends StatelessWidget {
     );
   }
 }
-
-
-

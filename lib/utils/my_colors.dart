@@ -17,7 +17,8 @@ class MyColors {
   static const Color primaryDark = Color(0xFF4f46e5);
   static const Color primaryLight = Color(0xFF818cf8);
   static const Color primaryVeryLight = Color(0xFFe0e7ff);
-  static Color mainC0lor = const Color(0xFF6366f1); // alias kept for back-compat
+  static Color mainC0lor =
+      const Color(0xFF6366f1); // alias kept for back-compat
 
   // ── Accent (amber/gold) ───────────────────────────────────────────────────
   static const Color accent = Color(0xFFf59e0b);
@@ -46,7 +47,7 @@ class MyColors {
   static const Color warning = Color(0xFFf59e0b);
 
   // ── Navigation ────────────────────────────────────────────────────────────
-  static const Color navBackground = Color(0xFF0d1117);
+  static Color navBackground = const Color(0xFF6366f1);
   static const Color navBorder = Color(0x14ffffff); // rgba(255,255,255,0.08)
 
   // ── Legacy named colours (kept so other screens don't break) ─────────────

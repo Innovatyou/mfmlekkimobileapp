@@ -111,8 +111,7 @@ class NotesListScreenRouteState extends State<NotesListScreen> {
                       controller: controller,
                       itemCount: items.length,
                       padding: const EdgeInsets.only(bottom: 90),
-                      separatorBuilder: (_, __) =>
-                          const SizedBox(height: 10),
+                      separatorBuilder: (_, __) => const SizedBox(height: 10),
                       itemBuilder: (context, index) => ItemTile(
                         object: items[index],
                         notesProvider: notesProvider,
@@ -196,14 +195,18 @@ class NotesListScreenRouteState extends State<NotesListScreen> {
       padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        gradient: const LinearGradient(
-          colors: [Color(0xFF4f46e5), Color(0xFF6366f1)],
+        gradient: LinearGradient(
+          colors: [
+            Theme.of(context).colorScheme.primary,
+            Theme.of(context).colorScheme.primary.withValues(alpha: 0.82),
+          ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         boxShadow: [
           BoxShadow(
-            color: MyColors.primary.withValues(alpha: 0.25),
+            color:
+                Theme.of(context).colorScheme.primary.withValues(alpha: 0.25),
             blurRadius: 16,
             offset: const Offset(0, 6),
           ),
@@ -336,8 +339,8 @@ class ItemTile extends StatelessWidget {
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
                       color: MyColors.primaryVeryLight,
                       borderRadius: BorderRadius.circular(999),
@@ -396,7 +399,8 @@ class ItemTile extends StatelessWidget {
                   _ActionButton(
                     icon: Icons.share_rounded,
                     color: MyColors.success,
-                    onTap: () async => Share.share(noteText, subject: object.title),
+                    onTap: () async =>
+                        Share.share(noteText, subject: object.title),
                   ),
                   const SizedBox(width: 8),
                   _ActionButton(

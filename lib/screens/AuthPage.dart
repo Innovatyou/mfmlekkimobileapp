@@ -322,7 +322,7 @@ class _AuthPageState extends State<AuthPage> {
                     borderRadius: inputBorder,
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: MyColors.mainC0lor, width: 2),
+                    borderSide: BorderSide(color: primary, width: 2),
                     borderRadius: inputBorder,
                   ),
                   errorBorder: OutlineInputBorder(
@@ -340,13 +340,13 @@ class _AuthPageState extends State<AuthPage> {
                         const BorderSide(color: Color(0xFFe2e8f0), width: 1),
                     borderRadius: inputBorder,
                   ),
-                  suffixIconColor: const Color(0xFF475569),
-                  prefixIconColor: const Color(0xFF475569),
+                  suffixIconColor: primary,
+                  prefixIconColor: primary,
                 ),
                 buttonTheme: LoginButtonTheme(
-                  splashColor: MyColors.primaryDark,
-                  backgroundColor: MyColors.mainC0lor,
-                  highlightColor: MyColors.primaryDark,
+                  splashColor: accent,
+                  backgroundColor: primary,
+                  highlightColor: accent,
                   elevation: 0.0,
                   highlightElevation: 0.0,
                   shape: RoundedRectangleBorder(

@@ -25,9 +25,8 @@ class DrawerView extends StatelessWidget {
   Widget build(BuildContext context) {
     final appManager = Provider.of<AppStateManager>(context);
     final Userdata? userdata = appManager.userdata;
-    final website = Provider.of<DashboardModel>(context, listen: false)
-        .data['website']
-        ?.toString() ?? '';
+    final dashboard = Provider.of<DashboardModel>(context);
+    final website = dashboard.data['website']?.toString() ?? '';
 
     return Drawer(
       backgroundColor: Colors.transparent,
@@ -42,7 +41,7 @@ class DrawerView extends StatelessWidget {
                 padding: EdgeInsets.zero,
                 children: [
                   // ── Header ──────────────────────────────────────────
-                  _DrawerHeader(userdata: userdata),
+                  _DrawerHeader(dashboard: dashboard),
 
                   // ── User profile row ────────────────────────────────
                   _UserRow(
@@ -243,17 +242,23 @@ class DrawerView extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _DrawerHeader extends StatelessWidget {
-  final Userdata? userdata;
-  const _DrawerHeader({required this.userdata});
+  final DashboardModel dashboard;
+  const _DrawerHeader({required this.dashboard});
 
   @override
   Widget build(BuildContext context) {
     final top = MediaQuery.of(context).padding.top;
     return Container(
       padding: EdgeInsets.fromLTRB(24, top + 28, 24, 28),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Color(0xFF1e0a3c), Color(0xFF4f46e5), Color(0xFF0d1117)],
+          colors: [
+            dashboard.brandingColor(
+                'mobile_header_color', const Color(0xFF4f46e5)),
+            dashboard.brandingColor(
+                'mobile_primary_color', const Color(0xFF6366f1)),
+            const Color(0xFF0d1117),
+          ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           stops: [0.0, 0.55, 1.0],
@@ -262,10 +267,13 @@ class _DrawerHeader extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const AppLogo(size: 62, radius: 18),
+          _brandingLogo(),
           const SizedBox(height: 16),
           Text(
-            t.appname,
+            dashboard.data['mobile_app_name']?.toString().trim().isNotEmpty ==
+                    true
+                ? dashboard.data['mobile_app_name'].toString()
+                : t.appname,
             style: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.w800,
@@ -275,7 +283,10 @@ class _DrawerHeader extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            t.churchmotto,
+            dashboard.data['mobile_tagline']?.toString().trim().isNotEmpty ==
+                    true
+                ? dashboard.data['mobile_tagline'].toString()
+                : 'Towards global evangelism',
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.60),
               fontSize: 12,
@@ -283,6 +294,21 @@ class _DrawerHeader extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _brandingLogo() {
+    final logoUrl = dashboard.data['mobile_logo_url']?.toString().trim() ?? '';
+    if (logoUrl.isEmpty) return const AppLogo(size: 62, radius: 18);
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(18),
+      child: CachedNetworkImage(
+        imageUrl: logoUrl,
+        width: 62,
+        height: 62,
+        fit: BoxFit.contain,
+        errorWidget: (_, __, ___) => const AppLogo(size: 62, radius: 18),
       ),
     );
   }
@@ -303,9 +329,7 @@ class _UserRow extends StatelessWidget {
     final String name = loggedIn
         ? '${userdata!.firstname ?? ''} ${userdata!.lastname ?? ''}'.trim()
         : 'Guest';
-    final String sub = loggedIn
-        ? (userdata!.email ?? '')
-        : 'Tap to sign in';
+    final String sub = loggedIn ? (userdata!.email ?? '') : 'Tap to sign in';
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),

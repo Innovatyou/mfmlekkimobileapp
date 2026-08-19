@@ -249,9 +249,11 @@ class _HomePageItemState extends State<HomePageItem>
             snakeViewColor: dashmodel
                 .brandingColor('mobile_accent_color', MyColors.primary)
                 .withValues(alpha: 0.20),
-            selectedItemColor: dashmodel.brandingColor(
-                'mobile_accent_color', MyColors.primary),
-            unselectedItemColor: const Color(0xFF6b7280),
+            selectedItemColor:
+                dashmodel.brandingColor('mobile_icon_color', Colors.white),
+            unselectedItemColor: dashmodel
+                .brandingColor('mobile_icon_color', Colors.white)
+                .withValues(alpha: 0.65),
             showUnselectedLabels: false,
             showSelectedLabels: false,
             currentIndex: safeIndex,

@@ -27,6 +27,10 @@ class DashboardModel with ChangeNotifier {
     "mobile_primary_color": "#6366F1",
     "mobile_accent_color": "#F59E0B",
     "mobile_background_color": "#F0F2F5",
+    "mobile_icon_color": "#FFFFFF",
+    "mobile_tagline": "Towards global evangelism",
+    "mobile_header_color": "#4F46E5",
+    "mobile_chat_background_color": "#F8F5F8",
     "mobile_logo_url": "",
     "allow_downloads": false,
     "join_groups": true,
@@ -93,6 +97,13 @@ class DashboardModel with ChangeNotifier {
           settings['mobile_accent_color'] ?? '#F59E0B';
       data['mobile_background_color'] =
           settings['mobile_background_color'] ?? '#F0F2F5';
+      data['mobile_icon_color'] = settings['mobile_icon_color'] ?? '#FFFFFF';
+      data['mobile_tagline'] =
+          settings['mobile_tagline'] ?? 'Towards global evangelism';
+      data['mobile_header_color'] =
+          settings['mobile_header_color'] ?? '#4F46E5';
+      data['mobile_chat_background_color'] =
+          settings['mobile_chat_background_color'] ?? '#F8F5F8';
       data['mobile_logo_url'] = settings['mobile_logo_url'] ?? '';
       notifyListeners();
     } catch (error) {
@@ -253,6 +264,13 @@ class DashboardModel with ChangeNotifier {
             settings['mobile_accent_color'] ?? "#F59E0B";
         data['mobile_background_color'] =
             settings['mobile_background_color'] ?? "#F0F2F5";
+        data['mobile_icon_color'] = settings['mobile_icon_color'] ?? "#FFFFFF";
+        data['mobile_tagline'] =
+            settings['mobile_tagline'] ?? "Towards global evangelism";
+        data['mobile_header_color'] =
+            settings['mobile_header_color'] ?? "#4F46E5";
+        data['mobile_chat_background_color'] =
+            settings['mobile_chat_background_color'] ?? "#F8F5F8";
         data['mobile_logo_url'] = settings['mobile_logo_url'] ?? "";
         data['allow_downloads'] = settings['allow_downloads'] == "1";
         data['join_groups'] = settings['join_groups'] == "1";
