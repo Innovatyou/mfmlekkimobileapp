@@ -149,7 +149,8 @@ class _HomePageItemState extends State<HomePageItem>
           ],
         ),
         centerTitle: false,
-        backgroundColor: MyColors.navBackground,
+        backgroundColor: dashmodel.brandingColor(
+            'mobile_primary_color', MyColors.navBackground),
         surfaceTintColor: Colors.transparent,
         toolbarHeight: 64,
         elevation: 0,
@@ -226,7 +227,8 @@ class _HomePageItemState extends State<HomePageItem>
         minimum: const EdgeInsets.fromLTRB(14, 0, 14, 12),
         child: DecoratedBox(
           decoration: BoxDecoration(
-            color: MyColors.navBackground,
+            color: dashmodel.brandingColor(
+                'mobile_primary_color', MyColors.navBackground),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: MyColors.navBorder, width: 1.5),
             boxShadow: [
@@ -244,8 +246,11 @@ class _HomePageItemState extends State<HomePageItem>
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-            snakeViewColor: MyColors.primary.withValues(alpha: 0.20),
-            selectedItemColor: MyColors.primary,
+            snakeViewColor: dashmodel
+                .brandingColor('mobile_accent_color', MyColors.primary)
+                .withValues(alpha: 0.20),
+            selectedItemColor: dashmodel.brandingColor(
+                'mobile_accent_color', MyColors.primary),
             unselectedItemColor: const Color(0xFF6b7280),
             showUnselectedLabels: false,
             showSelectedLabels: false,

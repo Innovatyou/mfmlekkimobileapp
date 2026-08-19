@@ -147,8 +147,9 @@ class DashboardScreenRouteState extends State<DashboardScreen> {
     final double serviceWidth = isWide ? (width - 56) / 2 : width - 32;
 
     return DecoratedBox(
-      decoration: const BoxDecoration(
-        color: Color(0xFFf0f2f5),
+      decoration: BoxDecoration(
+        color: dashboardModel.brandingColor(
+            'mobile_background_color', const Color(0xFFf0f2f5)),
       ),
       child: SafeArea(
         top: false,
@@ -228,9 +229,12 @@ class DashboardScreenRouteState extends State<DashboardScreen> {
         borderRadius: BorderRadius.circular(28),
         gradient: LinearGradient(
           colors: [
-            MyColors.primaryDark,
-            MyColors.mainC0lor,
-            MyColors.primaryLight,
+            dashboardModel.brandingColor(
+                'mobile_primary_color', MyColors.primaryDark),
+            dashboardModel.brandingColor(
+                'mobile_primary_color', MyColors.mainC0lor),
+            dashboardModel.brandingColor(
+                'mobile_accent_color', MyColors.primaryLight),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
