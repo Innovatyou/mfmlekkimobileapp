@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_web_browser/flutter_web_browser.dart';
 import 'package:higherground/screens/InAppWebPage.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -13,6 +14,7 @@ import 'package:higherground/providers/DownloadsModel.dart';
 import 'package:higherground/utils/ApiUrl.dart';
 import 'package:higherground/utils/my_colors.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 //import 'package:music_player/music_player.dart';
 
 extension StringCasingExtension on String {
@@ -38,10 +40,20 @@ class Utility {
   // Marketplace/Partnership/Counseling/MemberCare endpoints that require it.
   static Future<Dio> getAuthenticatedDio() async {
     final dio = getDio();
-    final userdata = await SQLiteDbProvider.db.getUserData();
-    final token = userdata?.apiToken;
+    String? token;
+    if (kIsWeb) {
+      final prefs = await SharedPreferences.getInstance();
+      final stored = prefs.getString('web_userdata');
+      if (stored != null && stored.isNotEmpty) {
+        token = (jsonDecode(stored) as Map<String, dynamic>)['apiToken']
+            ?.toString();
+      }
+    } else {
+      token = (await SQLiteDbProvider.db.getUserData())?.apiToken;
+    }
     if (token != null && token.isNotEmpty) {
       dio.options.headers['Authorization'] = 'Bearer $token';
+      dio.options.headers['X-Mobile-Token'] = token;
     }
     return dio;
   }
@@ -69,7 +81,8 @@ class Utility {
     if (normalized.isEmpty) {
       if (context != null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Donation link is currently unavailable.')),
+          const SnackBar(
+              content: Text('Donation link is currently unavailable.')),
         );
       }
       return;
@@ -116,7 +129,8 @@ class Utility {
         return;
       }
 
-      final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+      final launched =
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
       if (!launched && context != null) {
         Navigator.of(context).push(
           MaterialPageRoute(
@@ -241,23 +255,23 @@ class Utility {
   // Extract YouTube video ID from URL or return as-is if already just the ID
   static String extractYoutubeVideoId(String urlOrId) {
     if (urlOrId.isEmpty) return '';
-    
+
     // If it's already just an ID (11 characters, alphanumeric with dash and underscore)
     if (RegExp(r'^[a-zA-Z0-9_-]{11}$').hasMatch(urlOrId)) {
       return urlOrId;
     }
-    
+
     // Try to extract from various YouTube URL formats
     RegExp regExp = RegExp(
       r'(?:youtube(?:-nocookie)?\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})',
       caseSensitive: false,
     );
-    
+
     Match? match = regExp.firstMatch(urlOrId);
     if (match != null && match.groupCount >= 1) {
       return match.group(1) ?? '';
     }
-    
+
     // If no match found, return the original (might be just the ID)
     return urlOrId;
   }
@@ -269,12 +283,12 @@ class Utility {
   static bool isYouTubeVideo(String? streamUrl, String? videoType) {
     if (streamUrl == null || streamUrl.isEmpty) return false;
     if (videoType == null) return false;
-    
+
     // Primary check: video type explicitly indicates YouTube
     if (videoType.toLowerCase() == 'youtube_video') {
       return true;
     }
-    
+
     // Secondary check: URL patterns indicate YouTube
     final youtubePatterns = [
       RegExp(r'youtube\.com', caseSensitive: false),
@@ -282,7 +296,7 @@ class Utility {
       RegExp(r'youtube-nocookie\.com', caseSensitive: false),
       RegExp(r'^[a-zA-Z0-9_-]{11}$'), // Just a video ID
     ];
-    
+
     return youtubePatterns.any((pattern) => pattern.hasMatch(streamUrl));
   }
 
@@ -291,11 +305,11 @@ class Utility {
   /// This ensures videos/media hosted on localhost work on emulator
   static String convertLocalhostToEmulator(String? url) {
     if (url == null || url.isEmpty) return url ?? '';
-    
+
     // Replace localhost with 10.0.2.2 (Android emulator host IP)
     String converted = url.replaceAll('localhost', '10.0.2.2');
     converted = converted.replaceAll('127.0.0.1', '10.0.2.2');
-    
+
     return converted;
   }
 
@@ -310,6 +324,3 @@ class Utility {
     }
   }
 }
-
-
-

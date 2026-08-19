@@ -149,9 +149,8 @@ class DashboardModel with ChangeNotifier {
     try {
       print("[DashboardModel] Starting fetchItems...");
 
-      Userdata? userdata = kIsWeb
-          ? null
-          : await SQLiteDbProvider.db.getUserData();
+      Userdata? userdata =
+          kIsWeb ? null : await SQLiteDbProvider.db.getUserData();
       print(
         "[DashboardModel] User email: ${userdata?.email ?? 'not logged in'}",
       );
@@ -326,13 +325,11 @@ class DashboardModel with ChangeNotifier {
 
         // Parse all lists safely
         recentmedia = res.containsKey("latest_media") ? parseMedia(res) : [];
-        recentarticles = res.containsKey("latest_articles")
-            ? parseArticles(res)
-            : [];
+        recentarticles =
+            res.containsKey("latest_articles") ? parseArticles(res) : [];
         recentbooks = res.containsKey("latest_books") ? parseBooks(res) : [];
-        upcomingevents = res.containsKey("upcoming_events")
-            ? parseEvents(res)
-            : [];
+        upcomingevents =
+            res.containsKey("upcoming_events") ? parseEvents(res) : [];
         recentmembers = res.containsKey("members") ? parseMembers(res) : [];
 
         print("[DashboardModel] Data parsed successfully");
@@ -650,37 +647,42 @@ class DashboardModel with ChangeNotifier {
 
   bool isFeatureAvailable(String type) {
     final features = data['features'];
-    if (features == null) return true;
+    if (features == null) return false;
 
     // Convert to String safely
-    String featureStr = (features is String ? features : features.toString())
-        .toLowerCase();
+    final enabled = features
+        .toString()
+        .toLowerCase()
+        .split(RegExp(r'[,|\s]+'))
+        .map((feature) => feature.trim())
+        .where((feature) => feature.isNotEmpty)
+        .toSet();
 
     // Empty features string means not yet configured — show everything
-    if (featureStr.isEmpty) return true;
+    if (enabled.isEmpty || enabled.contains('none')) return false;
 
     if (type == "media") {
-      return (featureStr.contains("media") ||
-          featureStr.contains("audiomessages") ||
-          featureStr.contains("videomessages") ||
-          featureStr.contains("audio") ||
-          featureStr.contains("video"));
+      return enabled.intersection({
+        "media",
+        "audiomessages",
+        "videomessages",
+        "audio",
+        "video"
+      }).isNotEmpty;
     }
-    if (type == "audiomessages") {
-      return (featureStr.contains("audiomessages") ||
-          featureStr.contains("audio"));
+    if (type == "audio" || type == "audiomessages") {
+      return enabled.contains("audiomessages") || enabled.contains("audio");
     }
-    if (type == "videomessages") {
-      return (featureStr.contains("videomessages") ||
-          featureStr.contains("video"));
+    if (type == "video" || type == "videomessages") {
+      return enabled.contains("videomessages") || enabled.contains("video");
     }
     if (type == "publications") {
-      return (featureStr.contains("articles") || featureStr.contains("books"));
+      return enabled.contains("articles") || enabled.contains("books");
     }
     if (type != "") {
-      return featureStr.contains(type);
+      return enabled.contains(type.toLowerCase());
     }
-    return true;
+    return false;
   }
 
   bool isDownloadsAllowed() {
