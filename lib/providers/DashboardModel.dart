@@ -75,11 +75,44 @@ class DashboardModel with ChangeNotifier {
     fetchItems();
   }
 
+  Future<void> loadBranding() async {
+    try {
+      final response = await Utility.getDio().get(
+        ApiUrl.INIT_APP,
+        options: Options(responseType: ResponseType.plain),
+      );
+      final decoded = response.data is String
+          ? Utility.decodeResponse(response.data)
+          : response.data;
+      if (decoded is! Map || decoded['settings'] is! Map) return;
+      final settings = decoded['settings'] as Map;
+      data['mobile_app_name'] = settings['mobile_app_name'] ?? '';
+      data['mobile_primary_color'] =
+          settings['mobile_primary_color'] ?? '#6366F1';
+      data['mobile_accent_color'] =
+          settings['mobile_accent_color'] ?? '#F59E0B';
+      data['mobile_background_color'] =
+          settings['mobile_background_color'] ?? '#F0F2F5';
+      data['mobile_logo_url'] = settings['mobile_logo_url'] ?? '';
+      notifyListeners();
+    } catch (error) {
+      debugPrint('[DashboardModel] Branding load failed: $error');
+    }
+  }
+
+  Color brandingColor(String key, Color fallback) {
+    final hex = data[key]?.toString().replaceFirst('#', '');
+    if (hex == null || !RegExp(r'^[0-9A-Fa-f]{6}$').hasMatch(hex))
+      return fallback;
+    return Color(int.parse('FF$hex', radix: 16));
+  }
+
   Future<void> fetchItems() async {
     try {
       print("[DashboardModel] Starting fetchItems...");
 
-      Userdata? userdata = await SQLiteDbProvider.db.getUserData();
+      Userdata? userdata =
+          kIsWeb ? null : await SQLiteDbProvider.db.getUserData();
       print(
           "[DashboardModel] User email: ${userdata?.email ?? 'not logged in'}");
 
@@ -251,7 +284,7 @@ class DashboardModel with ChangeNotifier {
         setListItems();
         notifyListeners();
 
-        Userdata? u = await SQLiteDbProvider.db.getUserData();
+        Userdata? u = kIsWeb ? null : await SQLiteDbProvider.db.getUserData();
         if (u == null && data['app_login'] == true) {
           print("[DashboardModel] Navigating to AuthPage (login required)");
           Navigator.of(context!).pushReplacementNamed(AuthPage.routeName);

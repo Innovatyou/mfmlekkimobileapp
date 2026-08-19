@@ -38,6 +38,9 @@ class _AuthPageState extends State<AuthPage> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<DashboardModel>(context, listen: false).loadBranding();
+    });
     AppLogo.toImageProvider(size: 80).then((img) {
       if (mounted) setState(() => _logoImage = img);
     });
@@ -201,6 +204,10 @@ class _AuthPageState extends State<AuthPage> {
     final dashboard = Provider.of<DashboardModel>(context);
     final appName = dashboard.data['mobile_app_name']?.toString() ?? '';
     final logoUrl = dashboard.data['mobile_logo_url']?.toString() ?? '';
+    final primary = dashboard.brandingColor(
+        'mobile_primary_color', const Color(0xFF6366F1));
+    final accent =
+        dashboard.brandingColor('mobile_accent_color', const Color(0xFFF59E0B));
 
     return Scaffold(
       body: Stack(
@@ -261,8 +268,8 @@ class _AuthPageState extends State<AuthPage> {
               theme: LoginTheme(
                 logoWidth: 20,
                 cardInitialHeight: 400,
-                primaryColor: MyColors.mainC0lor,
-                accentColor: Colors.black,
+                primaryColor: primary,
+                accentColor: accent,
                 errorColor: Colors.deepOrange,
                 titleStyle: TextStyle(
                   color: MyColors.white,
