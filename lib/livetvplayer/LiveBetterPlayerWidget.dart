@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:better_player/better_player.dart';
+import 'package:better_player_plus/better_player_plus.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:higherground/models/LiveStreams.dart';
 import 'package:higherground/utils/Utility.dart';
@@ -41,8 +41,19 @@ class _LiveBetterPlayerWidgetState extends State<LiveBetterPlayerWidget> {
 
     final betterPlayerDataSource = BetterPlayerDataSource(
       sourceType,
-      convertedUrl ?? '',
+      convertedUrl,
       videoFormat: _getVideoFormat(widget.media.type),
+      liveStream: true,
+      // Keeps the stream playing (with lock-screen/notification controls)
+      // when the app is backgrounded or the device is locked.
+      notificationConfiguration: BetterPlayerNotificationConfiguration(
+        showNotification: true,
+        title: widget.media.title ?? 'Live Stream',
+        author: 'Live now',
+        imageUrl: widget.media.coverphoto,
+        notificationChannelName: 'Live Stream Playback',
+        activityName: 'MainActivity',
+      ),
     );
 
     _betterPlayerController = BetterPlayerController(
@@ -50,6 +61,9 @@ class _LiveBetterPlayerWidgetState extends State<LiveBetterPlayerWidget> {
         aspectRatio: 16 / 9,
         autoPlay: true,
         allowedScreenSleep: false,
+        // Don't auto-pause on backgrounding — the notification above is what
+        // keeps playback (and the underlying foreground service) alive.
+        handleLifecycle: false,
         placeholder: CachedNetworkImage(
         imageUrl: widget.media.coverphoto ?? '',
           imageBuilder: (context, imageProvider) => Container(

@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:higherground/i18n/strings.g.dart';
+import 'package:higherground/utils/my_colors.dart';
 import 'package:higherground/models/Userdata.dart';
 import 'package:higherground/providers/AppStateManager.dart';
 import 'package:higherground/utils/Alerts.dart';
@@ -119,16 +120,16 @@ class PostPrayerScreenState extends State<PostPrayerScreen> {
       backgroundColor: const Color(0xFFF7F1F5),
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: const Color(0xFFF7F1F5),
+        backgroundColor: MyColors.navBackground,
         surfaceTintColor: Colors.transparent,
         title: Text(
           t.Prayerrequests,
           style: const TextStyle(
-            color: Color(0xFF261621),
+            color: Colors.white,
             fontWeight: FontWeight.w700,
           ),
         ),
-        iconTheme: const IconThemeData(color: Color(0xFF261621)),
+        iconTheme: const IconThemeData(color: Colors.white),
         leading: isGuest
             ? const SizedBox.shrink()
             : IconButton(
@@ -269,25 +270,20 @@ class PostPrayerScreenState extends State<PostPrayerScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 18),
-            SizedBox(
-              width: double.infinity,
-              height: 52,
-              child: FilledButton.icon(
-                style: FilledButton.styleFrom(
-                  backgroundColor: const Color(0xFF7A3F60),
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                ),
-                onPressed: validateandsubmit,
-                icon: const Icon(Icons.send_rounded, size: 20),
-                label: const Text(
-                  'Submit Prayer Request',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+            const SizedBox(height: 14),
+            FilledButton.icon(
+              onPressed: validateandsubmit,
+              style: FilledButton.styleFrom(
+                backgroundColor: MyColors.navBackground,
+                foregroundColor: Colors.white,
+                minimumSize: const Size.fromHeight(52),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
                 ),
               ),
+              icon: const Icon(Icons.send_rounded, size: 20),
+              label: const Text('Submit Prayer',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
             ),
           ],
         ),

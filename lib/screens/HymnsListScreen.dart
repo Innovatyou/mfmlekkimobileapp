@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:higherground/utils/Alerts.dart';
 import 'package:higherground/utils/Utility.dart';
 import 'package:intl/intl.dart';
@@ -17,6 +16,7 @@ import 'package:higherground/i18n/strings.g.dart';
 import 'dart:convert';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:higherground/utils/ApiUrl.dart';
+import 'package:higherground/utils/my_colors.dart';
 
 class HymnsListScreen extends StatefulWidget {
   static const routeName = "/hymnslist";
@@ -40,82 +40,84 @@ class _HymnsListScreenState extends State<HymnsListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F2F5),
+      backgroundColor: const Color(0xFFF1F4F9),
       appBar: AppBar(
-        elevation: 0,
-        backgroundColor: const Color(0xFFF7F2F5),
+        backgroundColor: MyColors.navBackground,
         surfaceTintColor: Colors.transparent,
+        elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF2A1720)),
+          icon: Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Icon(Icons.arrow_back_ios_new_rounded,
+                color: Colors.white, size: 16),
+          ),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 0),
-          child: Container(
-            height: 42,
-            decoration: BoxDecoration(
+        title: Container(
+          height: 40,
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.18)),
+          ),
+          child: TextField(
+            maxLines: 1,
+            controller: inputController,
+            style: const TextStyle(
+              fontSize: 14,
               color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFE7DDE4)),
+              fontWeight: FontWeight.w500,
             ),
-            child: TextField(
-              maxLines: 1,
-              controller: inputController,
-              style: const TextStyle(
-                fontSize: 16,
-                color: Color(0xFF2A1720),
-                fontWeight: FontWeight.w500,
+            keyboardType: TextInputType.text,
+            onSubmitted: (_query) {
+              setState(() {
+                query = _query;
+                showClear = (_query.isNotEmpty);
+              });
+            },
+            onChanged: (term) {
+              setState(() {
+                query = term;
+                showClear = (term.isNotEmpty);
+              });
+            },
+            decoration: InputDecoration(
+              border: InputBorder.none,
+              hintText: t.hymns,
+              hintStyle: TextStyle(
+                fontSize: 14,
+                color: Colors.white.withValues(alpha: 0.55),
               ),
-              keyboardType: TextInputType.text,
-              onSubmitted: (_query) {
-                setState(() {
-                  query = _query;
-                  showClear = (_query.isNotEmpty);
-                });
-              },
-              onChanged: (term) {
-                setState(() {
-                  query = term;
-                  showClear = (term.isNotEmpty);
-                });
-              },
-              decoration: InputDecoration(
-                border: InputBorder.none,
-                hintText: t.hymns,
-                hintStyle: const TextStyle(
-                  fontSize: 15,
-                  color: Color(0xFF8D7D87),
-                ),
-                prefixIcon: const Icon(
-                  Icons.search_rounded,
-                  color: Color(0xFF8D7D87),
-                ),
-                contentPadding: const EdgeInsets.symmetric(vertical: 10),
+              prefixIcon: Icon(
+                Icons.search_rounded,
+                color: Colors.white.withValues(alpha: 0.65),
+                size: 20,
               ),
+              contentPadding: const EdgeInsets.symmetric(vertical: 10),
             ),
           ),
         ),
         actions: <Widget>[
           showClear
               ? IconButton(
-                  icon: const Icon(Icons.close, color: Color(0xFF2A1720)),
+                  icon: const Icon(Icons.close_rounded, color: Colors.white),
                   onPressed: () {
                     inputController.clear();
                     showClear = false;
-                    setState(() {
-                      query = "";
-                    });
+                    setState(() => query = "");
                   },
                 )
               : IconButton(
-                  icon: const Icon(
-                    Icons.bookmark_outline,
-                    color: Color(0xFF2A1720),
-                  ),
-                  onPressed: () {
-                    Navigator.of(context)
-                        .pushNamed(BookmarkedHymnsListScreen.routeName);
-                  }),
+                  icon: const Icon(Icons.bookmark_outline_rounded,
+                      color: Colors.white),
+                  onPressed: () => Navigator.of(context)
+                      .pushNamed(BookmarkedHymnsListScreen.routeName),
+                ),
         ],
       ),
       body: HymnScreenBody(
@@ -204,8 +206,7 @@ class HymnScreenBodyBodyRouteState extends State<HymnScreenBody> {
       if (response.statusCode == 200) {
         // If the server did return a 200 OK response,
         // then parse the JSON.
-        dynamic res = jsonDecode(response.data);
-        print(res);
+        dynamic res = Utility.decodeResponse(response.data);
         List<Hymns>? mediaList = parseSliderMedia(res);
         if (page == 0) {
           setItems(mediaList);
@@ -218,8 +219,6 @@ class HymnScreenBodyBodyRouteState extends State<HymnScreenBody> {
         setFetchError();
       }
     } catch (exception) {
-      // I get no exception here
-      print(exception);
       setFetchError();
     }
   }
@@ -268,28 +267,36 @@ class HymnScreenBodyBodyRouteState extends State<HymnScreenBody> {
     return SmartRefresher(
       enablePullDown: true,
       enablePullUp: true,
-      header: const WaterDropHeader(
-        waterDropColor: Color(0xFF8E5972),
-        complete: Icon(Icons.done, color: Color(0xFF8E5972)),
+      header: const WaterDropMaterialHeader(
+        backgroundColor: MyColors.primary,
+        color: Colors.white,
       ),
       footer: CustomFooter(
-        builder: (BuildContext context, LoadStatus? mode) {
-          Widget body;
+        builder: (context, mode) {
+          late Widget body;
           if (mode == LoadStatus.idle) {
-            body = Text(t.pulluploadmore);
+            body = Text(t.pulluploadmore,
+                style: const TextStyle(
+                    color: MyColors.textSecondary, fontSize: 12));
           } else if (mode == LoadStatus.loading) {
-            body = CupertinoActivityIndicator();
+            body = const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                    strokeWidth: 2, color: MyColors.primary));
           } else if (mode == LoadStatus.failed) {
-            body = Text(t.loadfailedretry);
+            body = Text(t.loadfailedretry,
+                style: const TextStyle(color: MyColors.danger, fontSize: 12));
           } else if (mode == LoadStatus.canLoading) {
-            body = Text(t.releaseloadmore);
+            body = Text(t.releaseloadmore,
+                style: const TextStyle(
+                    color: MyColors.textSecondary, fontSize: 12));
           } else {
-            body = Text(t.nomoredata);
+            body = Text(t.nomoredata,
+                style: const TextStyle(
+                    color: MyColors.textDisabled, fontSize: 12));
           }
-          return Container(
-            height: 55.0,
-            child: Center(child: body),
-          );
+          return SizedBox(height: 55, child: Center(child: body));
         },
       ),
       controller: refreshController,
@@ -305,16 +312,21 @@ class HymnScreenBodyBodyRouteState extends State<HymnScreenBody> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.search_off, size: 64, color: Colors.grey[400]),
+                        const Icon(Icons.search_off_rounded,
+                            size: 64, color: MyColors.textDisabled),
                         const SizedBox(height: 16),
-                        Text(
+                        const Text(
                           'No hymns found',
-                          style: TextStyle(fontSize: 18, color: Colors.grey[600], fontWeight: FontWeight.w500),
+                          style: TextStyle(
+                              fontSize: 18,
+                              color: MyColors.textSecondary,
+                              fontWeight: FontWeight.w500),
                         ),
                         const SizedBox(height: 8),
-                        Text(
+                        const Text(
                           'Try searching with different keywords',
-                          style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+                          style: TextStyle(
+                              fontSize: 14, color: MyColors.textDisabled),
                         ),
                       ],
                     ),
@@ -418,7 +430,7 @@ class _ItemTileState extends State<ItemTile> with SingleTickerProviderStateMixin
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF5EBF1),
+                        color: MyColors.primaryVeryLight,
                         borderRadius: BorderRadius.circular(999),
                       ),
                       child: const Text(
@@ -426,7 +438,7 @@ class _ItemTileState extends State<ItemTile> with SingleTickerProviderStateMixin
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF7A4B63),
+                          color: MyColors.primary,
                         ),
                       ),
                     ),
@@ -438,7 +450,7 @@ class _ItemTileState extends State<ItemTile> with SingleTickerProviderStateMixin
                       style: const TextStyle(
                         fontWeight: FontWeight.w700,
                         fontSize: 17,
-                        color: Color(0xFF251620),
+                        color: Color(0xFF0f172a),
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -446,10 +458,10 @@ class _ItemTileState extends State<ItemTile> with SingleTickerProviderStateMixin
                       Bidi.stripHtmlIfNeeded(widget.object.content!),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontWeight: FontWeight.w400,
                         fontSize: 13.5,
-                        color: const Color(0xFF6F616A),
+                        color: MyColors.textSecondary,
                         height: 1.4,
                       ),
                     ),
@@ -462,8 +474,8 @@ class _ItemTileState extends State<ItemTile> with SingleTickerProviderStateMixin
                             bool isBookmarked =
                                 bookmarksModel.isHymnBookmarked(widget.object);
                             return _ActionButton(
-                              icon: isBookmarked ? Icons.bookmark : Icons.bookmark_border,
-                              color: isBookmarked ? Colors.red : Colors.grey,
+                              icon: isBookmarked ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
+                              color: isBookmarked ? MyColors.danger : MyColors.textSecondary,
                               onTap: () {
                                 if (isBookmarked)
                                   bookmarksModel.unBookmarkHymn(widget.object);
@@ -476,7 +488,7 @@ class _ItemTileState extends State<ItemTile> with SingleTickerProviderStateMixin
                         const SizedBox(width: 8),
                         _ActionButton(
                           icon: Icons.share_outlined,
-                          color: Colors.blue,
+                          color: MyColors.success,
                           onTap: () async {
                             await Share.share(
                               widget.object.content!,
@@ -487,7 +499,7 @@ class _ItemTileState extends State<ItemTile> with SingleTickerProviderStateMixin
                         const SizedBox(width: 8),
                         _ActionButton(
                           icon: Icons.content_copy_outlined,
-                          color: Colors.orange,
+                          color: MyColors.accent,
                           onTap: () {
                             FlutterClipboard.copy(widget.object.content!).then(
                               (value) => Alerts.showToast(

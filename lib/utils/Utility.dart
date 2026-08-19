@@ -1,17 +1,16 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_web_browser/flutter_web_browser.dart';
 import 'package:higherground/screens/InAppWebPage.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:higherground/database/SQLiteDbProvider.dart';
 import 'package:higherground/models/LiveStreams.dart';
 import 'package:higherground/models/Media.dart';
 import 'package:higherground/providers/DashboardModel.dart';
 import 'package:higherground/providers/DownloadsModel.dart';
 import 'package:higherground/utils/ApiUrl.dart';
-import 'package:higherground/utils/StringsUtils.dart';
 import 'package:higherground/utils/my_colors.dart';
 import 'package:provider/provider.dart';
 //import 'package:music_player/music_player.dart';
@@ -28,37 +27,28 @@ extension StringCasingExtension on String {
 class Utility {
   static Dio getDio() {
     final dio = Dio();
-    String token = StringsUtils.API_TOKEN;
-    
-    // Set timeout for connection and response (30 seconds)
-    // dio v5 expects `Duration`
-    dio.options.connectTimeout = Duration(milliseconds: 30000);
-    dio.options.receiveTimeout = Duration(milliseconds: 30000);
-    dio.options.sendTimeout = Duration(milliseconds: 30000);
-    
-    dio.options.headers["Authorization"] = "Bearer $token";
+    dio.options.connectTimeout = const Duration(milliseconds: 30000);
+    dio.options.receiveTimeout = const Duration(milliseconds: 30000);
+    dio.options.sendTimeout = const Duration(milliseconds: 30000);
+    dio.options.headers['Accept'] = 'application/json';
     return dio;
   }
 
-  // Async helper that prefers stored user apitoken from secure storage,
-  // falling back to the app API token in StringsUtils.
+  // Dio instance with the mobile Bearer token attached, for the
+  // Marketplace/Partnership/Counseling/MemberCare endpoints that require it.
   static Future<Dio> getAuthenticatedDio() async {
-    final dio = Dio();
-    String token = StringsUtils.API_TOKEN;
-    try {
-      final storage = const FlutterSecureStorage();
-      String? stored = await storage.read(key: 'apitoken');
-      if (stored != null && stored.isNotEmpty) {
-        token = stored;
-      }
-    } catch (e) {
-      // ignore storage errors and use fallback token
+    final dio = getDio();
+    final userdata = await SQLiteDbProvider.db.getUserData();
+    final token = userdata?.apiToken;
+    if (token != null && token.isNotEmpty) {
+      dio.options.headers['Authorization'] = 'Bearer $token';
     }
-    dio.options.connectTimeout = Duration(milliseconds: 30000);
-    dio.options.receiveTimeout = Duration(milliseconds: 30000);
-    dio.options.sendTimeout = Duration(milliseconds: 30000);
-    dio.options.headers["Authorization"] = "Bearer $token";
     return dio;
+  }
+
+  static Map<String, dynamic> decodeResponse(dynamic data) {
+    if (data is String) return json.decode(data) as Map<String, dynamic>;
+    return Map<String, dynamic>.from(data as Map);
   }
 
   static String normalizeUrl(String url) {

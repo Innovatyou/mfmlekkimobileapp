@@ -1,6 +1,6 @@
-import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:higherground/database/SQLiteDbProvider.dart';
 import 'package:higherground/i18n/strings.g.dart';
@@ -15,7 +15,6 @@ import 'package:higherground/providers/events.dart';
 import 'package:higherground/screens/AuthPage.dart';
 import 'package:higherground/screens/HomePage.dart';
 import 'package:higherground/utils/ApiUrl.dart';
-import 'package:higherground/utils/StringsUtils.dart';
 import 'package:higherground/utils/Utility.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 
@@ -23,6 +22,7 @@ class DashboardModel with ChangeNotifier {
   var data = {
     "features": "",
     "app_login": true,
+    "mobile_app_enabled": true,
     "allow_downloads": false,
     "join_groups": true,
     "post_prayer": true,
@@ -71,229 +71,266 @@ class DashboardModel with ChangeNotifier {
   }
 
   Future<void> fetchItems() async {
-  try {
-    print("[DashboardModel] Starting fetchItems...");
-    
-    Userdata? userdata = await SQLiteDbProvider.db.getUserData();
-    print("[DashboardModel] User email: ${userdata?.email ?? 'not logged in'}");
-    
-    print("[DashboardModel] Making POST request to ${ApiUrl.INIT_APP}");
-    
-    final requestData = {
-      "data": {"email": userdata == null ? "" : userdata.email}
-    };
-    print("[DashboardModel] Request payload: $requestData");
-    
-    // Try POST first, if it fails, fallback to GET
-    Response response;
     try {
-      response = await Utility.getDio().post(
-        ApiUrl.INIT_APP,
-        data: requestData,
-        options: Options(
-          contentType: Headers.jsonContentType,
-          responseType: ResponseType.plain,
-        ),
-      );
-    } catch (e) {
-      print("[DashboardModel] POST request failed, trying GET as fallback...");
-      print("[DashboardModel] POST Error: $e");
-      final getUrl = "${ApiUrl.INIT_APP}?_p=${StringsUtils.API_TOKEN}";
-      response = await Utility.getDio().get(
-        getUrl,
-        options: Options(responseType: ResponseType.plain),
-      );
-    }
+      print("[DashboardModel] Starting fetchItems...");
 
-    print("[DashboardModel] Response received - Status: ${response.statusCode}");
-    print("[DashboardModel] Response data type: ${response.data.runtimeType}");
-    print("[DashboardModel] Raw response: ${response.data}");
+      Userdata? userdata = await SQLiteDbProvider.db.getUserData();
+      print(
+          "[DashboardModel] User email: ${userdata?.email ?? 'not logged in'}");
 
-    if (response.statusCode == 200) {
-      dynamic res;
-      
-      try {
-        // Handle both String and Map responses
-        if (response.data is String) {
-          res = jsonDecode(response.data);
-        } else {
-          res = response.data;
-        }
-      } catch (parseError) {
-        print("[DashboardModel] ERROR: Failed to parse response as JSON");
-        print("[DashboardModel] Parse Error: $parseError");
-        print("[DashboardModel] Raw response was: ${response.data}");
-        print("[DashboardModel] DIAGNOSIS: Backend /initapp endpoint is not returning valid JSON");
-        print("[DashboardModel] Using default configuration to proceed...");
-        
-        // Use a default configuration if backend is not properly implemented
-        res = {
-          "errors": false,
-          "message": "Using default config",
-          "settings": {
-            "features": "hymns|notes|photos|radio|livestreams|prayer|testimony|books|articles|events|members",
-            "app_login": "1",
-            "allow_downloads": "1",
-            "join_groups": "1",
-            "post_prayer": "1",
-            "post_testimony": "1",
-            "facebook": "",
-            "twitter": "",
-            "instagram": "",
-            "youtube": "",
-            "website": "",
-            "donations_link": ""
-          }
-        };
-      }
+      print("[DashboardModel] Making POST request to ${ApiUrl.INIT_APP}");
 
-      // -----------------------
-      // ❗ CHECK FOR LOGIN ERROR
-      // -----------------------
-      if (res is Map && res["errors"] == true &&
-          (res["message"]?.toString().toLowerCase() ?? "")
-              .contains("no api token")) {
-        print("[DashboardModel] API Token validation failed");
-        Navigator.of(context!).pushReplacementNamed(AuthPage.routeName);
-        return;
-      }
+      final requestData = {
+        "data": {"email": userdata == null ? "" : userdata.email}
+      };
+      print("[DashboardModel] Request payload: $requestData");
 
-      // -------------------------
-      // ❗ CHECK settings is valid
-      // -------------------------
-      if (res is! Map || res["settings"] == null) {
-        print("[DashboardModel] ERROR: Settings object is null in response");
-        if (res is Map) {
-          print("[DashboardModel] Response keys: ${res.keys.toList()}");
-          print("[DashboardModel] Full response: $res");
-        }
-        setFetchError();
-        return;
-      }
-
-      print("[DashboardModel] Settings found, parsing data...");
-
-      isLoading = false;
-      isError = false;
-
-      var settings = res["settings"];
-
-      data['features'] = settings['features'] ?? "";
-      data['app_login'] = settings['app_login'] == "0";
-      data['allow_downloads'] = settings['allow_downloads'] == "0";
-      data['join_groups'] = settings['join_groups'] == "0";
-      data['post_prayer'] = settings['post_prayer'] == "0";
-      data['post_testimony'] = settings['post_testimony'] == "0";
-
-      data['facebook'] = settings['facebook'] ?? "";
-      data['twitter'] = settings['twitter'] ?? "";
-      data['instagram'] = settings['instagram'] ?? "";
-      data['youtube'] = settings['youtube'] ?? "";
-      data['website'] = settings['website'] ?? "";
-      data['donations_link'] = settings['donations_link'] ?? "";
-
-      print("[DashboardModel] Features available: ${data['features']}");
-
-      // Parse all lists safely
-      recentmedia = settings.containsKey("latest_media")
-          ? parseMedia(res)
-          : [];
-      recentarticles = settings.containsKey("latest_articles")
-          ? parseArticles(res)
-          : [];
-      recentbooks = settings.containsKey("latest_books")
-          ? parseBooks(res)
-          : [];
-      upcomingevents =
-          settings.containsKey("upcoming_events") ? parseEvents(res) : [];
-      recentmembers =
-          settings.containsKey("members") ? parseMembers(res) : [];
-
-      print("[DashboardModel] Data parsed successfully");
-      print("[DashboardModel] Media: ${recentmedia.length}, Articles: ${recentarticles.length}, Books: ${recentbooks.length}");
-
-      setListItems();
-      notifyListeners();
-
-      Userdata? u = await SQLiteDbProvider.db.getUserData();
-      if (u == null && data['app_login'] == true) {
-        print("[DashboardModel] Navigating to AuthPage (login required)");
-        Navigator.of(context!).pushReplacementNamed(AuthPage.routeName);
+      // Shared-hosting security blocks empty browser POST requests to initapp.
+      // Web does not need the optional member email during initial startup.
+      Response response;
+      if (kIsWeb) {
+        response = await Utility.getDio().get(
+          ApiUrl.INIT_APP,
+          options: Options(responseType: ResponseType.plain),
+        );
       } else {
-        print("[DashboardModel] Navigating to HomePage");
-        Navigator.of(context!).pushReplacementNamed(HomePage.routeName);
+        try {
+          response = await Utility.getDio().post(
+            ApiUrl.INIT_APP,
+            data: requestData,
+            options: Options(
+              contentType: Headers.jsonContentType,
+              responseType: ResponseType.plain,
+            ),
+          );
+        } catch (e) {
+          print(
+              "[DashboardModel] POST request failed, trying GET as fallback...");
+          print("[DashboardModel] POST Error: $e");
+          response = await Utility.getDio().get(
+            ApiUrl.INIT_APP,
+            options: Options(responseType: ResponseType.plain),
+          );
+        }
       }
-    } else {
-      print("[DashboardModel] ERROR: HTTP Status ${response.statusCode}");
+
+      print(
+          "[DashboardModel] Response received - Status: ${response.statusCode}");
+      print(
+          "[DashboardModel] Response data type: ${response.data.runtimeType}");
+      print("[DashboardModel] Raw response: ${response.data}");
+
+      if (response.statusCode == 200) {
+        dynamic res;
+
+        try {
+          // Handle both String and Map responses
+          if (response.data is String) {
+            res = Utility.decodeResponse(response.data);
+          } else {
+            res = response.data;
+          }
+        } catch (parseError) {
+          // The backend /initapp endpoint is returning plain text or HTML
+          // instead of JSON.  This is almost always caused by one of:
+          //   1. The CodeIgniter debugbar is ON (application/config/config.php:
+          //      $config['show_error_detail'] = TRUE, or ENVIRONMENT = 'development').
+          //      FIX: set ENVIRONMENT to 'production' in index.php, or disable
+          //      the debug bar via spark/debugbar config.
+          //   2. The initapp controller is not yet implemented — it's echoing a
+          //      placeholder string.  FIX: implement the controller to return a
+          //      JSON response with a 'settings' key.
+          // The app will continue with a built-in default feature set.
+          print(
+              "[DashboardModel] ERROR: Failed to parse /initapp response as JSON");
+          print("[DashboardModel] Parse Error: $parseError");
+          print("[DashboardModel] Raw response was: ${response.data}");
+          print(
+              "[DashboardModel] DIAGNOSIS: Backend /initapp endpoint is not returning valid JSON");
+          print("[DashboardModel] Using default configuration to proceed...");
+
+          // Use a default configuration if backend is not properly implemented
+          res = {
+            "errors": false,
+            "message": "Using default config",
+            "settings": {
+              "features":
+                  "hymns|notes|photos|radio|livestreams|prayer|testimony|books|articles|events|members",
+              "app_login": "1",
+              "allow_downloads": "1",
+              "join_groups": "1",
+              "post_prayer": "1",
+              "post_testimony": "1",
+              "facebook": "",
+              "twitter": "",
+              "instagram": "",
+              "youtube": "",
+              "website": "",
+              "donations_link": ""
+            }
+          };
+        }
+
+        // -----------------------
+        // ❗ CHECK FOR LOGIN ERROR
+        // -----------------------
+        if (res is Map &&
+            res["errors"] == true &&
+            (res["message"]?.toString().toLowerCase() ?? "")
+                .contains("no api token")) {
+          print("[DashboardModel] API Token validation failed");
+          Navigator.of(context!).pushReplacementNamed(AuthPage.routeName);
+          return;
+        }
+
+        // -------------------------
+        // ❗ CHECK settings is valid
+        // -------------------------
+        if (res is! Map || res["settings"] == null) {
+          print("[DashboardModel] ERROR: Settings object is null in response");
+          if (res is Map) {
+            print("[DashboardModel] Response keys: ${res.keys.toList()}");
+            print("[DashboardModel] Full response: $res");
+          }
+          setFetchError();
+          return;
+        }
+
+        print("[DashboardModel] Settings found, parsing data...");
+
+        isLoading = false;
+        isError = false;
+
+        var settings = res["settings"];
+
+        data['features'] = settings['features'] ?? "";
+        // "1" = feature enabled/required, "0" = disabled
+        data['app_login'] = settings['app_login'] == "1";
+        data['mobile_app_enabled'] =
+            settings['mobile_app_enabled']?.toString() != "0";
+        data['allow_downloads'] = settings['allow_downloads'] == "1";
+        data['join_groups'] = settings['join_groups'] == "1";
+        data['post_prayer'] = settings['post_prayer'] == "1";
+        data['post_testimony'] = settings['post_testimony'] == "1";
+
+        data['facebook'] = settings['facebook'] ?? "";
+        data['twitter'] = settings['twitter'] ?? "";
+        data['instagram'] = settings['instagram'] ?? "";
+        data['youtube'] = settings['youtube'] ?? "";
+        data['website'] = settings['website'] ?? "";
+        data['donations_link'] = settings['donations_link'] ?? "";
+
+        print("[DashboardModel] Features available: ${data['features']}");
+
+        // Parse all lists safely
+        recentmedia = res.containsKey("latest_media") ? parseMedia(res) : [];
+        recentarticles =
+            res.containsKey("latest_articles") ? parseArticles(res) : [];
+        recentbooks = res.containsKey("latest_books") ? parseBooks(res) : [];
+        upcomingevents =
+            res.containsKey("upcoming_events") ? parseEvents(res) : [];
+        recentmembers = res.containsKey("members") ? parseMembers(res) : [];
+
+        print("[DashboardModel] Data parsed successfully");
+        print(
+            "[DashboardModel] Media: ${recentmedia.length}, Articles: ${recentarticles.length}, Books: ${recentbooks.length}");
+
+        setListItems();
+        notifyListeners();
+
+        Userdata? u = await SQLiteDbProvider.db.getUserData();
+        if (u == null && data['app_login'] == true) {
+          print("[DashboardModel] Navigating to AuthPage (login required)");
+          Navigator.of(context!).pushReplacementNamed(AuthPage.routeName);
+        } else {
+          print("[DashboardModel] Navigating to HomePage");
+          Navigator.of(context!).pushReplacementNamed(HomePage.routeName);
+        }
+      } else {
+        print("[DashboardModel] ERROR: HTTP Status ${response.statusCode}");
+        setFetchError();
+      }
+    } on DioException catch (e) {
+      print("[DashboardModel] ===== DioException Caught =====");
+      print("[DashboardModel] Error type: ${e.type}");
+      print("[DashboardModel] Message: ${e.message}");
+      print("[DashboardModel] Response Status: ${e.response?.statusCode}");
+
+      // Capture the full backend error response
+      if (e.response != null) {
+        print("[DashboardModel] Backend Response Body: ${e.response?.data}");
+        print(
+            "[DashboardModel] Response Content-Type: ${e.response?.headers['content-type']}");
+      }
+
+      final String dioType = e.type.toString().toLowerCase();
+      final String errorText = [
+        e.message,
+        e.error?.toString(),
+        e.toString(),
+      ].whereType<String>().join(' ').toLowerCase();
+
+      if (errorText.contains('failed host lookup') ||
+          errorText.contains('no address associated with hostname') ||
+          errorText.contains('name or service not known')) {
+        print(
+            "[DashboardModel] CAUSE: DNS lookup failed - hostname could not be resolved");
+        print(
+            "[DashboardModel] CHECK: Does the device/emulator have working DNS and internet access?");
+        print(
+            "[DashboardModel] CHECK: Host configured in ApiUrl.BASEURL = ${ApiUrl.BASEURL}");
+      } else if (dioType.contains('connect') &&
+          !dioType.contains('connectionerror')) {
+        print(
+            "[DashboardModel] CAUSE: Connection timeout - backend server took too long to respond");
+        print("[DashboardModel] CHECK: Is the backend server accessible?");
+      } else if (dioType.contains('receive')) {
+        print(
+            "[DashboardModel] CAUSE: Receive timeout - response took too long");
+      } else if (dioType.contains('send')) {
+        print(
+            "[DashboardModel] CAUSE: Send timeout - took too long to send request");
+      } else if (errorText.contains('certificate') ||
+          errorText.contains('ssl')) {
+        print("[DashboardModel] CAUSE: SSL certificate validation failed");
+        print(
+            "[DashboardModel] CHECK: Server certificate may be invalid, expired, or rejected by the device");
+      } else if (dioType.contains('connectionerror') ||
+          dioType.contains('other') ||
+          dioType.contains('error') ||
+          errorText.contains('socketexception')) {
+        print("[DashboardModel] CAUSE: Network error or socket error");
+        print("[DashboardModel] CHECK: Internet connection available?");
+        if (e.error != null) {
+          print("[DashboardModel] Inner error: ${e.error}");
+          if (e.error.toString().contains("CERTIFICATE") ||
+              e.error.toString().contains("certificate")) {
+            print("[DashboardModel] SSL Certificate validation error detected");
+            print(
+                "[DashboardModel] SOLUTION: Server may have self-signed certificate or expired certificate");
+          }
+        }
+      } else {
+        print("[DashboardModel] CAUSE: Unclassified Dio network failure");
+      }
+
+      print("[DashboardModel] Full error: $e");
+      setFetchError();
+    } on Exception catch (e) {
+      print("[DashboardModel] ===== Exception Caught =====");
+      print("[DashboardModel] Exception: $e");
+      print("[DashboardModel] Type: ${e.runtimeType}");
+
+      // Check if it's SSL-related
+      if (e.toString().contains("CERTIFICATE") ||
+          e.toString().contains("certificate") ||
+          e.toString().contains("SSL")) {
+        print("[DashboardModel] SSL/Certificate error detected");
+      }
+
       setFetchError();
     }
-  } on DioException catch (e) {
-    print("[DashboardModel] ===== DioException Caught =====");
-    print("[DashboardModel] Error type: ${e.type}");
-    print("[DashboardModel] Message: ${e.message}");
-    print("[DashboardModel] Response Status: ${e.response?.statusCode}");
-    
-    // Capture the full backend error response
-    if (e.response != null) {
-      print("[DashboardModel] Backend Response Body: ${e.response?.data}");
-      print("[DashboardModel] Response Content-Type: ${e.response?.headers['content-type']}");
-    }
-
-    final String dioType = e.type.toString().toLowerCase();
-    final String errorText = [
-      e.message,
-      e.error?.toString(),
-      e.toString(),
-    ].whereType<String>().join(' ').toLowerCase();
-
-    if (errorText.contains('failed host lookup') ||
-        errorText.contains('no address associated with hostname') ||
-        errorText.contains('name or service not known')) {
-      print("[DashboardModel] CAUSE: DNS lookup failed - hostname could not be resolved");
-      print("[DashboardModel] CHECK: Does the device/emulator have working DNS and internet access?");
-      print("[DashboardModel] CHECK: Host configured in ApiUrl.BASEURL = ${ApiUrl.BASEURL}");
-    } else if (dioType.contains('connect') && !dioType.contains('connectionerror')) {
-      print("[DashboardModel] CAUSE: Connection timeout - backend server took too long to respond");
-      print("[DashboardModel] CHECK: Is the backend server accessible?");
-    } else if (dioType.contains('receive')) {
-      print("[DashboardModel] CAUSE: Receive timeout - response took too long");
-    } else if (dioType.contains('send')) {
-      print("[DashboardModel] CAUSE: Send timeout - took too long to send request");
-    } else if (errorText.contains('certificate') || errorText.contains('ssl')) {
-      print("[DashboardModel] CAUSE: SSL certificate validation failed");
-      print("[DashboardModel] CHECK: Server certificate may be invalid, expired, or rejected by the device");
-    } else if (dioType.contains('connectionerror') ||
-        dioType.contains('other') ||
-        dioType.contains('error') ||
-        errorText.contains('socketexception')) {
-      print("[DashboardModel] CAUSE: Network error or socket error");
-      print("[DashboardModel] CHECK: Internet connection available?");
-      if (e.error != null) {
-        print("[DashboardModel] Inner error: ${e.error}");
-        if (e.error.toString().contains("CERTIFICATE") || e.error.toString().contains("certificate")) {
-          print("[DashboardModel] SSL Certificate validation error detected");
-          print("[DashboardModel] SOLUTION: Server may have self-signed certificate or expired certificate");
-        }
-      }
-    } else {
-      print("[DashboardModel] CAUSE: Unclassified Dio network failure");
-    }
-
-    print("[DashboardModel] Full error: $e");
-    setFetchError();
-  } on Exception catch (e) {
-    print("[DashboardModel] ===== Exception Caught =====");
-    print("[DashboardModel] Exception: $e");
-    print("[DashboardModel] Type: ${e.runtimeType}");
-    
-    // Check if it's SSL-related
-    if (e.toString().contains("CERTIFICATE") || e.toString().contains("certificate") || e.toString().contains("SSL")) {
-      print("[DashboardModel] SSL/Certificate error detected");
-    }
-    
-    setFetchError();
   }
-}
 
   setFetchError() {
     isError = true;
@@ -321,14 +358,14 @@ class DashboardModel with ChangeNotifier {
           title: t.hymns,
           description: t.hymns,
           photo: "hymns.jpg",
-          icon: FontAwesomeIcons.bookBible));
+          icon: FontAwesomeIcons.bookBible.data));
     }
     if (isFeatureAvailable("notes")) {
       listone.add(Items(3,
           title: t.notes,
           description: t.notes,
           photo: "notes.jpg",
-          icon: FontAwesomeIcons.list));
+          icon: FontAwesomeIcons.list.data));
     }
 
     //list three
@@ -357,7 +394,7 @@ class DashboardModel with ChangeNotifier {
       listthree.add(Items(4,
           title: t.radiostreams,
           description: t.radiohint,
-          icon: FontAwesomeIcons.radio));
+          icon: FontAwesomeIcons.radio.data));
     }
     if (isFeatureAvailable("livestreams")) {
       listthree.add(Items(5,
@@ -468,11 +505,14 @@ class DashboardModel with ChangeNotifier {
   bool isFeatureAvailable(String type) {
     final features = data['features'];
     if (features == null) return true;
-    
+
     // Convert to String safely
-    String featureStr = (features is String ? features : features.toString())
-        .toLowerCase();
-    
+    String featureStr =
+        (features is String ? features : features.toString()).toLowerCase();
+
+    // Empty features string means not yet configured — show everything
+    if (featureStr.isEmpty) return true;
+
     if (type == "media") {
       return (featureStr.contains("media") ||
           featureStr.contains("audiomessages") ||
@@ -529,6 +569,3 @@ class DashboardModel with ChangeNotifier {
         .toList();
   }
 }
-
-
-

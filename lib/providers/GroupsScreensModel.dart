@@ -67,7 +67,7 @@ class GroupsScreensModel with ChangeNotifier {
       if (response.statusCode == 200) {
         // If the server did return a 200 OK response,
         // then parse the JSON.
-        dynamic res = jsonDecode(response.data);
+        dynamic res = Utility.decodeResponse(response.data);
         List<Groups>? mediaList = parseSliderMedia(res);
         if (page == 0) {
           setItems(mediaList);
@@ -115,10 +115,9 @@ class GroupsScreensModel with ChangeNotifier {
           await Utility.getDio().post(ApiUrl.JOIN_GROUP, data: formData);
       Navigator.of(context).pop();
       print(response.data);
-      Map<String, dynamic> res = json.decode(response.data);
       Alerts.show(context, t.success, t.successjoinedgroup);
       loadItems();
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       Navigator.of(context).pop();
       Alerts.show(context, t.error, e.message);
       if (e.response != null) {

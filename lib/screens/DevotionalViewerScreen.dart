@@ -31,7 +31,7 @@ class _DevotionalScreenState extends State<DevotionalViewerScreen> {
           t.devotionals,
           style: const TextStyle(
             fontWeight: FontWeight.w800,
-            color: Color(0xFF23141D),
+            color: Color(0xFF0f172a),
           ),
         ),
       ),
@@ -56,7 +56,7 @@ class _DevotionalScreenState extends State<DevotionalViewerScreen> {
                     style: TextStyles.headline(context).copyWith(
                       fontWeight: FontWeight.w700,
                       fontSize: 22,
-                      color: const Color(0xFF23141D),
+                      color: const Color(0xFF0f172a),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -64,7 +64,7 @@ class _DevotionalScreenState extends State<DevotionalViewerScreen> {
                     devotional.author!,
                     style: TextStyles.subhead(context).copyWith(
                       fontWeight: FontWeight.w600,
-                      color: const Color(0xFF7A6B75),
+                      color: const Color(0xFF475569),
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -73,7 +73,7 @@ class _DevotionalScreenState extends State<DevotionalViewerScreen> {
                         .format(DateFormat('yyyy-MM-dd').parse(devotional.date!)),
                     style: TextStyles.subhead(context).copyWith(
                       fontSize: 14,
-                      color: const Color(0xFF7A6B75),
+                      color: const Color(0xFF475569),
                     ),
                   ),
                   const SizedBox(height: 12),

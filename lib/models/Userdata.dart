@@ -1,6 +1,5 @@
 class Userdata {
   String? email = "", name = "";
-  String? apitoken;
   String? firstname = "";
   String? lastname = "";
   String? photo = "", gender = "", aboutme = "", coverphoto = "";
@@ -12,6 +11,9 @@ class Userdata {
       twitter = "",
       linkedln = "";
   bool following = false;
+  // Bearer token for the Marketplace/Partnership/Counseling/MemberCare mobile
+  // endpoints — returned by loginapp/createaccount, persisted locally.
+  String? apiToken;
 
   static const String TABLE = "userdata";
   static final columns = [
@@ -29,12 +31,12 @@ class Userdata {
     "facebook",
     "twitter",
     "linkedln",
+    "apiToken",
   ];
 
   Userdata({
     this.email,
     this.name,
-    this.apitoken,
     this.firstname,
     this.lastname,
     this.aboutme,
@@ -49,6 +51,7 @@ class Userdata {
     this.twitter,
     this.linkedln,
     this.following = false,
+    this.apiToken,
   });
 
   factory Userdata.fromJson(Map<String, dynamic> json) {
@@ -57,9 +60,8 @@ class Userdata {
     final lastname = json['lastname'] as String?;
     final nameStr = (firstname != null && firstname.isNotEmpty ? firstname : "") +
         (lastname != null && lastname.isNotEmpty ? " " + lastname : "");
-    
+
     return Userdata(
-      apitoken: json['apitoken'] as String?,
       firstname: firstname,
       lastname: lastname,
       name: nameStr.isNotEmpty ? nameStr : "",
@@ -75,6 +77,7 @@ class Userdata {
       facebook: json['facebook'] as String?,
       twitter: json['twitter'] as String?,
       linkedln: json['linkedln'] as String?,
+      apiToken: json['api_token'] as String?,
     );
   }
 
@@ -164,6 +167,7 @@ class Userdata {
       facebook: data['facebook'],
       twitter: data['twitter'],
       linkedln: data['linkedln'],
+      apiToken: data['apiToken'],
     );
   }
 
@@ -182,6 +186,7 @@ class Userdata {
         "facebook": facebook,
         "twitter": twitter,
         "linkedln": linkedln,
+        "apiToken": apiToken,
       };
 }
 

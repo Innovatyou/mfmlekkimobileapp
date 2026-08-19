@@ -30,7 +30,7 @@ class BibleModel with ChangeNotifier {
   final _chapterPreference = "chapter_preference";
   final _fontPreference = "font_preference";
   final _languagePreference = "language_preference";
-  int selectedColor = Colors.yellow[500]!.value;
+  int selectedColor = Colors.yellow[500]!.toARGB32();
 
   BibleModel() {
     getDownloadedBibleList();

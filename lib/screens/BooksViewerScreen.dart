@@ -30,7 +30,7 @@ class _BooksViewerScreenState extends State<BooksViewerScreen> {
             widget.books!.title!,
             style: const TextStyle(
               fontWeight: FontWeight.w700,
-              color: Color(0xFF23141D),
+              color: Color(0xFF0f172a),
             ),
           ),
         ),

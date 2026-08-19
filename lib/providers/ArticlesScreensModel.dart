@@ -59,7 +59,7 @@ class ArticlesScreensModel with ChangeNotifier {
       if (response.statusCode == 200) {
         // If the server did return a 200 OK response,
         // then parse the JSON.
-        dynamic res = jsonDecode(response.data);
+        dynamic res = Utility.decodeResponse(response.data);
         List<Articles>? mediaList = parseSliderMedia(res);
         if (page == 0) {
           setItems(mediaList);

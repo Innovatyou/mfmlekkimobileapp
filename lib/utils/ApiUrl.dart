@@ -107,6 +107,36 @@ class ApiUrl {
   static const String LOAD_MORE_CHATS = BASEURL + "load_more_chats";
   static const String CHECK_FOR_NEW_MESSAGES = BASEURL + "checkfornewmessages";
   static const String getitemdata = BASEURL + "getitemdata";
+
+  // Marketplace
+  static const String FETCH_MARKETPLACE_CATEGORIES = BASEURL + "fetchMarketplaceCategories";
+  static const String FETCH_MARKETPLACE_LISTINGS   = BASEURL + "fetchMarketplaceListings";
+  static const String FETCH_MY_MARKETPLACE_LISTINGS = BASEURL + "fetchMyMarketplaceListings";
+  static const String SUBMIT_MARKETPLACE_LISTING   = BASEURL + "submitMarketplaceListing";
+  static const String UPLOAD_MARKETPLACE_PHOTO     = BASEURL + "uploadMarketplacePhoto";
+  static const String DELETE_MY_MARKETPLACE_LISTING = BASEURL + "deleteMyMarketplaceListing";
+  static const String FETCH_MARKETPLACE_ITEM        = BASEURL + "fetchMarketplaceItem";
+  static const String SUBMIT_MARKETPLACE_INQUIRY    = BASEURL + "submitMarketplaceInquiryApp";
+  static const String UPDATE_MARKETPLACE_LISTING    = BASEURL + "updateMarketplaceListing";
+  static const String MARKETPLACE_UPLOADS           = BASEURL + "uploads/marketplace/";
+
+  // Counseling
+  static const String SUBMIT_COUNSELING_REQUEST  = BASEURL + "submitCounselingRequest";
+  static const String FETCH_MY_COUNSELING_CASES  = BASEURL + "fetchMyCounselingCases";
+  static const String FETCH_MY_VIDEO_SESSIONS    = BASEURL + "fetchMyVideoSessions";
+
+  // Member Wellness / Pastoral Care
+  static const String MY_WELLNESS_PROFILE    = BASEURL + "api/myWellnessProfile";
+  static const String REQUEST_PASTORAL_CARE  = BASEURL + "api/requestPastoralCare";
+  static const String GROUP_MEMBER_BIRTHDAYS = BASEURL + "api/groupMemberBirthdays";
+
+  // Partnership
+  static const String FETCH_PARTNERSHIP_TIERS    = BASEURL + "fetchPartnershipTiers";
+  static const String FETCH_MY_PARTNERSHIP       = BASEURL + "fetchMyPartnership";
+  static const String SUBMIT_PARTNERSHIP_PLEDGE  = BASEURL + "submitPartnershipPledge";
+  static const String UPDATE_PARTNERSHIP_PLEDGE  = BASEURL + "updatePartnershipPledge";
+  static const String FETCH_PARTNERSHIP_PAYMENTS = BASEURL + "fetchPartnershipPayments";
+  static String partnerPaymentUrl(int id) => '${BASEURL}partnerPayment/$id';
 }
 
 

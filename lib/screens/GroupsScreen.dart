@@ -120,7 +120,7 @@ class MediaScreenRouteState extends State<AudioScreenBody> {
                           color: MyColors.white,
                           child: Center(
                             child: Icon(
-                              FontAwesomeIcons.peopleGroup,
+                              FontAwesomeIcons.peopleGroup.data,
                               color: MyColors.mainC0lor,
                             ),
                           ),

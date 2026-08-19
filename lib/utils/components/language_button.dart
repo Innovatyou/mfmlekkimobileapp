@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:higherground/components/clips/discussion_right_clip.dart';
+import 'package:higherground/utils/components/clips/discussion_right_clip.dart';
 import 'clips/discussion_left_clip.dart';
 
 class LanguageButtonDirection {

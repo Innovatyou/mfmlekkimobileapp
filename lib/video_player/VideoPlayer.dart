@@ -252,7 +252,7 @@ class _VideoPlayerState extends State<VideoPlayer>
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
                                   style: const TextStyle(
-                                    color: Color(0xFF23141D),
+                                    color: Color(0xFF0f172a),
                                     fontSize: 15,
                                     fontWeight: FontWeight.w600,
                                     height: 1.35,
@@ -300,7 +300,7 @@ class _VideoPlayerState extends State<VideoPlayer>
           Text(
             currentMedia?.title ?? '',
             style: const TextStyle(
-              color: Color(0xFF23141D),
+              color: Color(0xFF0f172a),
               fontSize: 22,
               fontWeight: FontWeight.w500,
               height: 1.35,
@@ -312,7 +312,7 @@ class _VideoPlayerState extends State<VideoPlayer>
               Text(
                 '${currentMedia?.viewsCount ?? 0} views',
                 style: const TextStyle(
-                  color: Color(0xFF7A6B75),
+                  color: Color(0xFF475569),
                   fontSize: 14,
                 ),
               ),
@@ -320,14 +320,14 @@ class _VideoPlayerState extends State<VideoPlayer>
               Text(
                 TimUtil.timeFormatter(currentMedia?.duration ?? 0),
                 style: const TextStyle(
-                  color: Color(0xFF7A6B75),
+                  color: Color(0xFF475569),
                   fontSize: 14,
                 ),
               ),
               const Spacer(),
               const Icon(
                 Icons.keyboard_arrow_down_rounded,
-                color: Color(0xFF7A6B75),
+                color: Color(0xFF475569),
               ),
             ],
           ),

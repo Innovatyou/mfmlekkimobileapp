@@ -164,7 +164,7 @@ class MakePostScreenState extends State<MakePostScreen> {
       Map<String, dynamic> res;
       if (response.data is String) {
         try {
-          res = json.decode(response.data);
+          res = Utility.decodeResponse(response.data);
         } catch (e) {
           res = {};
         }
@@ -237,11 +237,13 @@ class MakePostScreenState extends State<MakePostScreen> {
       backgroundColor: const Color(0xFFF7F2F5),
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: const Color(0xFFF7F2F5),
+        backgroundColor: MyColors.navBackground,
+        surfaceTintColor: Colors.transparent,
+        iconTheme: const IconThemeData(color: Colors.white),
         title: Text(
           t.makepost,
           style: const TextStyle(
-            color: Color(0xFF23141D),
+            color: Colors.white,
             fontWeight: FontWeight.w700,
           ),
         ),
@@ -286,7 +288,7 @@ class MakePostScreenState extends State<MakePostScreen> {
                         child: Text(
                           t.selectfile,
                           style: const TextStyle(
-                            color: Color(0xFF23141D),
+                            color: Color(0xFF0f172a),
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -436,7 +438,7 @@ class MakePostScreenState extends State<MakePostScreen> {
                 child: TextField(
                   style: const TextStyle(
                     fontSize: 18,
-                    color: Color(0xFF23141D),
+                    color: Color(0xFF0f172a),
                     height: 1.35,
                   ),
                   maxLength: 500,
@@ -458,30 +460,24 @@ class MakePostScreenState extends State<MakePostScreen> {
                 ),
               ),
             ),
-          ],
-        ),
-      ),
-      bottomNavigationBar: SafeArea(
-        minimum: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-        child: SizedBox(
-          width: double.infinity,
-          height: 52,
-          child: ElevatedButton.icon(
-            onPressed: validateandsubmit,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: MyColors.mainC0lor,
-              foregroundColor: Colors.white,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 10, 12, 14),
+              child: FilledButton.icon(
+                onPressed: validateandsubmit,
+                style: FilledButton.styleFrom(
+                  backgroundColor: MyColors.mainC0lor,
+                  foregroundColor: Colors.white,
+                  minimumSize: const Size.fromHeight(52),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                ),
+                icon: const Icon(Icons.send_rounded, size: 20),
+                label: const Text('Post',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
               ),
             ),
-            icon: const Icon(Icons.send_rounded, size: 20),
-            label: const Text(
-              'Post',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-            ),
-          ),
+          ],
         ),
       ),
     );

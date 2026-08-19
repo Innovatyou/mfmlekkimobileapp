@@ -44,7 +44,7 @@ class SettingsRouteState extends State<SettingsScreen>
         // If the server did return a 200 OK response,
         // then parse the JSON.
         print(response.data);
-        dynamic res = jsonDecode(response.data);
+        dynamic res = Utility.decodeResponse(response.data);
         if (res == null || res['user'] == null) {
           print('[SettingsScreen] No user settings payload found: ${response.data}');
           return;
@@ -91,7 +91,7 @@ class SettingsRouteState extends State<SettingsScreen>
         // If the server did return a 200 OK response,
         // then parse the JSON.
         print(response.data);
-        Map<String, dynamic> res = json.decode(response.data);
+        Map<String, dynamic> res = Utility.decodeResponse(response.data);
         if (res["status"] == "error") {
           Alerts.show(context, t.error, res["msg"]);
         } else {
@@ -121,7 +121,7 @@ class SettingsRouteState extends State<SettingsScreen>
     final appManager = Provider.of<AppStateManager>(context);
     Userdata userdata = appManager.userdata!;
     final String youVersionLabel = t.youversionbible.trim().isEmpty
-        ? 'Use Youversion Bible Reader'
+        ? 'Use You version Bible Reader'
         : t.youversionbible;
 
     return Scaffold(
@@ -387,7 +387,7 @@ class SettingsRouteState extends State<SettingsScreen>
                 border: Border.all(color: const Color(0xFFEADAE3)),
                 boxShadow: const [
                   BoxShadow(
-                    color: Color(0x1A8F3E88),
+                    color: Color(0x1A6366f1),
                     blurRadius: 18,
                     offset: Offset(0, 8),
                   ),
@@ -432,7 +432,7 @@ class SettingsRouteState extends State<SettingsScreen>
                               Text(
                                 'App Experience',
                                 style: TextStyle(
-                                  color: Color(0xFF23141D),
+                                  color: Color(0xFF0f172a),
                                   fontSize: 15,
                                   fontWeight: FontWeight.w800,
                                 ),
@@ -441,7 +441,7 @@ class SettingsRouteState extends State<SettingsScreen>
                               Text(
                                 'Customize how scripture opens in the app.',
                                 style: TextStyle(
-                                  color: Color(0xFF7A6B75),
+                                  color: Color(0xFF475569),
                                   fontSize: 12,
                                 ),
                               ),
@@ -462,7 +462,7 @@ class SettingsRouteState extends State<SettingsScreen>
                             style: TextStyle(
                               color: appManager.youversionbible
                                   ? const Color(0xFF167C4A)
-                                  : const Color(0xFF7A6B75),
+                                  : const Color(0xFF475569),
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
                             ),
@@ -471,7 +471,7 @@ class SettingsRouteState extends State<SettingsScreen>
                       ],
                     ),
                   ),
-                  const Divider(height: 1, thickness: 1, color: Color(0xFFF1E6EC)),
+                  const Divider(height: 1, thickness: 1, color: Color(0xFFe2e8f0)),
                   Material(
                     color: Colors.transparent,
                     child: InkWell(
@@ -496,7 +496,7 @@ class SettingsRouteState extends State<SettingsScreen>
                               ),
                               child: const Icon(
                                 LineAwesomeIcons.bible,
-                                color: Color(0xFF8F3E88),
+                                color: Color(0xFF6366f1),
                               ),
                             ),
                             const SizedBox(width: 12),
@@ -507,16 +507,16 @@ class SettingsRouteState extends State<SettingsScreen>
                                   Text(
                                     youVersionLabel,
                                     style: const TextStyle(
-                                      color: Color(0xFF23141D),
+                                      color: Color(0xFF0f172a),
                                       fontWeight: FontWeight.w800,
                                       fontSize: 15,
                                     ),
                                   ),
                                   const SizedBox(height: 4),
                                   const Text(
-                                    'Launch verses in YouVersion for a smoother reading flow.',
+                                    'Launch verses in You version for a smoother reading flow.',
                                     style: TextStyle(
-                                      color: Color(0xFF7A6B75),
+                                      color: Color(0xFF475569),
                                       fontSize: 13,
                                       height: 1.35,
                                     ),

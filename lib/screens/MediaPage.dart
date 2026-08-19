@@ -17,6 +17,7 @@ import 'package:higherground/screens/PlaylistsScreen.dart';
 import 'package:higherground/screens/RadioScreen.dart';
 import 'package:higherground/screens/VideoScreen.dart';
 import 'package:higherground/utils/ApiUrl.dart';
+import 'package:higherground/utils/my_colors.dart';
 import 'package:higherground/utils/Utility.dart';
 import 'package:provider/provider.dart';
 import 'package:higherground/providers/DashboardModel.dart';
@@ -62,7 +63,7 @@ class MediaPageRouteState extends State<MediaPage> {
       );
 
       if (response.statusCode == 200) {
-        final dynamic res = jsonDecode(response.data);
+        final dynamic res = Utility.decodeResponse(response.data);
         final List<dynamic> raw = (res['livestreams'] ?? []) as List<dynamic>;
         final slides = raw
             .map((e) => LiveStreams.fromJson(e as Map<String, dynamic>))
@@ -100,129 +101,185 @@ class MediaPageRouteState extends State<MediaPage> {
     dashboardModel = Provider.of<DashboardModel>(context);
 
     return Container(
-      color: Colors.white,
+      color: const Color(0xFFF1F4F9),
       child: SingleChildScrollView(
         child: Column(
           children: <Widget>[
             const SizedBox(height: 10.0),
             _buildLivestreamSlider(),
-            const SizedBox(height: 12.0),
+            const SizedBox(height: 16.0),
             _buildListItems(),
-            SizedBox(
-              height: 10,
-            ),
-            const SizedBox(height: 6.0),
+            const SizedBox(height: 16.0),
           ],
         ),
       ),
     );
   }
 
+  static const List<Color> _iconColors = [
+    Color(0xFF6366f1),
+    Color(0xFF0ea5e9),
+    Color(0xFF10b981),
+    Color(0xFFf59e0b),
+    Color(0xFFec4899),
+    Color(0xFF8b5cf6),
+    Color(0xFFef4444),
+    Color(0xFF14b8a6),
+  ];
+
+  static const List<Color> _iconBgs = [
+    Color(0xFFe0e7ff),
+    Color(0xFFe0f2fe),
+    Color(0xFFd1fae5),
+    Color(0xFFFEF3C7),
+    Color(0xFFfce7f3),
+    Color(0xFFede9fe),
+    Color(0xFFfee2e2),
+    Color(0xFFccfbf1),
+  ];
+
   Widget _buildListItems() {
     final List<Items> mediaItems = [];
 
     if (dashboardModel.isFeatureAvailable('videomessages')) {
-      mediaItems.add(
-        Items(1,
-            title: t.videos,
-            description: t.videoshint,
-            photo: '',
-            icon: Icons.ondemand_video_rounded),
-      );
+      mediaItems.add(Items(1,
+          title: t.videos,
+          description: t.videoshint,
+          photo: '',
+          icon: Icons.ondemand_video_rounded));
     }
     if (dashboardModel.isFeatureAvailable('audiomessages')) {
-      mediaItems.add(
-        Items(2,
-            title: t.audios,
-            description: t.audioshint,
-            photo: '',
-            icon: Icons.headphones_rounded),
-      );
+      mediaItems.add(Items(2,
+          title: t.audios,
+          description: t.audioshint,
+          photo: '',
+          icon: Icons.headphones_rounded));
     }
 
     mediaItems.addAll(dashboardModel.listthree);
 
-    return Container(
-      //color: Colors.black,
-      child: ListView.builder(
-        physics: NeverScrollableScrollPhysics(),
-        shrinkWrap: true,
-        itemCount: mediaItems.length,
-        padding: EdgeInsets.all(0),
-        itemBuilder: (context, index) {
-          Items itms = mediaItems[index];
-          return Card(
-            elevation: 0.5,
-            margin: EdgeInsets.only(
-              left: 12,
-              right: 12,
-              bottom: 4,
-            ),
-            child: ListTile(
-              leading: CircleAvatar(
-                child: Icon(itms.icon!),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(14, 0, 14, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(left: 4, bottom: 8),
+            child: Text(
+              'LIBRARY',
+              style: TextStyle(
+                color: Color(0xFF6366f1),
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 1.2,
               ),
-              title: Text(itms.title!),
-              subtitle: Text(itms.description!),
-              trailing: Icon(Icons.navigate_next),
-              onTap: () {
-                onItemClick(itms.position!);
+            ),
+          ),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFFe2e8f0)),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0x08000000),
+                  blurRadius: 10,
+                  offset: Offset(0, 2),
+                ),
+              ],
+            ),
+            child: ListView.builder(
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              padding: EdgeInsets.zero,
+              itemCount: mediaItems.length,
+              itemBuilder: (context, index) {
+                final Items item = mediaItems[index];
+                final Color iconColor =
+                    _iconColors[index % _iconColors.length];
+                final Color iconBg = _iconBgs[index % _iconBgs.length];
+                final bool isLast = index == mediaItems.length - 1;
+
+                return Column(
+                  children: [
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.vertical(
+                          top: index == 0
+                              ? const Radius.circular(16)
+                              : Radius.zero,
+                          bottom: isLast
+                              ? const Radius.circular(16)
+                              : Radius.zero,
+                        ),
+                        onTap: () => onItemClick(item.position!),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 14),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 42,
+                                height: 42,
+                                decoration: BoxDecoration(
+                                  color: iconBg,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Icon(item.icon,
+                                    color: iconColor, size: 22),
+                              ),
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      item.title ?? '',
+                                      style: const TextStyle(
+                                        color: Color(0xFF0f172a),
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      item.description ?? '',
+                                      style: const TextStyle(
+                                        color: Color(0xFF94a3b8),
+                                        fontSize: 12,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Icon(
+                                Icons.chevron_right_rounded,
+                                color: Colors.black.withValues(alpha: 0.20),
+                                size: 20,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    if (!isLast)
+                      const Divider(
+                        height: 1,
+                        thickness: 1,
+                        indent: 72,
+                        endIndent: 0,
+                        color: Color(0xFFf1f5f9),
+                      ),
+                  ],
+                );
               },
             ),
-          );
-          /* return InkWell(
-            onTap: () {
-              //print(itms.position!);
-              onItemClick(itms.position!);
-            },
-            child: Card(
-              elevation: 0.3,
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  //color: Colors.white,
-                ),
-                width: double.infinity,
-                height: 70,
-                margin: EdgeInsets.symmetric(vertical: 4, horizontal: 10),
-                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Container(
-                      width: 50,
-                      height: 50,
-                      margin: EdgeInsets.only(right: 6),
-                      // decoration: BoxDecoration(
-                      //   borderRadius: BorderRadius.circular(50),
-                      //   border: Border.all(width: 1, color: MyColors.mainC0lor),
-                      // ),
-                      child: Icon(itms.icon),
-                    ),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            itms.title!,
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 16),
-                          ),
-                          SizedBox(
-                            height: 6,
-                          ),
-                          Text(itms.description!,
-                              style:
-                                  TextStyle(fontSize: 13, letterSpacing: .3)),
-                        ],
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            ),
-          );*/
-        },
+          ),
+        ],
       ),
     );
   }
@@ -237,7 +294,7 @@ class MediaPageRouteState extends State<MediaPage> {
         height: 186,
         margin: const EdgeInsets.symmetric(horizontal: 12),
         decoration: BoxDecoration(
-          color: const Color(0xFFF5ECF2),
+          color: const Color(0xFFf0f2f5),
           borderRadius: BorderRadius.circular(18),
         ),
         child: const Center(child: CupertinoActivityIndicator()),
@@ -250,20 +307,28 @@ class MediaPageRouteState extends State<MediaPage> {
 
     return Column(
       children: [
-        Padding(
+          Padding(
           padding: const EdgeInsets.fromLTRB(14, 0, 14, 8),
           child: Row(
             children: [
-              Text(
-                'Latest Live Streams',
-                style: const TextStyle(
-                  fontSize: 16,
+              const Text(
+                'LIVE STREAMS',
+                style: TextStyle(
+                  color: Color(0xFF6366f1),
+                  fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF2A1A24),
+                  letterSpacing: 1.2,
                 ),
               ),
               const Spacer(),
               TextButton(
+                style: TextButton.styleFrom(
+                  foregroundColor: const Color(0xFF6366f1),
+                  textStyle: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 onPressed: () {
                   Navigator.of(context).pushNamed(LivestreamsScreen.routeName);
                 },
@@ -307,14 +372,14 @@ class MediaPageRouteState extends State<MediaPage> {
                           imageUrl: live.coverphoto ?? '',
                           fit: BoxFit.cover,
                           placeholder: (context, url) => Container(
-                            color: const Color(0xFFF1E6EC),
+                            color: const Color(0xFFf0f2f5),
                             child: const Center(
                                 child: CupertinoActivityIndicator()),
                           ),
                           errorWidget: (context, url, error) => Container(
-                            color: const Color(0xFFF1E6EC),
+                            color: const Color(0xFFf0f2f5),
                             child: const Icon(Icons.live_tv_rounded,
-                                color: Color(0xFF8A7D86), size: 36),
+                                color: Color(0xFF94a3b8), size: 36),
                           ),
                         ),
                         Container(
@@ -361,8 +426,8 @@ class MediaPageRouteState extends State<MediaPage> {
               height: 7,
               decoration: BoxDecoration(
                 color: _currentSlide == index
-                    ? const Color(0xFF8F3E88)
-                    : const Color(0xFFD8C5D3),
+                    ? MyColors.primary
+                    : const Color(0xFFcbd5e1),
                 borderRadius: BorderRadius.circular(99),
               ),
             ),

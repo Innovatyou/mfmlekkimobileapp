@@ -32,7 +32,7 @@ class BooksScreenRouteState extends State<BooksScreen> {
             t.books,
             style: const TextStyle(
               fontWeight: FontWeight.w800,
-              color: Color(0xFF23141D),
+              color: Color(0xFF0f172a),
             ),
           ),
         ),
@@ -157,7 +157,7 @@ class MediaScreenRouteState extends State<AudioScreenBody> {
                             right: 0,
                             child: Container(
                               height: 72,
-                              color: const Color(0xA623141D),
+                              color: const Color(0xA60f172a),
                               padding: const EdgeInsets.all(12),
                               child: Align(
                                 alignment: Alignment.center,

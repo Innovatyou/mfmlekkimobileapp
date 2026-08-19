@@ -259,7 +259,7 @@ class ChatManager with ChangeNotifier {
         // If the server did return a 200 OK response,
         // then parse the JSON.
         print("userchatssss = " + response.toString());
-        dynamic res = jsonDecode(response.data);
+        dynamic res = Utility.decodeResponse(response.data);
         List<Chats?>? chatsList = parseUserChatsList(res);
         //print(chatsList!.length);
         if (page == 0) {
@@ -277,7 +277,7 @@ class ChatManager with ChangeNotifier {
     } catch (exception) {
       // I get no exception here
       print(exception);
-      if (exception is DioError) {
+      if (exception is DioException) {
         print(exception.stackTrace);
         print("userchatssss = " + exception.error.toString());
         print("userchatssss = " + exception.message.toString());
@@ -364,7 +364,7 @@ class ChatManager with ChangeNotifier {
         // If the server did return a 200 OK response,
         // then parse the JSON.
         print(response.data);
-        dynamic res = jsonDecode(response.data);
+        dynamic res = Utility.decodeResponse(response.data);
         print(res);
         if (res['status'] == "ok") {
           //if user have a chat history and is current chat opened, we set as current chat,
@@ -398,7 +398,7 @@ class ChatManager with ChangeNotifier {
     } catch (exception) {
       // I get no exception here
       print(exception);
-      if (exception is DioError) {
+      if (exception is DioException) {
         print(exception.stackTrace);
         print(exception.error);
         print(exception.message);
@@ -536,7 +536,7 @@ class ChatManager with ChangeNotifier {
         print((send / total) * 100);
       });
       print(response.data);
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       print(e.message);
     }
   }
@@ -560,13 +560,13 @@ class ChatManager with ChangeNotifier {
       if (response.statusCode == 200) {
         // If the server did return a 200 OK response,
         // then parse the JSON.
-        dynamic res = jsonDecode(response.data);
+        dynamic res = Utility.decodeResponse(response.data);
         print(res);
       }
     } catch (exception) {
       // I get no exception here
       print(exception);
-      if (exception is DioError) {
+      if (exception is DioException) {
         print(exception.stackTrace);
         print(exception.error);
         print(exception.message);
@@ -593,7 +593,7 @@ class ChatManager with ChangeNotifier {
       if (response.statusCode == 200) {
         // If the server did return a 200 OK response,
         // then parse the JSON.
-        dynamic res = jsonDecode(response.data);
+        dynamic res = Utility.decodeResponse(response.data);
         print(res);
       }
     } catch (exception) {
@@ -620,7 +620,7 @@ class ChatManager with ChangeNotifier {
       if (response.statusCode == 200) {
         // If the server did return a 200 OK response,
         // then parse the JSON.
-        dynamic res = jsonDecode(response.data);
+        dynamic res = Utility.decodeResponse(response.data);
         print(res);
       }
     } catch (exception) {
@@ -729,13 +729,13 @@ class ChatManager with ChangeNotifier {
       if (response.statusCode == 200) {
         // If the server did return a 200 OK response,
         // then parse the JSON.
-        dynamic res = jsonDecode(response.data);
+        dynamic res = Utility.decodeResponse(response.data);
         print(res);
       }
     } catch (exception) {
       // I get no exception here
       print(exception);
-      if (exception is DioError) {
+      if (exception is DioException) {
         print(exception.stackTrace);
         print(exception.error);
         print(exception.message);
@@ -781,7 +781,7 @@ class ChatManager with ChangeNotifier {
       if (response.statusCode == 200) {
         // If the server did return a 200 OK response,
         // then parse the JSON.
-        dynamic res = jsonDecode(response.data);
+        dynamic res = Utility.decodeResponse(response.data);
         print(res);
       }
     } catch (exception) {
@@ -929,7 +929,7 @@ class ChatManager with ChangeNotifier {
       if (response.statusCode == 200) {
         // If the server did return a 200 OK response,
         // then parse the JSON.
-        dynamic res = jsonDecode(response.data);
+        dynamic res = Utility.decodeResponse(response.data);
         print(res);
       }
     } catch (exception) {
@@ -977,7 +977,7 @@ class ChatManager with ChangeNotifier {
       if (response.statusCode == 200) {
         // If the server did return a 200 OK response,
         // then parse the JSON.
-        dynamic res = jsonDecode(response.data);
+        dynamic res = Utility.decodeResponse(response.data);
         print(res);
         if (res['status'] == "ok") {
           List<ChatMessages> _chatMessages = getChats(res)!;
@@ -1035,7 +1035,7 @@ class ChatManager with ChangeNotifier {
       if (response.statusCode == 200) {
         // If the server did return a 200 OK response,
         // then parse the JSON.
-        dynamic res = jsonDecode(response.data);
+        dynamic res = Utility.decodeResponse(response.data);
         print(res);
         if (res['status'] == "ok") {
           List<ChatMessages> _chatMessages = getChats(res)!;

@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:higherground/i18n/strings.g.dart';
+import 'package:higherground/utils/my_colors.dart';
 import 'package:higherground/models/Userdata.dart';
 import 'package:higherground/providers/AppStateManager.dart';
 import 'package:higherground/utils/Alerts.dart';
@@ -117,16 +118,16 @@ class PostTestimonyScreenScreenState extends State<PostTestimonyScreen> {
       backgroundColor: const Color(0xFFF6F1E6),
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: const Color(0xFFF6F1E6),
+        backgroundColor: MyColors.navBackground,
         surfaceTintColor: Colors.transparent,
         title: Text(
           t.addtestimony,
           style: const TextStyle(
-            color: Color(0xFF2B2316),
+            color: Colors.white,
             fontWeight: FontWeight.w700,
           ),
         ),
-        iconTheme: const IconThemeData(color: Color(0xFF2B2316)),
+        iconTheme: const IconThemeData(color: Colors.white),
         leading: isGuest
             ? const SizedBox.shrink()
             : IconButton(
@@ -156,71 +157,69 @@ class PostTestimonyScreenScreenState extends State<PostTestimonyScreen> {
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(14, 8, 14, 24),
-        child: Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: const Color(0xFFE8DECB)),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              TextField(
-                controller: requesterController,
-                keyboardType: TextInputType.text,
-                cursorColor: const Color(0xFF8F7442),
-                decoration: _fieldDecoration(
-                  label: t.fullname,
-                  icon: Icons.person_outline,
-                ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: const Color(0xFFE8DECB)),
               ),
-              const SizedBox(height: 14),
-              TextField(
-                controller: titleController,
-                maxLines: 2,
-                keyboardType: TextInputType.multiline,
-                cursorColor: const Color(0xFF8F7442),
-                decoration: _fieldDecoration(
-                  label: t.testimonytitle,
-                  icon: Icons.title,
-                ),
-              ),
-              const SizedBox(height: 14),
-              TextField(
-                controller: contentController,
-                keyboardType: TextInputType.multiline,
-                cursorColor: const Color(0xFF8F7442),
-                maxLines: 10,
-                decoration: _fieldDecoration(
-                  label: t.testimonycontent,
-                  icon: Icons.auto_stories_outlined,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-      bottomNavigationBar: SafeArea(
-        minimum: const EdgeInsets.fromLTRB(14, 0, 14, 14),
-        child: SizedBox(
-          width: double.infinity,
-          height: 52,
-          child: FilledButton.icon(
-            style: FilledButton.styleFrom(
-              backgroundColor: const Color(0xFF7A6234),
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  TextField(
+                    controller: requesterController,
+                    keyboardType: TextInputType.text,
+                    cursorColor: const Color(0xFF8F7442),
+                    decoration: _fieldDecoration(
+                      label: t.fullname,
+                      icon: Icons.person_outline,
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  TextField(
+                    controller: titleController,
+                    maxLines: 2,
+                    keyboardType: TextInputType.multiline,
+                    cursorColor: const Color(0xFF8F7442),
+                    decoration: _fieldDecoration(
+                      label: t.testimonytitle,
+                      icon: Icons.title,
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  TextField(
+                    controller: contentController,
+                    keyboardType: TextInputType.multiline,
+                    cursorColor: const Color(0xFF8F7442),
+                    maxLines: 10,
+                    decoration: _fieldDecoration(
+                      label: t.testimonycontent,
+                      icon: Icons.auto_stories_outlined,
+                    ),
+                  ),
+                ],
               ),
             ),
-            onPressed: validateandsubmit,
-            icon: const Icon(Icons.done_all, size: 20),
-            label: const Text(
-              'Submit Testimony',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+            const SizedBox(height: 14),
+            FilledButton.icon(
+              onPressed: validateandsubmit,
+              style: FilledButton.styleFrom(
+                backgroundColor: MyColors.navBackground,
+                foregroundColor: Colors.white,
+                minimumSize: const Size.fromHeight(52),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
+              icon: const Icon(Icons.done_all_rounded, size: 20),
+              label: const Text('Post Testimony',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
             ),
-          ),
+          ],
         ),
       ),
     );

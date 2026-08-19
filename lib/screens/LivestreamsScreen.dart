@@ -9,6 +9,7 @@ import 'package:higherground/models/LiveStreams.dart';
 import 'package:higherground/i18n/strings.g.dart';
 import 'package:higherground/providers/LivestreamScreensModel.dart';
 import 'package:higherground/screens/NoitemScreen.dart';
+import 'package:higherground/utils/Utility.dart';
 
 class LivestreamsScreen extends StatefulWidget {
   static const routeName = "/LivestreamsScreen";
@@ -145,7 +146,7 @@ class MediaScreenRouteState extends State<AudioScreenBody> {
                               fit: StackFit.expand,
                               children: [
                                 CachedNetworkImage(
-                                  imageUrl: liveStreams.coverphoto ?? '',
+                                  imageUrl: Utility.convertLocalhostToEmulator(liveStreams.coverphoto),
                                   fit: BoxFit.cover,
                                   placeholder: (context, url) => const Center(
                                     child: CupertinoActivityIndicator(),
@@ -153,7 +154,7 @@ class MediaScreenRouteState extends State<AudioScreenBody> {
                                   errorWidget: (context, url, error) => const Center(
                                     child: Icon(
                                       Icons.live_tv_rounded,
-                                      color: Color(0xFF7A6B75),
+                                      color: Color(0xFF475569),
                                       size: 34,
                                     ),
                                   ),
@@ -169,7 +170,7 @@ class MediaScreenRouteState extends State<AudioScreenBody> {
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
-                              color: Color(0xFF23141D),
+                              color: Color(0xFF0f172a),
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
                               height: 1.35,
@@ -208,7 +209,7 @@ class MediaScreenRouteState extends State<AudioScreenBody> {
               t.noitemstodisplay,
               textAlign: TextAlign.center,
               style: const TextStyle(
-                color: Color(0xFF23141D),
+                color: Color(0xFF0f172a),
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -217,7 +218,7 @@ class MediaScreenRouteState extends State<AudioScreenBody> {
               'No current live stream. Pull down to check for newly streamed videos.',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Color(0xFF7A6B75),
+                color: Color(0xFF475569),
                 fontSize: 13,
               ),
             ),

@@ -2,17 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:higherground/database/SQLiteDbProvider.dart';
 import 'package:higherground/models/Testimony.dart';
 import 'package:higherground/models/Userdata.dart';
-import 'package:higherground/providers/DashboardModel.dart';
 import 'package:higherground/providers/TestimonyScreensModel.dart';
 import 'package:higherground/screens/AuthPage.dart';
 import 'package:higherground/screens/PostTestimonyScreen.dart';
 import 'package:higherground/screens/TestimonyViewer.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:higherground/i18n/strings.g.dart';
 import 'package:higherground/screens/NoitemScreen.dart';
+import 'package:higherground/utils/my_colors.dart';
 
 class TestimoniessScreen extends StatefulWidget {
   static const routeName = "/TestimoniessScreen";
@@ -26,31 +25,42 @@ class TestimoniessScreen extends StatefulWidget {
 class TestimoniessScreennRouteState extends State<TestimoniessScreen> {
   @override
   Widget build(BuildContext context) {
-    DashboardModel dashboardModel = Provider.of<DashboardModel>(context);
     return ChangeNotifierProvider(
       create: (context) => TestimonyScreensModel(),
       child: Scaffold(
-        backgroundColor: const Color(0xFFF7F2F5),
+        backgroundColor: const Color(0xFFF1F4F9),
         appBar: AppBar(
-          elevation: 0,
-          backgroundColor: const Color(0xFFF7F2F5),
-          surfaceTintColor: Colors.transparent,
           title: Text(
             t.testimonies,
             style: const TextStyle(
-              fontWeight: FontWeight.w800,
-              color: Color(0xFF23141D),
+              color: Colors.white,
+              fontWeight: FontWeight.w700,
+              fontSize: 18,
             ),
           ),
+          backgroundColor: MyColors.navBackground,
+          surfaceTintColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            icon: Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(Icons.arrow_back_ios_new_rounded,
+                  color: Colors.white, size: 16),
+            ),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
         ),
-        body: Padding(
-          padding: const EdgeInsets.only(top: 8),
-          child: AudioScreenBody(),
-        ),
-        floatingActionButton: (dashboardModel.data['post_testimony'] as bool)
-            ? FloatingActionButton.small(
+        body: AudioScreenBody(),
+        floatingActionButton: FloatingActionButton(
                 onPressed: () async {
-                  Userdata? userdata = await SQLiteDbProvider.db.getUserData();
+                  final Userdata? userdata =
+                      await SQLiteDbProvider.db.getUserData();
+                  if (!context.mounted) return;
                   if (userdata == null) {
                     Navigator.of(context)
                         .pushNamed(AuthPage.routeName, arguments: true);
@@ -59,10 +69,9 @@ class TestimoniessScreennRouteState extends State<TestimoniessScreen> {
                         .pushNamed(PostTestimonyScreen.routeName);
                   }
                 },
-                child: const Icon(Icons.add, color: Colors.white),
-                backgroundColor: const Color(0xFF7A3F60),
-              )
-            : null,
+                backgroundColor: MyColors.primary,
+                child: const Icon(Icons.add_rounded, color: Colors.white),
+              ),
       ),
     );
   }
@@ -102,87 +111,100 @@ class MediaScreenRouteState extends State<AudioScreenBody> {
   Widget build(BuildContext context) {
     mediaScreensModel = Provider.of<TestimonyScreensModel>(context);
     items = mediaScreensModel.itemList;
+    final safeItems = items ?? [];
+
+    if (mediaScreensModel.isLoading && safeItems.isEmpty) {
+      return const Center(
+          child: CircularProgressIndicator(color: MyColors.primary));
+    }
+    if (mediaScreensModel.isError && safeItems.isEmpty) {
+      return NoitemScreen(
+          title: t.oops, message: t.dataloaderror, onClick: _onRefresh);
+    }
+    if (safeItems.isEmpty) {
+      return NoitemScreen(
+          title: t.oops, message: t.noitemstodisplay, onClick: _onRefresh);
+    }
 
     return SmartRefresher(
       enablePullDown: true,
       enablePullUp: true,
-      header: const WaterDropHeader(waterDropColor: Color(0xFF8E5972)),
+      header: const WaterDropMaterialHeader(
+        backgroundColor: MyColors.primary,
+        color: Colors.white,
+      ),
       footer: CustomFooter(
         builder: (BuildContext context, LoadStatus? mode) {
           Widget body;
           if (mode == LoadStatus.idle) {
-            body = Text(t.pulluploadmore);
+            body = Text(t.pulluploadmore,
+                style: const TextStyle(
+                    color: MyColors.textSecondary, fontSize: 12));
           } else if (mode == LoadStatus.loading) {
-            body = CupertinoActivityIndicator();
+            body = const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                    strokeWidth: 2, color: MyColors.primary));
           } else if (mode == LoadStatus.failed) {
-            body = Text(t.loadfailedretry);
+            body = Text(t.loadfailedretry,
+                style: const TextStyle(color: MyColors.danger, fontSize: 12));
           } else if (mode == LoadStatus.canLoading) {
-            body = Text(t.releaseloadmore);
+            body = Text(t.releaseloadmore,
+                style: const TextStyle(
+                    color: MyColors.textSecondary, fontSize: 12));
           } else {
-            body = Text(t.nomoredata);
+            body = Text(t.nomoredata,
+                style: const TextStyle(
+                    color: MyColors.textDisabled, fontSize: 12));
           }
-          return Container(
-            height: 55.0,
-            child: Center(child: body),
-          );
+          return SizedBox(height: 55, child: Center(child: body));
         },
       ),
       controller: mediaScreensModel.refreshController,
       onRefresh: _onRefresh,
       onLoading: _onLoading,
-      child: (mediaScreensModel.isError == true && items!.length == 0)
-          ? NoitemScreen(
-              title: t.oops, message: t.dataloaderror, onClick: _onRefresh)
-          : ListView.separated(
-              itemCount: items!.length,
-              scrollDirection: Axis.vertical,
-              padding: const EdgeInsets.fromLTRB(12, 6, 12, 12),
-              separatorBuilder: (context, index) {
-                return const SizedBox(height: 8);
-              },
-              itemBuilder: (BuildContext context, int index) {
-                final testimony = items![index];
-                return Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: const Color(0xFFE8DDE4)),
-                  ),
-                  child: ListTile(
-                    contentPadding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  onTap: () {
-                    Navigator.pushNamed(context, TestimonyViewer.routeName,
-                        arguments: testimony);
-                  },
-                  leading: ClipOval(
-                      child: Container(
-                    color: const Color(0xFFF5EAF1),
-                    width: 50.0,
-                    height: 50.0,
-                    child: IconButton(
-                      padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                      onPressed: () {},
-                      icon: const Icon(
-                        LineAwesomeIcons.quote_left,
-                        color: Color(0xFF8F3E88),
-                      ),
-                    ),
-                  )),
-                  title: Text(
-                    testimony.title!,
-                    maxLines: 2,
-                    style: titleTextStyle,
-                  ),
-                  subtitle: Text(
-                    testimony.date! + " | " + testimony.testifier!,
-                    style: const TextStyle(color: Color(0xFF7A6B75)),
-                  ),
-                  trailing: const Icon(Icons.navigate_next_rounded),
-                  ),
-                );
-              },
+      child: ListView.separated(
+        itemCount: safeItems.length,
+        padding: const EdgeInsets.fromLTRB(12, 6, 12, 90),
+        separatorBuilder: (_, __) => const SizedBox(height: 8),
+        itemBuilder: (BuildContext context, int index) {
+          final testimony = safeItems[index];
+          return Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: const Color(0xFFE8DDE4)),
             ),
+            child: ListTile(
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              onTap: () => Navigator.pushNamed(
+                  context, TestimonyViewer.routeName,
+                  arguments: testimony),
+              leading: ClipOval(
+                child: Container(
+                  color: const Color(0xFFF5EAF1),
+                  width: 50.0,
+                  height: 50.0,
+                  child: const Icon(LineAwesomeIcons.quote_left,
+                      color: Color(0xFF6366f1)),
+                ),
+              ),
+              title: Text(
+                testimony.title ?? '',
+                maxLines: 2,
+                style: titleTextStyle,
+              ),
+              subtitle: Text(
+                '${testimony.date ?? ''} | ${testimony.testifier ?? ''}',
+                style: const TextStyle(color: Color(0xFF475569)),
+              ),
+              trailing: const Icon(Icons.navigate_next_rounded),
+            ),
+          );
+        },
+      ),
     );
   }
 }

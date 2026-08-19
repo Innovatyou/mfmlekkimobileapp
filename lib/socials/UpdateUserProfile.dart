@@ -6,7 +6,6 @@ import 'package:higherground/utils/Utility.dart';
 import 'package:higherground/utils/Alerts.dart';
 import 'package:higherground/models/Userdata.dart';
 import 'dart:io';
-import 'dart:convert';
 import 'dart:async';
 import 'package:higherground/socials/FollowPeople.dart';
 import 'package:higherground/models/ScreenArguements.dart';
@@ -117,7 +116,6 @@ class UpdateUserProfileState extends State<UpdateUserProfile> {
 
     if (userdata!.photo == "" && avatar == "") {
       Alerts.show(context, t.error, t.pleaseselectprofilephoto);
-
     } else {
       // All optional fields are now optional - no validation required
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -170,13 +168,14 @@ class UpdateUserProfileState extends State<UpdateUserProfile> {
     print(formData.files);
 
     try {
-      var response = await Utility.getDio().post(ApiUrl.BASEURL + "updateProfile",
-          data: formData, onSendProgress: (int send, int total) {
+      var response = await Utility.getDio()
+          .post(ApiUrl.BASEURL + "updateProfile", data: formData,
+              onSendProgress: (int send, int total) {
         print((send / total) * 100);
       });
       Navigator.of(context).pop();
       print(response.data);
-      Map<String, dynamic> res = json.decode(response.data);
+      Map<String, dynamic> res = Utility.decodeResponse(response.data);
       if (res["status"] == "error") {
         Alerts.show(context, t.error, res["msg"]);
         return;
@@ -197,7 +196,7 @@ class UpdateUserProfileState extends State<UpdateUserProfile> {
               items: userdata,
             ));
       }
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       Navigator.of(context).pop();
       Alerts.show(context, t.error, e.message);
       if (e.response != null) {
@@ -439,40 +438,36 @@ class UpdateUserProfileState extends State<UpdateUserProfile> {
                     Container(
                       height: 50,
                       width: double.infinity,
-                      child: Row(
-                        children: <Widget>[
-                          Container(width: 0),
-                          Container(
-                            width: 150,
-                            height: 50,
-                            child: RadioListTile<String>(
-                              title: Text(t.male),
-                              value: "Male",
-                              groupValue: gender,
-                              onChanged: (String? value) {
-                                setState(() {
-                                  gender = value;
-                                });
-                              },
+                      child: RadioGroup<String>(
+                        groupValue: gender,
+                        onChanged: (String? value) {
+                          setState(() {
+                            gender = value;
+                          });
+                        },
+                        child: Row(
+                          children: <Widget>[
+                            Container(width: 0),
+                            Container(
+                              width: 150,
+                              height: 50,
+                              child: RadioListTile<String>(
+                                title: Text(t.male),
+                                value: "Male",
+                              ),
                             ),
-                          ),
-                          Container(width: 0),
-                          Container(
-                            width: 150,
-                            height: 50,
-                            child: RadioListTile<String>(
-                              title: Text(t.female),
-                              value: "Female",
-                              groupValue: gender,
-                              onChanged: (String? value) {
-                                setState(() {
-                                  gender = value;
-                                });
-                              },
+                            Container(width: 0),
+                            Container(
+                              width: 150,
+                              height: 50,
+                              child: RadioListTile<String>(
+                                title: Text(t.female),
+                                value: "Female",
+                              ),
                             ),
-                          ),
-                          Spacer()
-                        ],
+                            Spacer()
+                          ],
+                        ),
                       ),
                     ),
                     Container(height: 10),
@@ -616,5 +611,3 @@ class UpdateUserProfileState extends State<UpdateUserProfile> {
     );
   }
 }
-
-

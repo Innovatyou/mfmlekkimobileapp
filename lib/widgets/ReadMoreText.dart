@@ -64,8 +64,9 @@ class ReadMoreTextState extends State<ReadMoreText> {
     final textAlign =
         widget.textAlign ?? defaultTextStyle.textAlign ?? TextAlign.start;
     final textDirection = widget.textDirection ?? Directionality.of(context);
-    final textScaleFactor =
-        widget.textScaleFactor ?? MediaQuery.textScaleFactorOf(context);
+    final textScaler = widget.textScaleFactor != null
+        ? TextScaler.linear(widget.textScaleFactor!)
+        : MediaQuery.textScalerOf(context);
     final overflow = defaultTextStyle.overflow;
     final locale = widget.locale ?? Localizations.localeOf(context);
 
@@ -97,7 +98,7 @@ class ReadMoreTextState extends State<ReadMoreText> {
           text: link,
           textAlign: textAlign,
           textDirection: textDirection,
-          textScaleFactor: textScaleFactor,
+          textScaler: textScaler,
           maxLines: widget.trimLines,
           ellipsis: overflow == TextOverflow.ellipsis ? _kEllipsis : null,
           locale: locale,
@@ -165,9 +166,6 @@ class ReadMoreTextState extends State<ReadMoreText> {
               );
             }
             break;
-          default:
-            throw Exception(
-                'TrimMode type: ${widget.trimMode} is not supported');
         }
 
         return RichText(
@@ -176,7 +174,7 @@ class ReadMoreTextState extends State<ReadMoreText> {
           softWrap: true,
           //softWrap,
           overflow: TextOverflow.clip,
-          text: textSpan, textScaler: TextScaler.linear(textScaleFactor),
+          text: textSpan, textScaler: textScaler,
         );
       },
     );
@@ -192,4 +190,3 @@ class ReadMoreTextState extends State<ReadMoreText> {
     return result;
   }
 }
-

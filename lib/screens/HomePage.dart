@@ -11,6 +11,7 @@ import 'package:higherground/screens/PublicationsPage.dart';
 import 'package:higherground/screens/ConnectPage.dart';
 import 'package:higherground/screens/DashboardScreen.dart';
 import 'package:higherground/screens/MediaPage.dart';
+import 'package:higherground/screens/DrawerView.dart';
 import 'package:higherground/screens/SettingsPage.dart';
 import 'package:higherground/socials/NotificationSection.dart';
 import 'package:higherground/utils/MarqueeWidget.dart';
@@ -66,53 +67,44 @@ class _HomePageItemState extends State<HomePageItem>
   late DashboardModel dashmodel;
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   int currentIndex = 0;
-  final List<_HomeTab> tabs = [];
 
-  String get currentTitle => tabs[currentIndex].label;
+  List<_HomeTab> _buildTabs(DashboardModel model) {
+    final tabs = <_HomeTab>[];
+    tabs.add(_HomeTab(
+      icon: LineAwesomeIcons.home,
+      label: t.appname,
+      builder: () => DashboardScreen(),
+    ));
+    tabs.add(_HomeTab(
+      icon: LineAwesomeIcons.play_circle,
+      label: t.media,
+      builder: () => MediaPage(),
+    ));
+    if (model.isFeatureAvailable("publications")) {
+      tabs.add(_HomeTab(
+        icon: LineAwesomeIcons.blog,
+        label: t.publications,
+        builder: () => PublicationsPage(),
+      ));
+    }
+    tabs.add(_HomeTab(
+      icon: LineAwesomeIcons.alternate_share,
+      label: t.connect,
+      builder: () => ConnectPage(),
+    ));
+    if (model.isFeatureAvailable("gosocial")) {
+      tabs.add(_HomeTab(
+        icon: LineAwesomeIcons.teamspeak,
+        label: t.posts,
+        builder: () => UserPostsSection(),
+      ));
+    }
+    return tabs;
+  }
 
   @override
   void initState() {
     super.initState();
-    dashmodel = Provider.of<DashboardModel>(context, listen: false);
-    tabs.add(
-      _HomeTab(
-        icon: LineAwesomeIcons.home,
-        label: t.appname,
-        builder: () => DashboardScreen(),
-      ),
-    );
-    tabs.add(
-      _HomeTab(
-        icon: LineAwesomeIcons.play_circle,
-        label: t.media,
-        builder: () => MediaPage(),
-      ),
-    );
-    if (dashmodel.isFeatureAvailable("publications")) {
-      tabs.add(
-        _HomeTab(
-          icon: LineAwesomeIcons.blog,
-          label: t.publications,
-          builder: () => PublicationsPage(),
-        ),
-      );
-    }
-    tabs.add(
-      _HomeTab(
-        icon: LineAwesomeIcons.alternate_share,
-        label: t.connect,
-        builder: () => ConnectPage(),
-      ),
-    );
-    if (dashmodel.isFeatureAvailable("gosocial")) {
-      tabs.add(
-        _HomeTab(
-          icon: LineAwesomeIcons.teamspeak,
-          label: t.posts,
-          builder: () => UserPostsSection(),
-        ),
-      );
-    }
   }
 
   @override
@@ -120,8 +112,12 @@ class _HomePageItemState extends State<HomePageItem>
     AppStateManager appManager = Provider.of<AppStateManager>(context);
     dashmodel = Provider.of<DashboardModel>(context);
     Userdata? userdata = appManager.userdata;
+    final tabs = _buildTabs(dashmodel);
+    final safeIndex = currentIndex.clamp(0, tabs.length - 1);
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F1F4),
+      key: scaffoldKey,
+      backgroundColor: MyColors.surface,
+      endDrawer: const DrawerView(),
       appBar: AppBar(
         automaticallyImplyLeading: false,
         titleSpacing: 16,
@@ -129,7 +125,7 @@ class _HomePageItemState extends State<HomePageItem>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              currentTitle,
+              tabs[safeIndex].label,
               style: const TextStyle(
                 fontWeight: FontWeight.w700,
                 fontSize: 20,
@@ -151,23 +147,10 @@ class _HomePageItemState extends State<HomePageItem>
           ],
         ),
         centerTitle: false,
-        backgroundColor: Colors.transparent,
+        backgroundColor: MyColors.navBackground,
         surfaceTintColor: Colors.transparent,
-        toolbarHeight: 72,
+        toolbarHeight: 64,
         elevation: 0,
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                MyColors.primaryDark,
-                MyColors.mainC0lor,
-                const Color(0xFFB73D7C),
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-        ),
         leadingWidth: 72,
         leading: Padding(
           padding: const EdgeInsets.only(left: 16, top: 12, bottom: 12),
@@ -182,6 +165,16 @@ class _HomePageItemState extends State<HomePageItem>
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 12),
             child: _buildChromeButton(
+              icon: appManager.darkMode
+                  ? Icons.light_mode_outlined
+                  : Icons.dark_mode_outlined,
+              onPressed: appManager.toggleDarkMode,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: _buildChromeButton(
               icon: LineAwesomeIcons.bell,
               badgeText: appManager.notificationcount,
               onPressed: () {
@@ -192,7 +185,7 @@ class _HomePageItemState extends State<HomePageItem>
           ),
           const SizedBox(width: 10),
           Padding(
-            padding: const EdgeInsets.only(top: 12, bottom: 12, right: 16),
+            padding: const EdgeInsets.symmetric(vertical: 12),
             child: _buildChromeButton(
               icon: LineAwesomeIcons.facebook_messenger,
               badgeText: appManager.chatnotificationcount,
@@ -207,12 +200,22 @@ class _HomePageItemState extends State<HomePageItem>
               },
             ),
           ),
+          const SizedBox(width: 10),
+          Padding(
+            padding: const EdgeInsets.only(top: 12, bottom: 12, right: 16),
+            child: _buildChromeButton(
+              icon: Icons.menu_rounded,
+              onPressed: () {
+                scaffoldKey.currentState?.openEndDrawer();
+              },
+            ),
+          ),
         ],
       ),
       body: Column(
         children: [
           Expanded(
-            child: tabs[currentIndex].builder(),
+            child: tabs[safeIndex].builder(),
           ),
           MiniPlayer(),
         ],
@@ -221,13 +224,14 @@ class _HomePageItemState extends State<HomePageItem>
         minimum: const EdgeInsets.fromLTRB(14, 0, 14, 12),
         child: DecoratedBox(
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(26),
+            color: MyColors.navBackground,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: MyColors.navBorder, width: 1.5),
             boxShadow: [
               BoxShadow(
-                color: MyColors.primaryDark.withValues(alpha: 0.12),
+                color: Colors.black.withValues(alpha: 0.30),
                 blurRadius: 24,
-                offset: const Offset(0, 12),
+                offset: const Offset(0, 8),
               ),
             ],
           ),
@@ -236,14 +240,14 @@ class _HomePageItemState extends State<HomePageItem>
             behaviour: SnakeBarBehaviour.floating,
             snakeShape: SnakeShape.indicator,
             shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-            snakeViewColor: MyColors.primary.withValues(alpha: 0.14),
-            selectedItemColor: MyColors.mainC0lor,
-            unselectedItemColor: const Color(0xFF7E7380),
+            snakeViewColor: MyColors.primary.withValues(alpha: 0.20),
+            selectedItemColor: MyColors.primary,
+            unselectedItemColor: const Color(0xFF6b7280),
             showUnselectedLabels: false,
             showSelectedLabels: false,
-            currentIndex: currentIndex,
+            currentIndex: safeIndex,
             onTap: (index) {
               setState(() => currentIndex = index);
             },

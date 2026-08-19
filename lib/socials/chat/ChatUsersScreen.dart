@@ -57,7 +57,7 @@ class ChatUsersScreenRouteState extends State<ChatUsersScreen> {
         title: const Text(
           "Chats",
           style: TextStyle(
-            color: Color(0xFF23141D),
+            color: Color(0xFF0f172a),
             fontWeight: FontWeight.w700,
           ),
         ),
@@ -222,7 +222,7 @@ class _ChatItem extends StatelessWidget {
                         chats!.partner!.name!,
                         style: const TextStyle(
                           fontSize: 17,
-                          color: Color(0xFF23141D),
+                          color: Color(0xFF0f172a),
                           fontWeight: FontWeight.w600,
                         ),
                       ),

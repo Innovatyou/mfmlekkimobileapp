@@ -121,8 +121,7 @@ class Media {
         canPreview: int.parse(json['can_preview'].toString()) == 0,
         canDownload: int.parse(json['can_download'].toString()) == 0,
         isFree: int.parse(json['is_free'].toString()) == 0,
-        userLiked:
-            bool.fromEnvironment(json['user_liked'].toString().toLowerCase()),
+        userLiked: int.parse(json['user_liked'].toString()) == 1,
         http: true,
         duration: int.parse(json['duration'].toString()),
         commentsCount: int.parse(json['comments_count'].toString()),

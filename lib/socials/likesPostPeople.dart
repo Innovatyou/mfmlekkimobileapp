@@ -95,7 +95,7 @@ class LikesPostPeopleRouteState extends State<LikesPostPeople> {
         // If the server did return a 200 OK response,
         // then parse the JSON.
         print(response.data);
-        dynamic res = jsonDecode(response.data);
+        dynamic res = Utility.decodeResponse(response.data);
         List<Userdata>? userList = parseUsers(res);
         if (page == 0) {
           setItems(userList);
@@ -110,7 +110,7 @@ class LikesPostPeopleRouteState extends State<LikesPostPeople> {
     } catch (exception) {
       // I get no exception here
       print(exception);
-      if (exception is DioError) {
+      if (exception is DioException) {
         print(exception.stackTrace);
         print(exception.error);
         print(exception.message);

@@ -47,7 +47,7 @@ class _RadioPlayerState extends State<RadioPlayer> {
                     margin: EdgeInsets.only(bottom: 15),
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10.0),
-                        color: Colors.blue.withOpacity(0.5)),
+                        color: Colors.blue.withValues(alpha: 0.5)),
                     child: Text(
                       audioplayermodel.currentMedia!.title!,
                       style: TextStyle(

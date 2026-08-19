@@ -36,7 +36,7 @@ class _BookmarksScreenState extends State<BookmarksScreen> {
           t.bookmarks,
           style: const TextStyle(
             fontWeight: FontWeight.w800,
-            color: Color(0xFF23141D),
+            color: Color(0xFF0f172a),
           ),
         ),
       ),

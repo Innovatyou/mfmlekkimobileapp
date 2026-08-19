@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:higherground/utils/Utility.dart';
 
 class MyColors {
   // ── Random avatar / card palette ───────────────────────────────────────────
@@ -13,48 +12,48 @@ class MyColors {
     Colors.pink,
   ];
 
-  // ── Brand colours ─────────────────────────────────────────────────────────
-  static Color primary = Utility.hexToColor('#980c5d');
-  static Color primaryDark = Utility.hexToColor('#6b083f');
-  static Color primaryLight = Utility.hexToColor('#c84b85');
-  static Color primaryVeryLight = Utility.hexToColor('#f2d7e6');
-  static Color mainC0lor = Utility.hexToColor('#980c5d'); // alias kept for back-compat
+  // ── Brand colours (Indigo) ────────────────────────────────────────────────
+  static const Color primary = Color(0xFF6366f1);
+  static const Color primaryDark = Color(0xFF4f46e5);
+  static const Color primaryLight = Color(0xFF818cf8);
+  static const Color primaryVeryLight = Color(0xFFe0e7ff);
+  static Color mainC0lor = const Color(0xFF6366f1); // alias kept for back-compat
 
-  // ── Accent (warm gold) ───────────────────────────────────────────────────
-  static const Color accent = Color(0xFFFFC857);
-  static const Color accentDark = Color(0xFFE6B04A);
-  static const Color accentLight = Color(0xFFFFE1A8);
-  /// Foreground colour to use on top of the accent (gold) background.
+  // ── Accent (amber/gold) ───────────────────────────────────────────────────
+  static const Color accent = Color(0xFFf59e0b);
+  static const Color accentDark = Color(0xFFd97706);
+  static const Color accentLight = Color(0xFFfde68a);
   static const Color accentOnDark = Color(0xFF40220F);
 
   // ── Semantic surface / background ─────────────────────────────────────────
-  /// Light pinkish-neutral page background — used as scaffoldBackgroundColor.
-  static const Color surface = Color(0xFFF7F1F4);
-  /// Pure white — used for card surfaces, inputs, dialogs.
+  static const Color surface = Color(0xFFf0f2f5);
   static const Color cardSurface = Colors.white;
   static Color backgroundColor = Colors.white; // kept for dark-theme compat
 
   // ── Semantic text ─────────────────────────────────────────────────────────
-  /// Near-black primary text — headings, titles, body copy.
-  static const Color textPrimary = Color(0xFF23141D);
-  /// Slightly lighter dark text — secondary body copy.
-  static const Color textBody = Color(0xFF3D2533);
-  /// Mid-tone muted text — subtitles, hints, captions.
-  static const Color textSecondary = Color(0xFF7A6B75);
-  /// Light disabled / placeholder text.
-  static const Color textDisabled = Color(0xFFB09EAA);
+  static const Color textPrimary = Color(0xFF0f172a);
+  static const Color textBody = Color(0xFF1e293b);
+  static const Color textSecondary = Color(0xFF475569);
+  static const Color textDisabled = Color(0xFF94a3b8);
 
   // ── Semantic border ───────────────────────────────────────────────────────
-  /// Default card / input border colour.
-  static const Color border = Color(0xFFE8DDE4);
-  /// Slightly stronger border for focused states.
-  static const Color borderStrong = Color(0xFFC8B4BE);
+  static const Color border = Color(0xFFe2e8f0);
+  static const Color borderStrong = Color(0xFFcbd5e1);
+
+  // ── Semantic status ───────────────────────────────────────────────────────
+  static const Color success = Color(0xFF10b981);
+  static const Color danger = Color(0xFFef4444);
+  static const Color warning = Color(0xFFf59e0b);
+
+  // ── Navigation ────────────────────────────────────────────────────────────
+  static const Color navBackground = Color(0xFF0d1117);
+  static const Color navBorder = Color(0x14ffffff); // rgba(255,255,255,0.08)
 
   // ── Legacy named colours (kept so other screens don't break) ─────────────
   static Color kTextColor = const Color(0xFF0D1333);
-  static Color kBlueColor = const Color(0xFF6E8AFA);
+  static Color kBlueColor = const Color(0xFF6366f1);
   static Color kBestSellerColor = const Color(0xFFFFD073);
-  static Color kGreenColor = const Color(0xFF49CC96);
+  static Color kGreenColor = const Color(0xFF10b981);
 
   static const Color grey_3 = Color(0xFFf7f7f7);
   static const Color grey_5 = Color(0xFFf2f2f2);
@@ -83,7 +82,3 @@ class MyColors {
   static const Color spacer = Color(0xFFF2F2F2);
   static const String fontName = 'WorkSans';
 }
-
-
-
-

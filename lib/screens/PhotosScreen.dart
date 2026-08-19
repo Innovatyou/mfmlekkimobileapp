@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gallery_image_viewer/gallery_image_viewer.dart';
+import 'package:higherground/utils/my_colors.dart';
 import 'package:higherground/utils/rounded_bordered_container.dart';
 import 'package:higherground/widgets/ReadMoreText.dart';
 import 'package:provider/provider.dart';
@@ -24,11 +25,35 @@ class PhotosScreenRouteState extends State<PhotosScreen> {
     return ChangeNotifierProvider(
       create: (context) => PhotosScreensModel(),
       child: Scaffold(
+        backgroundColor: const Color(0xFFF1F4F9),
         appBar: AppBar(
-          title: Text(t.photos),
+          title: Text(
+            t.photos,
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w700,
+              fontSize: 18,
+            ),
+          ),
+          backgroundColor: MyColors.navBackground,
+          surfaceTintColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            icon: Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(Icons.arrow_back_ios_new_rounded,
+                  color: Colors.white, size: 16),
+            ),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
         ),
         body: Padding(
-          padding: EdgeInsets.only(top: 12),
+          padding: const EdgeInsets.only(top: 12),
           child: AudioScreenBody(),
         ),
       ),
@@ -93,7 +118,7 @@ class MediaScreenRouteState extends State<AudioScreenBody> {
       controller: mediaScreensModel.refreshController,
       onRefresh: _onRefresh,
       onLoading: _onLoading,
-      child: (mediaScreensModel.isError == true && items!.length == 0)
+      child: (mediaScreensModel.isError == true && (items?.isEmpty ?? true))
           ? NoitemScreen(
               title: t.oops, message: t.dataloaderror, onClick: _onRefresh)
           : ListView.builder(
