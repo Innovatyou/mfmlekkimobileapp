@@ -115,10 +115,9 @@ class _AuthPageState extends State<AuthPage> {
   // debug dialog removed
 
   void _loginAsGuest() {
-    final bool appLogin =
-        Provider.of<DashboardModel>(context, listen: false)
-                .data['app_login'] as bool? ??
-            false;
+    final bool appLogin = Provider.of<DashboardModel>(context, listen: false)
+            .data['app_login'] as bool? ??
+        false;
     if (appLogin) {
       Navigator.of(context).pushReplacementNamed(HomePage.routeName);
     } else {
@@ -169,7 +168,7 @@ class _AuthPageState extends State<AuthPage> {
         "email": _data.name,
         "password": _data.password,
       };
-      
+
       final response = await Utility.getDio()
           .post(ApiUrl.CREATE_ACCOUNT, data: jsonEncode({"data": data}));
 
@@ -199,6 +198,9 @@ class _AuthPageState extends State<AuthPage> {
   @override
   Widget build(BuildContext context) {
     appManager = Provider.of<AppStateManager>(context);
+    final dashboard = Provider.of<DashboardModel>(context);
+    final appName = dashboard.data['mobile_app_name']?.toString() ?? '';
+    final logoUrl = dashboard.data['mobile_logo_url']?.toString() ?? '';
 
     return Scaffold(
       body: Stack(
@@ -207,8 +209,8 @@ class _AuthPageState extends State<AuthPage> {
             color: MyColors.mainC0lor,
             height: double.infinity,
             child: FlutterLogin(
-              title: t.appname,
-              logo: _logoImage,
+              title: appName.isEmpty ? t.appname : appName,
+              logo: logoUrl.isEmpty ? _logoImage : NetworkImage(logoUrl),
               onLogin: _authUser,
               onSignup: _signupUser,
               loginAfterSignUp: false,
@@ -313,8 +315,7 @@ class _AuthPageState extends State<AuthPage> {
                     borderRadius: inputBorder,
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide:
-                        BorderSide(color: MyColors.mainC0lor, width: 2),
+                    borderSide: BorderSide(color: MyColors.mainC0lor, width: 2),
                     borderRadius: inputBorder,
                   ),
                   errorBorder: OutlineInputBorder(
@@ -408,6 +409,3 @@ class _AuthPageState extends State<AuthPage> {
     );
   }
 }
-
-
-

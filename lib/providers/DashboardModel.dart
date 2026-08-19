@@ -23,6 +23,11 @@ class DashboardModel with ChangeNotifier {
     "features": "",
     "app_login": true,
     "mobile_app_enabled": true,
+    "mobile_app_name": "",
+    "mobile_primary_color": "#6366F1",
+    "mobile_accent_color": "#F59E0B",
+    "mobile_background_color": "#F0F2F5",
+    "mobile_logo_url": "",
     "allow_downloads": false,
     "join_groups": true,
     "post_prayer": true,
@@ -208,6 +213,14 @@ class DashboardModel with ChangeNotifier {
         data['app_login'] = settings['app_login'] == "1";
         data['mobile_app_enabled'] =
             settings['mobile_app_enabled']?.toString() != "0";
+        data['mobile_app_name'] = settings['mobile_app_name'] ?? "";
+        data['mobile_primary_color'] =
+            settings['mobile_primary_color'] ?? "#6366F1";
+        data['mobile_accent_color'] =
+            settings['mobile_accent_color'] ?? "#F59E0B";
+        data['mobile_background_color'] =
+            settings['mobile_background_color'] ?? "#F0F2F5";
+        data['mobile_logo_url'] = settings['mobile_logo_url'] ?? "";
         data['allow_downloads'] = settings['allow_downloads'] == "1";
         data['join_groups'] = settings['join_groups'] == "1";
         data['post_prayer'] = settings['post_prayer'] == "1";

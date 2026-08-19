@@ -72,7 +72,9 @@ class _HomePageItemState extends State<HomePageItem>
     final tabs = <_HomeTab>[];
     tabs.add(_HomeTab(
       icon: LineAwesomeIcons.home,
-      label: t.appname,
+      label: model.data['mobile_app_name']?.toString().isNotEmpty == true
+          ? model.data['mobile_app_name'].toString()
+          : t.appname,
       builder: () => DashboardScreen(),
     ));
     tabs.add(_HomeTab(

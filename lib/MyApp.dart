@@ -38,6 +38,7 @@ import 'package:higherground/notes/NotesEditorScreen.dart';
 import 'package:higherground/notes/NotesListScreen.dart';
 import 'package:higherground/providers/AudioPlayerModel.dart';
 import 'package:higherground/providers/AppStateManager.dart';
+import 'package:higherground/providers/DashboardModel.dart';
 import 'package:higherground/providers/ChatManager.dart';
 import 'package:higherground/providers/events.dart';
 import 'package:higherground/screens/AddPlaylistScreen.dart';
@@ -265,6 +266,21 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     final appState = Provider.of<AppStateManager>(context);
+    final dashboard = Provider.of<DashboardModel>(context);
+    final primary = _brandingColor(
+        dashboard.data['mobile_primary_color'], const Color(0xFF6366F1));
+    final accent = _brandingColor(
+        dashboard.data['mobile_accent_color'], const Color(0xFFF59E0B));
+    final background = _brandingColor(
+        dashboard.data['mobile_background_color'], const Color(0xFFF0F2F5));
+    final lightTheme = appThemeData[AppTheme.White]!.copyWith(
+      colorScheme: appThemeData[AppTheme.White]!.colorScheme.copyWith(
+            primary: primary,
+            secondary: accent,
+            surface: background,
+          ),
+      scaffoldBackgroundColor: background,
+    );
     //appStateManager = Provider.of<AppStateManager>(context);
     final platform = Theme.of(context).platform;
     return RefreshConfiguration(
@@ -279,11 +295,13 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       },
       //autoLoad: true,
       child: MaterialApp(
-        theme: appThemeData[AppTheme.White],
+        theme: lightTheme,
         darkTheme: appThemeData[AppTheme.Dark],
         themeMode: appState.darkMode ? ThemeMode.dark : ThemeMode.light,
         navigatorKey: navigatorKey,
-        title: 'MFM Lekki',
+        title: dashboard.data['mobile_app_name']?.toString().isNotEmpty == true
+            ? dashboard.data['mobile_app_name'].toString()
+            : 'MFM Lekki',
         localizationsDelegates: [
           FlutterQuillLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
@@ -1070,6 +1088,14 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         },
       ),
     );
+  }
+
+  Color _brandingColor(dynamic value, Color fallback) {
+    final hex = value?.toString().replaceFirst('#', '');
+    if (hex == null || !RegExp(r'^[0-9A-Fa-f]{6}$').hasMatch(hex)) {
+      return fallback;
+    }
+    return Color(int.parse('FF$hex', radix: 16));
   }
 }
 
