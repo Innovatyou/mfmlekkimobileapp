@@ -151,10 +151,12 @@ class Userdata {
   }
 
   factory Userdata.fromMap(Map<String, dynamic> data) {
+    final firstname = data['firstname']?.toString() ?? '';
+    final lastname = data['lastname']?.toString() ?? '';
     return Userdata(
-      firstname: data['firstname'],
-      lastname: data['lastname'],
-      name: (data['firstname']) + " " + (data['lastname']),
+      firstname: firstname,
+      lastname: lastname,
+      name: '$firstname $lastname'.trim(),
       email: data['email'],
       aboutme: data['aboutme'],
       coverphoto: data['coverphoto'],
