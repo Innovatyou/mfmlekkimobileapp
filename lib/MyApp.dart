@@ -1107,7 +1107,7 @@ class SplashScreenState extends State<SplashScreen>
   Future<void> _navigate() async {
     if (!mounted) return;
     if (kIsWeb) {
-      Navigator.of(context).pushReplacementNamed(InitPage.routeName);
+      Navigator.of(context).pushReplacementNamed(AuthPage.routeName);
       return;
     }
     final prefs = await SharedPreferences.getInstance();
