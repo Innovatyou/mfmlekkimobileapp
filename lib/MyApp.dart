@@ -37,6 +37,7 @@ import 'package:higherground/notes/NewNoteScreen.dart';
 import 'package:higherground/notes/NotesEditorScreen.dart';
 import 'package:higherground/notes/NotesListScreen.dart';
 import 'package:higherground/providers/AudioPlayerModel.dart';
+import 'package:higherground/providers/AppStateManager.dart';
 import 'package:higherground/providers/ChatManager.dart';
 import 'package:higherground/providers/events.dart';
 import 'package:higherground/screens/AddPlaylistScreen.dart';
