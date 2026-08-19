@@ -35,18 +35,23 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Future<void> loadItems(Userdata userdata) async {
     try {
-      final response = await Utility.getDio().post(ApiUrl.fetchUserSettings,
-          data: jsonEncode({
-            "data": {"email": userdata.email}
-          }));
+      final response = await Utility.getDio().post(
+        ApiUrl.fetchUserSettings,
+        data: jsonEncode({
+          "data": {"email": userdata.email},
+        }),
+      );
       if (response.statusCode == 200) {
         dynamic res = Utility.decodeResponse(response.data);
         if (res == null || res['user'] == null) return;
         setState(() {
           phoneSwitch = int.parse(res['user']['show_phone'].toString()) == 0;
-          dobSwitch = int.parse(res['user']['show_dateofbirth'].toString()) == 0;
-          followSwitch = int.parse(res['user']['notify_follows'].toString()) == 0;
-          commentSwitch = int.parse(res['user']['notify_comments'].toString()) == 0;
+          dobSwitch =
+              int.parse(res['user']['show_dateofbirth'].toString()) == 0;
+          followSwitch =
+              int.parse(res['user']['notify_follows'].toString()) == 0;
+          commentSwitch =
+              int.parse(res['user']['notify_comments'].toString()) == 0;
           likeSwitch = int.parse(res['user']['notify_likes'].toString()) == 0;
           _settingsLoaded = true;
         });
@@ -69,7 +74,7 @@ class _SettingsPageState extends State<SettingsPage> {
             "notify_follows": followSwitch ? 0 : 1,
             "notify_comments": commentSwitch ? 0 : 1,
             "notify_likes": likeSwitch ? 0 : 1,
-          }
+          },
         }),
       );
       Navigator.of(context).pop();
@@ -139,8 +144,12 @@ class _SettingsPageState extends State<SettingsPage> {
   Future<void> deleteAccountServer(String email) async {
     Alerts.showProgressDialog(context, t.processingpleasewait);
     try {
-      final response = await Utility.getDio()
-          .post(ApiUrl.DELETE_ACCOUNT, data: jsonEncode({"data": {"email": email}}));
+      final response = await Utility.getDio().post(
+        ApiUrl.DELETE_ACCOUNT,
+        data: jsonEncode({
+          "data": {"email": email},
+        }),
+      );
       Navigator.of(context).pop();
       if (response.statusCode == 200) {
         Alerts.show(context, "", t.deleteaccountsuccess);
@@ -159,7 +168,10 @@ class _SettingsPageState extends State<SettingsPage> {
   void initState() {
     super.initState();
     Future.microtask(() {
-      final user = Provider.of<AppStateManager>(context, listen: false).userdata;
+      final user = Provider.of<AppStateManager>(
+        context,
+        listen: false,
+      ).userdata;
       if (user != null) {
         loadItems(user);
         if ((user.email ?? '').isNotEmpty) {
@@ -178,9 +190,13 @@ class _SettingsPageState extends State<SettingsPage> {
     userdata = appManager.userdata;
     final dashModel = Provider.of<DashboardModel>(context);
     final website = dashModel.data['website']?.toString() ?? '';
+    final background = dashModel.brandingColor(
+      'mobile_background_color',
+      const Color(0xFFF1F4F9),
+    );
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF1F4F9),
+      backgroundColor: background,
       body: CustomScrollView(
         slivers: [
           _buildAppBar(context),
@@ -194,13 +210,13 @@ class _SettingsPageState extends State<SettingsPage> {
                     userdata: userdata,
                     onTapProfile: () {
                       if (userdata != null) {
-                        Navigator.of(context).pushNamed(
-                          UserProfile.routeName,
-                          arguments: userdata,
-                        );
+                        Navigator.of(
+                          context,
+                        ).pushNamed(UserProfile.routeName, arguments: userdata);
                       } else {
-                        Navigator.of(context)
-                            .pushNamed(AuthPage.routeName, arguments: true);
+                        Navigator.of(
+                          context,
+                        ).pushNamed(AuthPage.routeName, arguments: true);
                       }
                     },
                   ),
@@ -210,70 +226,76 @@ class _SettingsPageState extends State<SettingsPage> {
                     const SizedBox(height: 28),
                     _SectionLabel(label: 'ACCOUNT'),
                     const SizedBox(height: 8),
-                    _SettingsGroup(children: [
-                      _SettingsTile(
-                        icon: LineAwesomeIcons.alternate_sign_out,
-                        iconColor: const Color(0xFFf59e0b),
-                        iconBg: const Color(0xFFFEF3C7),
-                        title: t.logoutfromapp,
-                        onTap: showLogoutAlert,
-                      ),
-                      _SettingsTile(
-                        icon: LineAwesomeIcons.remove_user,
-                        iconColor: const Color(0xFFef4444),
-                        iconBg: const Color(0xFFFEE2E2),
-                        title: t.deletemyaccount,
-                        titleColor: const Color(0xFFef4444),
-                        isLast: true,
-                        onTap: showDeleteAccountAlert,
-                      ),
-                    ]),
+                    _SettingsGroup(
+                      children: [
+                        _SettingsTile(
+                          icon: LineAwesomeIcons.alternate_sign_out,
+                          iconColor: const Color(0xFFf59e0b),
+                          iconBg: const Color(0xFFFEF3C7),
+                          title: t.logoutfromapp,
+                          onTap: showLogoutAlert,
+                        ),
+                        _SettingsTile(
+                          icon: LineAwesomeIcons.remove_user,
+                          iconColor: const Color(0xFFef4444),
+                          iconBg: const Color(0xFFFEE2E2),
+                          title: t.deletemyaccount,
+                          titleColor: const Color(0xFFef4444),
+                          isLast: true,
+                          onTap: showDeleteAccountAlert,
+                        ),
+                      ],
+                    ),
                     const SizedBox(height: 28),
                     _SectionLabel(label: 'PRIVACY'),
                     const SizedBox(height: 8),
-                    _SettingsGroup(children: [
-                      _SwitchTile(
-                        icon: LineAwesomeIcons.phone,
-                        iconColor: const Color(0xFF6366f1),
-                        iconBg: const Color(0xFFe0e7ff),
-                        title: t.phonenumber,
-                        subtitle: t.showmyphonenumber,
-                        value: phoneSwitch,
-                        onChanged: (v) => setState(() => phoneSwitch = v),
-                      ),
-                      _SwitchTile(
-                        icon: LineAwesomeIcons.birthday_cake,
-                        iconColor: const Color(0xFF8b5cf6),
-                        iconBg: const Color(0xFFede9fe),
-                        title: t.dateofbirth,
-                        subtitle: t.showmyfulldateofbirth,
-                        value: dobSwitch,
-                        isLast: true,
-                        onChanged: (v) => setState(() => dobSwitch = v),
-                      ),
-                    ]),
+                    _SettingsGroup(
+                      children: [
+                        _SwitchTile(
+                          icon: LineAwesomeIcons.phone,
+                          iconColor: const Color(0xFF6366f1),
+                          iconBg: const Color(0xFFe0e7ff),
+                          title: t.phonenumber,
+                          subtitle: t.showmyphonenumber,
+                          value: phoneSwitch,
+                          onChanged: (v) => setState(() => phoneSwitch = v),
+                        ),
+                        _SwitchTile(
+                          icon: LineAwesomeIcons.birthday_cake,
+                          iconColor: const Color(0xFF8b5cf6),
+                          iconBg: const Color(0xFFede9fe),
+                          title: t.dateofbirth,
+                          subtitle: t.showmyfulldateofbirth,
+                          value: dobSwitch,
+                          isLast: true,
+                          onChanged: (v) => setState(() => dobSwitch = v),
+                        ),
+                      ],
+                    ),
                     const SizedBox(height: 28),
                     _SectionLabel(label: 'NOTIFICATIONS'),
                     const SizedBox(height: 8),
-                    _SettingsGroup(children: [
-                      _SwitchTile(
-                        icon: LineAwesomeIcons.comment,
-                        iconColor: const Color(0xFF0ea5e9),
-                        iconBg: const Color(0xFFe0f2fe),
-                        title: t.notifymewhenusercommentsonmypost,
-                        value: commentSwitch,
-                        onChanged: (v) => setState(() => commentSwitch = v),
-                      ),
-                      _SwitchTile(
-                        icon: LineAwesomeIcons.heart,
-                        iconColor: const Color(0xFFec4899),
-                        iconBg: const Color(0xFFfce7f3),
-                        title: t.notifymewhenuserlikesmypost,
-                        value: likeSwitch,
-                        isLast: true,
-                        onChanged: (v) => setState(() => likeSwitch = v),
-                      ),
-                    ]),
+                    _SettingsGroup(
+                      children: [
+                        _SwitchTile(
+                          icon: LineAwesomeIcons.comment,
+                          iconColor: const Color(0xFF0ea5e9),
+                          iconBg: const Color(0xFFe0f2fe),
+                          title: t.notifymewhenusercommentsonmypost,
+                          value: commentSwitch,
+                          onChanged: (v) => setState(() => commentSwitch = v),
+                        ),
+                        _SwitchTile(
+                          icon: LineAwesomeIcons.heart,
+                          iconColor: const Color(0xFFec4899),
+                          iconBg: const Color(0xFFfce7f3),
+                          title: t.notifymewhenuserlikesmypost,
+                          value: likeSwitch,
+                          isLast: true,
+                          onChanged: (v) => setState(() => likeSwitch = v),
+                        ),
+                      ],
+                    ),
                     const SizedBox(height: 12),
                     Align(
                       alignment: Alignment.centerRight,
@@ -282,7 +304,10 @@ class _SettingsPageState extends State<SettingsPage> {
                         icon: const Icon(Icons.check_rounded, size: 18),
                         label: Text(t.update),
                         style: FilledButton.styleFrom(
-                          backgroundColor: MyColors.primary,
+                          backgroundColor: dashModel.brandingColor(
+                            'mobile_primary_color',
+                            MyColors.mainC0lor,
+                          ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
@@ -297,82 +322,88 @@ class _SettingsPageState extends State<SettingsPage> {
                   const SizedBox(height: 28),
                   _SectionLabel(label: 'APP EXPERIENCE'),
                   const SizedBox(height: 8),
-                  _SettingsGroup(children: [
-                    _SwitchTile(
-                      icon: LineAwesomeIcons.bible,
-                      iconColor: const Color(0xFF6366f1),
-                      iconBg: const Color(0xFFe0e7ff),
-                      title: t.youversionbible.trim().isEmpty
-                          ? 'You version Bible Reader'
-                          : t.youversionbible,
-                      subtitle: 'Launch verses in You version for a smoother reading flow.',
-                      value: appManager.youversionbible,
-                      isLast: true,
-                      onChanged: (v) => appManager.setYouVersionBiblePreference(v),
-                    ),
-                  ]),
+                  _SettingsGroup(
+                    children: [
+                      _SwitchTile(
+                        icon: LineAwesomeIcons.bible,
+                        iconColor: const Color(0xFF6366f1),
+                        iconBg: const Color(0xFFe0e7ff),
+                        title: t.youversionbible.trim().isEmpty
+                            ? 'You version Bible Reader'
+                            : t.youversionbible,
+                        subtitle:
+                            'Launch verses in You version for a smoother reading flow.',
+                        value: appManager.youversionbible,
+                        isLast: true,
+                        onChanged: (v) =>
+                            appManager.setYouVersionBiblePreference(v),
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: 28),
                   _SectionLabel(label: 'INFORMATION'),
                   const SizedBox(height: 8),
-                  _SettingsGroup(children: [
-                    if (website.isNotEmpty)
-                      _SettingsTile(
-                        icon: LineAwesomeIcons.chrome,
-                        iconColor: const Color(0xFF10b981),
-                        iconBg: const Color(0xFFd1fae5),
-                        title: t.website,
-                        onTap: () => Utility.openBrowserTab(
-                          website,
-                          context: context,
+                  _SettingsGroup(
+                    children: [
+                      if (website.isNotEmpty)
+                        _SettingsTile(
+                          icon: LineAwesomeIcons.chrome,
+                          iconColor: const Color(0xFF10b981),
+                          iconBg: const Color(0xFFd1fae5),
                           title: t.website,
+                          onTap: () => Utility.openBrowserTab(
+                            website,
+                            context: context,
+                            title: t.website,
+                          ),
+                        ),
+                      _SettingsTile(
+                        icon: LineAwesomeIcons.tags,
+                        iconColor: const Color(0xFF6366f1),
+                        iconBg: const Color(0xFFe0e7ff),
+                        title: t.terms,
+                        onTap: () => Utility.openBrowserTab(
+                          ApiUrl.TERMS,
+                          context: context,
+                          title: t.terms,
                         ),
                       ),
-                    _SettingsTile(
-                      icon: LineAwesomeIcons.tags,
-                      iconColor: const Color(0xFF6366f1),
-                      iconBg: const Color(0xFFe0e7ff),
-                      title: t.terms,
-                      onTap: () => Utility.openBrowserTab(
-                        ApiUrl.TERMS,
-                        context: context,
-                        title: t.terms,
-                      ),
-                    ),
-                    _SettingsTile(
-                      icon: LineAwesomeIcons.th_list,
-                      iconColor: const Color(0xFF0ea5e9),
-                      iconBg: const Color(0xFFe0f2fe),
-                      title: t.privacy,
-                      onTap: () => Utility.openBrowserTab(
-                        ApiUrl.PRIVACY,
-                        context: context,
+                      _SettingsTile(
+                        icon: LineAwesomeIcons.th_list,
+                        iconColor: const Color(0xFF0ea5e9),
+                        iconBg: const Color(0xFFe0f2fe),
                         title: t.privacy,
+                        onTap: () => Utility.openBrowserTab(
+                          ApiUrl.PRIVACY,
+                          context: context,
+                          title: t.privacy,
+                        ),
                       ),
-                    ),
-                    _SettingsTile(
-                      icon: LineAwesomeIcons.info,
-                      iconColor: const Color(0xFF8b5cf6),
-                      iconBg: const Color(0xFFede9fe),
-                      title: t.about,
-                      onTap: () => Utility.openBrowserTab(
-                        ApiUrl.ABOUT,
-                        context: context,
+                      _SettingsTile(
+                        icon: LineAwesomeIcons.info,
+                        iconColor: const Color(0xFF8b5cf6),
+                        iconBg: const Color(0xFFede9fe),
                         title: t.about,
+                        onTap: () => Utility.openBrowserTab(
+                          ApiUrl.ABOUT,
+                          context: context,
+                          title: t.about,
+                        ),
                       ),
-                    ),
-                    _SettingsTile(
-                      icon: LineAwesomeIcons.app_store,
-                      iconColor: const Color(0xFF0ea5e9),
-                      iconBg: const Color(0xFFe0f2fe),
-                      title: t.rateapp,
-                      isLast: true,
-                      onTap: () => Utility.openBrowserTab(
-                        "https://play.google.com/store/apps/details?id=org.mfmlekki.app",
-                        context: context,
+                      _SettingsTile(
+                        icon: LineAwesomeIcons.app_store,
+                        iconColor: const Color(0xFF0ea5e9),
+                        iconBg: const Color(0xFFe0f2fe),
                         title: t.rateapp,
+                        isLast: true,
+                        onTap: () => Utility.openBrowserTab(
+                          "https://play.google.com/store/apps/details?id=org.mfmlekki.app",
+                          context: context,
+                          title: t.rateapp,
+                        ),
                       ),
-                    ),
-                  ]),
+                    ],
+                  ),
                   const SizedBox(height: 16),
                   Center(
                     child: Text(
@@ -394,11 +425,20 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   SliverAppBar _buildAppBar(BuildContext context) {
+    final dashboard = Provider.of<DashboardModel>(context, listen: false);
+    final primary = dashboard.brandingColor(
+      'mobile_primary_color',
+      MyColors.mainC0lor,
+    );
+    final header = dashboard.brandingColor(
+      'mobile_header_color',
+      MyColors.primaryDark,
+    );
     return SliverAppBar(
       expandedHeight: 120,
       pinned: true,
       elevation: 0,
-      backgroundColor: MyColors.primary,
+      backgroundColor: primary,
       flexibleSpace: FlexibleSpaceBar(
         titlePadding: const EdgeInsets.fromLTRB(20, 0, 20, 14),
         title: Text(
@@ -411,9 +451,9 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
         ),
         background: Container(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [Color(0xFF4f46e5), Color(0xFF6366f1)],
+              colors: [header, primary],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -421,8 +461,11 @@ class _SettingsPageState extends State<SettingsPage> {
         ),
       ),
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios_new_rounded,
-            color: Colors.white, size: 20),
+        icon: const Icon(
+          Icons.arrow_back_ios_new_rounded,
+          color: Colors.white,
+          size: 20,
+        ),
         onPressed: () => Navigator.of(context).pop(),
       ),
     );
@@ -441,16 +484,32 @@ class _ProfileCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final dashboard = Provider.of<DashboardModel>(context);
+    final surface = dashboard.brandingColor(
+      'mobile_surface_color',
+      Colors.white,
+    );
+    final textColor = dashboard.brandingColor(
+      'mobile_text_color',
+      const Color(0xFF0f172a),
+    );
+    final primary = dashboard.brandingColor(
+      'mobile_primary_color',
+      MyColors.mainC0lor,
+    );
     final bool loggedIn = userdata != null;
     final String name = loggedIn
-        ? '${userdata!.firstname?.toTitleCase() ?? ''} ${userdata!.lastname?.toTitleCase() ?? ''}'.trim()
+        ? '${userdata!.firstname?.toTitleCase() ?? ''} ${userdata!.lastname?.toTitleCase() ?? ''}'
+              .trim()
         : 'Guest';
-    final String sub = loggedIn ? (userdata!.email ?? '') : 'Sign in to access your account';
+    final String sub = loggedIn
+        ? (userdata!.email ?? '')
+        : 'Sign in to access your account';
 
     return Container(
       margin: const EdgeInsets.only(top: 20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: surface,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: const Color(0xFFe2e8f0)),
         boxShadow: const [
@@ -479,8 +538,8 @@ class _ProfileCard extends StatelessWidget {
                     children: [
                       Text(
                         name,
-                        style: const TextStyle(
-                          color: Color(0xFF0f172a),
+                        style: TextStyle(
+                          color: textColor,
                           fontWeight: FontWeight.w700,
                           fontSize: 17,
                         ),
@@ -500,16 +559,18 @@ class _ProfileCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
-                    color: MyColors.primaryVeryLight,
+                    color: primary.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(999),
                   ),
                   child: Text(
                     loggedIn ? 'View Profile' : 'Sign In',
-                    style: const TextStyle(
-                      color: MyColors.primary,
+                    style: TextStyle(
+                      color: primary,
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
                     ),
@@ -576,12 +637,15 @@ class _SectionLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final primary = Provider.of<DashboardModel>(
+      context,
+    ).brandingColor('mobile_primary_color', MyColors.mainC0lor);
     return Padding(
       padding: const EdgeInsets.only(left: 4),
       child: Text(
         label,
-        style: const TextStyle(
-          color: Color(0xFF6366f1),
+        style: TextStyle(
+          color: primary,
           fontSize: 11,
           fontWeight: FontWeight.w700,
           letterSpacing: 1.2,
@@ -601,9 +665,12 @@ class _SettingsGroup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final surface = Provider.of<DashboardModel>(
+      context,
+    ).brandingColor('mobile_surface_color', Colors.white);
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: const Color(0xFFe2e8f0)),
         boxShadow: const [
@@ -614,9 +681,7 @@ class _SettingsGroup extends StatelessWidget {
           ),
         ],
       ),
-      child: Column(
-        children: children,
-      ),
+      child: Column(children: children),
     );
   }
 }
@@ -673,7 +738,8 @@ class _SettingsTile extends StatelessWidget {
                   ),
                   Icon(
                     Icons.chevron_right_rounded,
-                    color: titleColor?.withValues(alpha: 0.5) ??
+                    color:
+                        titleColor?.withValues(alpha: 0.5) ??
                         const Color(0xFFcbd5e1),
                     size: 20,
                   ),
@@ -813,19 +879,27 @@ class _WellnessTile extends StatelessWidget {
 
   static Color _gradeColor(String grade) {
     switch (grade) {
-      case 'high':   return const Color(0xFF10b981);
-      case 'medium': return const Color(0xFF3b82f6);
-      case 'low':    return const Color(0xFFf59e0b);
-      default:       return const Color(0xFF8b5cf6);
+      case 'high':
+        return const Color(0xFF10b981);
+      case 'medium':
+        return const Color(0xFF3b82f6);
+      case 'low':
+        return const Color(0xFFf59e0b);
+      default:
+        return const Color(0xFF8b5cf6);
     }
   }
 
   static String _gradeLabel(String grade) {
     switch (grade) {
-      case 'high':   return 'Active Member';
-      case 'medium': return 'Growing';
-      case 'low':    return 'Developing';
-      default:       return 'Getting Started';
+      case 'high':
+        return 'Active Member';
+      case 'medium':
+        return 'Growing';
+      case 'low':
+        return 'Developing';
+      default:
+        return 'Getting Started';
     }
   }
 
@@ -839,8 +913,9 @@ class _WellnessTile extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           child: InkWell(
             borderRadius: BorderRadius.circular(16),
-            onTap: () => Navigator.of(context)
-                .pushNamed(WellnessScreen.routeName, arguments: email),
+            onTap: () => Navigator.of(
+              context,
+            ).pushNamed(WellnessScreen.routeName, arguments: email),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               decoration: BoxDecoration(
@@ -856,8 +931,11 @@ class _WellnessTile extends StatelessWidget {
                       color: const Color(0xFFfce7f3),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(Icons.favorite_rounded,
-                        color: Color(0xFFec4899), size: 20),
+                    child: const Icon(
+                      Icons.favorite_rounded,
+                      color: Color(0xFFec4899),
+                      size: 20,
+                    ),
                   ),
                   const SizedBox(width: 14),
                   Expanded(
@@ -907,13 +985,18 @@ class _WellnessTile extends StatelessWidget {
                           const Text(
                             'View your engagement & care history',
                             style: TextStyle(
-                                fontSize: 12, color: Color(0xFF94a3b8)),
+                              fontSize: 12,
+                              color: Color(0xFF94a3b8),
+                            ),
                           ),
                       ],
                     ),
                   ),
-                  const Icon(Icons.chevron_right_rounded,
-                      color: Color(0xFFcbd5e1), size: 20),
+                  const Icon(
+                    Icons.chevron_right_rounded,
+                    color: Color(0xFFcbd5e1),
+                    size: 20,
+                  ),
                 ],
               ),
             ),

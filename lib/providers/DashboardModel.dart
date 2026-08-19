@@ -31,6 +31,8 @@ class DashboardModel with ChangeNotifier {
     "mobile_tagline": "Towards global evangelism",
     "mobile_header_color": "#4F46E5",
     "mobile_chat_background_color": "#F8F5F8",
+    "mobile_surface_color": "#FFFFFF",
+    "mobile_text_color": "#0F172A",
     "mobile_logo_url": "",
     "allow_downloads": false,
     "join_groups": true,
@@ -105,6 +107,9 @@ class DashboardModel with ChangeNotifier {
           settings['mobile_header_color'] ?? '#4F46E5';
       data['mobile_chat_background_color'] =
           settings['mobile_chat_background_color'] ?? '#F8F5F8';
+      data['mobile_surface_color'] =
+          settings['mobile_surface_color'] ?? '#FFFFFF';
+      data['mobile_text_color'] = settings['mobile_text_color'] ?? '#0F172A';
       data['mobile_logo_url'] = settings['mobile_logo_url'] ?? '';
       notifyListeners();
     } catch (error) {
@@ -142,15 +147,17 @@ class DashboardModel with ChangeNotifier {
     try {
       print("[DashboardModel] Starting fetchItems...");
 
-      Userdata? userdata =
-          kIsWeb ? null : await SQLiteDbProvider.db.getUserData();
+      Userdata? userdata = kIsWeb
+          ? null
+          : await SQLiteDbProvider.db.getUserData();
       print(
-          "[DashboardModel] User email: ${userdata?.email ?? 'not logged in'}");
+        "[DashboardModel] User email: ${userdata?.email ?? 'not logged in'}",
+      );
 
       print("[DashboardModel] Making POST request to ${ApiUrl.INIT_APP}");
 
       final requestData = {
-        "data": {"email": userdata == null ? "" : userdata.email}
+        "data": {"email": userdata == null ? "" : userdata.email},
       };
       print("[DashboardModel] Request payload: $requestData");
 
@@ -174,7 +181,8 @@ class DashboardModel with ChangeNotifier {
           );
         } catch (e) {
           print(
-              "[DashboardModel] POST request failed, trying GET as fallback...");
+            "[DashboardModel] POST request failed, trying GET as fallback...",
+          );
           print("[DashboardModel] POST Error: $e");
           response = await Utility.getDio().get(
             ApiUrl.INIT_APP,
@@ -184,9 +192,11 @@ class DashboardModel with ChangeNotifier {
       }
 
       print(
-          "[DashboardModel] Response received - Status: ${response.statusCode}");
+        "[DashboardModel] Response received - Status: ${response.statusCode}",
+      );
       print(
-          "[DashboardModel] Response data type: ${response.data.runtimeType}");
+        "[DashboardModel] Response data type: ${response.data.runtimeType}",
+      );
       print("[DashboardModel] Raw response: ${response.data}");
 
       if (response.statusCode == 200) {
@@ -211,11 +221,13 @@ class DashboardModel with ChangeNotifier {
           //      JSON response with a 'settings' key.
           // The app will continue with a built-in default feature set.
           print(
-              "[DashboardModel] ERROR: Failed to parse /initapp response as JSON");
+            "[DashboardModel] ERROR: Failed to parse /initapp response as JSON",
+          );
           print("[DashboardModel] Parse Error: $parseError");
           print("[DashboardModel] Raw response was: ${response.data}");
           print(
-              "[DashboardModel] DIAGNOSIS: Backend /initapp endpoint is not returning valid JSON");
+            "[DashboardModel] DIAGNOSIS: Backend /initapp endpoint is not returning valid JSON",
+          );
           print("[DashboardModel] Using default configuration to proceed...");
 
           // Use a default configuration if backend is not properly implemented
@@ -235,8 +247,8 @@ class DashboardModel with ChangeNotifier {
               "instagram": "",
               "youtube": "",
               "website": "",
-              "donations_link": ""
-            }
+              "donations_link": "",
+            },
           };
         }
 
@@ -245,8 +257,9 @@ class DashboardModel with ChangeNotifier {
         // -----------------------
         if (res is Map &&
             res["errors"] == true &&
-            (res["message"]?.toString().toLowerCase() ?? "")
-                .contains("no api token")) {
+            (res["message"]?.toString().toLowerCase() ?? "").contains(
+              "no api token",
+            )) {
           print("[DashboardModel] API Token validation failed");
           Navigator.of(context!).pushReplacementNamed(AuthPage.routeName);
           return;
@@ -291,6 +304,9 @@ class DashboardModel with ChangeNotifier {
             settings['mobile_header_color'] ?? "#4F46E5";
         data['mobile_chat_background_color'] =
             settings['mobile_chat_background_color'] ?? "#F8F5F8";
+        data['mobile_surface_color'] =
+            settings['mobile_surface_color'] ?? "#FFFFFF";
+        data['mobile_text_color'] = settings['mobile_text_color'] ?? "#0F172A";
         data['mobile_logo_url'] = settings['mobile_logo_url'] ?? "";
         data['allow_downloads'] = settings['allow_downloads'] == "1";
         data['join_groups'] = settings['join_groups'] == "1";
@@ -308,16 +324,19 @@ class DashboardModel with ChangeNotifier {
 
         // Parse all lists safely
         recentmedia = res.containsKey("latest_media") ? parseMedia(res) : [];
-        recentarticles =
-            res.containsKey("latest_articles") ? parseArticles(res) : [];
+        recentarticles = res.containsKey("latest_articles")
+            ? parseArticles(res)
+            : [];
         recentbooks = res.containsKey("latest_books") ? parseBooks(res) : [];
-        upcomingevents =
-            res.containsKey("upcoming_events") ? parseEvents(res) : [];
+        upcomingevents = res.containsKey("upcoming_events")
+            ? parseEvents(res)
+            : [];
         recentmembers = res.containsKey("members") ? parseMembers(res) : [];
 
         print("[DashboardModel] Data parsed successfully");
         print(
-            "[DashboardModel] Media: ${recentmedia.length}, Articles: ${recentarticles.length}, Books: ${recentbooks.length}");
+          "[DashboardModel] Media: ${recentmedia.length}, Articles: ${recentarticles.length}, Books: ${recentbooks.length}",
+        );
 
         setListItems();
         notifyListeners();
@@ -344,7 +363,8 @@ class DashboardModel with ChangeNotifier {
       if (e.response != null) {
         print("[DashboardModel] Backend Response Body: ${e.response?.data}");
         print(
-            "[DashboardModel] Response Content-Type: ${e.response?.headers['content-type']}");
+          "[DashboardModel] Response Content-Type: ${e.response?.headers['content-type']}",
+        );
       }
 
       final String dioType = e.type.toString().toLowerCase();
@@ -358,27 +378,34 @@ class DashboardModel with ChangeNotifier {
           errorText.contains('no address associated with hostname') ||
           errorText.contains('name or service not known')) {
         print(
-            "[DashboardModel] CAUSE: DNS lookup failed - hostname could not be resolved");
+          "[DashboardModel] CAUSE: DNS lookup failed - hostname could not be resolved",
+        );
         print(
-            "[DashboardModel] CHECK: Does the device/emulator have working DNS and internet access?");
+          "[DashboardModel] CHECK: Does the device/emulator have working DNS and internet access?",
+        );
         print(
-            "[DashboardModel] CHECK: Host configured in ApiUrl.BASEURL = ${ApiUrl.BASEURL}");
+          "[DashboardModel] CHECK: Host configured in ApiUrl.BASEURL = ${ApiUrl.BASEURL}",
+        );
       } else if (dioType.contains('connect') &&
           !dioType.contains('connectionerror')) {
         print(
-            "[DashboardModel] CAUSE: Connection timeout - backend server took too long to respond");
+          "[DashboardModel] CAUSE: Connection timeout - backend server took too long to respond",
+        );
         print("[DashboardModel] CHECK: Is the backend server accessible?");
       } else if (dioType.contains('receive')) {
         print(
-            "[DashboardModel] CAUSE: Receive timeout - response took too long");
+          "[DashboardModel] CAUSE: Receive timeout - response took too long",
+        );
       } else if (dioType.contains('send')) {
         print(
-            "[DashboardModel] CAUSE: Send timeout - took too long to send request");
+          "[DashboardModel] CAUSE: Send timeout - took too long to send request",
+        );
       } else if (errorText.contains('certificate') ||
           errorText.contains('ssl')) {
         print("[DashboardModel] CAUSE: SSL certificate validation failed");
         print(
-            "[DashboardModel] CHECK: Server certificate may be invalid, expired, or rejected by the device");
+          "[DashboardModel] CHECK: Server certificate may be invalid, expired, or rejected by the device",
+        );
       } else if (dioType.contains('connectionerror') ||
           dioType.contains('other') ||
           dioType.contains('error') ||
@@ -391,7 +418,8 @@ class DashboardModel with ChangeNotifier {
               e.error.toString().contains("certificate")) {
             print("[DashboardModel] SSL Certificate validation error detected");
             print(
-                "[DashboardModel] SOLUTION: Server may have self-signed certificate or expired certificate");
+              "[DashboardModel] SOLUTION: Server may have self-signed certificate or expired certificate",
+            );
           }
         }
       } else {
@@ -438,18 +466,26 @@ class DashboardModel with ChangeNotifier {
     }*/
 
     if (isFeatureAvailable("hymns")) {
-      listone.add(Items(2,
+      listone.add(
+        Items(
+          2,
           title: t.hymns,
           description: t.hymns,
           photo: "hymns.jpg",
-          icon: FontAwesomeIcons.bookBible.data));
+          icon: FontAwesomeIcons.bookBible.data,
+        ),
+      );
     }
     if (isFeatureAvailable("notes")) {
-      listone.add(Items(3,
+      listone.add(
+        Items(
+          3,
           title: t.notes,
           description: t.notes,
           photo: "notes.jpg",
-          icon: FontAwesomeIcons.list.data));
+          icon: FontAwesomeIcons.list.data,
+        ),
+      );
     }
 
     //list three
@@ -468,38 +504,62 @@ class DashboardModel with ChangeNotifier {
           icon: LineAwesomeIcons.audio_file));
     }*/
     if (isFeatureAvailable("photos")) {
-      listthree.add(Items(3,
+      listthree.add(
+        Items(
+          3,
           title: t.photos,
           description: t.photoshint,
           photo: "",
-          icon: LineAwesomeIcons.photo_video));
+          icon: LineAwesomeIcons.photo_video,
+        ),
+      );
     }
     if (isFeatureAvailable("radio")) {
-      listthree.add(Items(4,
+      listthree.add(
+        Items(
+          4,
           title: t.radiostreams,
           description: t.radiohint,
-          icon: FontAwesomeIcons.radio.data));
+          icon: FontAwesomeIcons.radio.data,
+        ),
+      );
     }
     if (isFeatureAvailable("livestreams")) {
-      listthree.add(Items(5,
+      listthree.add(
+        Items(
+          5,
           title: t.livestreams,
           description: t.livestreamshint,
-          icon: LineAwesomeIcons.television));
+          icon: LineAwesomeIcons.television,
+        ),
+      );
     }
     if (isFeatureAvailable("media")) {
-      listthree.add(Items(6,
+      listthree.add(
+        Items(
+          6,
           title: t.bookmarks,
           description: t.bookmarkshint,
-          icon: LineAwesomeIcons.bookmark));
-      listthree.add(Items(7,
+          icon: LineAwesomeIcons.bookmark,
+        ),
+      );
+      listthree.add(
+        Items(
+          7,
           title: t.playlists,
           description: t.playlistshint,
-          icon: LineAwesomeIcons.play));
+          icon: LineAwesomeIcons.play,
+        ),
+      );
       if (isDownloadsAllowed()) {
-        listthree.add(Items(8,
+        listthree.add(
+          Items(
+            8,
             title: t.downloads,
             description: t.downloadershint,
-            icon: LineAwesomeIcons.download));
+            icon: LineAwesomeIcons.download,
+          ),
+        );
       }
     }
 
@@ -591,8 +651,8 @@ class DashboardModel with ChangeNotifier {
     if (features == null) return true;
 
     // Convert to String safely
-    String featureStr =
-        (features is String ? features : features.toString()).toLowerCase();
+    String featureStr = (features is String ? features : features.toString())
+        .toLowerCase();
 
     // Empty features string means not yet configured — show everything
     if (featureStr.isEmpty) return true;

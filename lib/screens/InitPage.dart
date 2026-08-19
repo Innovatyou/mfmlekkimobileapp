@@ -24,8 +24,10 @@ class InitPageState extends State<InitPage>
       vsync: this,
       duration: const Duration(milliseconds: 700),
     )..forward();
-    _entryFade =
-        CurvedAnimation(parent: _entryController, curve: Curves.easeOut);
+    _entryFade = CurvedAnimation(
+      parent: _entryController,
+      curve: Curves.easeOut,
+    );
 
     Future.delayed(Duration.zero, () {
       Provider.of<DashboardModel>(context, listen: false).setContext(context);
@@ -48,16 +50,28 @@ class InitPageState extends State<InitPage>
         child: Container(
           width: double.infinity,
           height: double.infinity,
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [Color(0xFF4338ca), Color(0xFF6366f1), Color(0xFF818cf8)],
+              colors: [
+                dashboardModel.brandingColor(
+                  'mobile_header_color',
+                  const Color(0xFF4338ca),
+                ),
+                dashboardModel.brandingColor(
+                  'mobile_primary_color',
+                  const Color(0xFF6366f1),
+                ),
+                dashboardModel.brandingColor(
+                  'mobile_accent_color',
+                  const Color(0xFF818cf8),
+                ),
+              ],
             ),
           ),
           child: SafeArea(
-            child:
-                dashboardModel.isError ? _errorView() : _loadingView(),
+            child: dashboardModel.isError ? _errorView() : _loadingView(),
           ),
         ),
       ),
@@ -92,7 +106,9 @@ class InitPageState extends State<InitPage>
         ),
         const SizedBox(height: 40),
         Text(
-          t.appname,
+          dashboardModel.data['mobile_app_name']?.toString().isNotEmpty == true
+              ? dashboardModel.data['mobile_app_name'].toString()
+              : t.appname,
           style: const TextStyle(
             color: Colors.white,
             fontSize: 26,
@@ -176,7 +192,10 @@ class InitPageState extends State<InitPage>
               onPressed: () => dashboardModel.loadItems(),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
-                foregroundColor: const Color(0xFF4338ca),
+                foregroundColor: dashboardModel.brandingColor(
+                  'mobile_primary_color',
+                  const Color(0xFF4338ca),
+                ),
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
@@ -231,15 +250,21 @@ class _RippleLoaderState extends State<_RippleLoader>
     );
 
     _sizeAnims = _controllers
-        .map((c) => Tween<double>(begin: 90, end: 210).animate(
-              CurvedAnimation(parent: c, curve: Curves.easeOut),
-            ))
+        .map(
+          (c) => Tween<double>(
+            begin: 90,
+            end: 210,
+          ).animate(CurvedAnimation(parent: c, curve: Curves.easeOut)),
+        )
         .toList();
 
     _opacityAnims = _controllers
-        .map((c) => Tween<double>(begin: 0.5, end: 0.0).animate(
-              CurvedAnimation(parent: c, curve: Curves.easeOut),
-            ))
+        .map(
+          (c) => Tween<double>(
+            begin: 0.5,
+            end: 0.0,
+          ).animate(CurvedAnimation(parent: c, curve: Curves.easeOut)),
+        )
         .toList();
 
     for (int i = 0; i < _ringCount; i++) {
@@ -278,10 +303,7 @@ class _RippleLoaderState extends State<_RippleLoader>
                     height: size,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      border: Border.all(
-                        color: widget.rippleColor,
-                        width: 1.8,
-                      ),
+                      border: Border.all(color: widget.rippleColor, width: 1.8),
                     ),
                   ),
                 );
@@ -323,9 +345,12 @@ class _BouncingDotsState extends State<_BouncingDots>
     );
 
     _anims = _controllers
-        .map((c) => Tween<double>(begin: 0, end: -11).animate(
-              CurvedAnimation(parent: c, curve: Curves.easeInOut),
-            ))
+        .map(
+          (c) => Tween<double>(
+            begin: 0,
+            end: -11,
+          ).animate(CurvedAnimation(parent: c, curve: Curves.easeInOut)),
+        )
         .toList();
 
     for (int i = 0; i < 3; i++) {

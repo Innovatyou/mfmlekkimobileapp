@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:higherground/i18n/strings.g.dart';
 import 'package:higherground/providers/AppStateManager.dart';
+import 'package:higherground/providers/DashboardModel.dart';
 import 'package:higherground/screens/InitPage.dart';
 import 'package:provider/provider.dart';
 
@@ -56,8 +57,10 @@ class OnboarderPageState extends State<OnboardingPage>
       vsync: this,
       duration: const Duration(milliseconds: 700),
     )..forward();
-    _entryFade =
-        CurvedAnimation(parent: _entryController, curve: Curves.easeOut);
+    _entryFade = CurvedAnimation(
+      parent: _entryController,
+      curve: Curves.easeOut,
+    );
 
     final titles = t.onboardingpagetitles;
     final hints = t.onboardingpagehints;
@@ -95,8 +98,10 @@ class OnboarderPageState extends State<OnboardingPage>
   }
 
   void _finish() {
-    Provider.of<AppStateManager>(context, listen: false)
-        .setUserSeenOnboardingPage(true);
+    Provider.of<AppStateManager>(
+      context,
+      listen: false,
+    ).setUserSeenOnboardingPage(true);
     Navigator.of(context).pushReplacementNamed(InitPage.routeName);
   }
 
@@ -104,11 +109,25 @@ class OnboarderPageState extends State<OnboardingPage>
   Widget build(BuildContext context) {
     if (_pages.isEmpty) return const SizedBox.shrink();
 
-    final accent = _accentColors[_currentPage];
+    final dashboard = Provider.of<DashboardModel>(context);
+    final primary = dashboard.brandingColor(
+      'mobile_primary_color',
+      const Color(0xFF6366f1),
+    );
+    final accent = _currentPage.isEven
+        ? primary
+        : dashboard.brandingColor(
+            'mobile_accent_color',
+            const Color(0xFF8b5cf6),
+          );
+    final background = dashboard.brandingColor(
+      'mobile_header_color',
+      const Color(0xFF0d1117),
+    );
     final isLast = _currentPage == _pages.length - 1;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0d1117),
+      backgroundColor: background,
       body: FadeTransition(
         opacity: _entryFade,
         child: Stack(
@@ -125,7 +144,7 @@ class OnboarderPageState extends State<OnboardingPage>
                 height: 300,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: accent.withValues(alpha:0.10),
+                  color: accent.withValues(alpha: 0.10),
                 ),
               ),
             ),
@@ -140,7 +159,7 @@ class OnboarderPageState extends State<OnboardingPage>
                 height: 220,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: accent.withValues(alpha:0.06),
+                  color: accent.withValues(alpha: 0.06),
                 ),
               ),
             ),
@@ -158,7 +177,7 @@ class OnboarderPageState extends State<OnboardingPage>
                         child: Text(
                           'Skip',
                           style: TextStyle(
-                            color: Colors.white.withValues(alpha:0.45),
+                            color: Colors.white.withValues(alpha: 0.45),
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
                           ),
@@ -172,8 +191,15 @@ class OnboarderPageState extends State<OnboardingPage>
                       controller: _pageController,
                       onPageChanged: _onPageChanged,
                       itemCount: _pages.length,
-                      itemBuilder: (context, index) =>
-                          _buildPage(_pages[index]),
+                      itemBuilder: (context, index) => _buildPage(
+                        _pages[index],
+                        index.isEven
+                            ? primary
+                            : dashboard.brandingColor(
+                                'mobile_accent_color',
+                                const Color(0xFF8b5cf6),
+                              ),
+                      ),
                     ),
                   ),
                   // Bottom navigation
@@ -188,7 +214,7 @@ class OnboarderPageState extends State<OnboardingPage>
     );
   }
 
-  Widget _buildPage(_PageData data) {
+  Widget _buildPage(_PageData data, Color brandColor) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 36),
       child: Column(
@@ -200,14 +226,14 @@ class OnboarderPageState extends State<OnboardingPage>
             width: 136,
             height: 136,
             decoration: BoxDecoration(
-              color: data.iconColor.withValues(alpha:0.13),
+              color: brandColor.withValues(alpha: 0.13),
               borderRadius: BorderRadius.circular(44),
               border: Border.all(
-                color: data.iconColor.withValues(alpha:0.28),
+                color: brandColor.withValues(alpha: 0.28),
                 width: 1.5,
               ),
             ),
-            child: Icon(data.iconData, color: data.iconColor, size: 68),
+            child: Icon(data.iconData, color: brandColor, size: 68),
           ),
           const SizedBox(height: 44),
           // Title
@@ -228,7 +254,7 @@ class OnboarderPageState extends State<OnboardingPage>
             data.hint,
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: Colors.white.withValues(alpha:0.52),
+              color: Colors.white.withValues(alpha: 0.52),
               fontSize: 15,
               height: 1.65,
               fontWeight: FontWeight.w400,
@@ -257,7 +283,7 @@ class OnboarderPageState extends State<OnboardingPage>
                 decoration: BoxDecoration(
                   color: isActive
                       ? accent
-                      : Colors.white.withValues(alpha:0.18),
+                      : Colors.white.withValues(alpha: 0.18),
                   borderRadius: BorderRadius.circular(99),
                 ),
               );

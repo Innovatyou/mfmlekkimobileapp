@@ -269,33 +269,49 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     final appState = Provider.of<AppStateManager>(context);
     final dashboard = Provider.of<DashboardModel>(context);
     final primary = _brandingColor(
-        dashboard.data['mobile_primary_color'], const Color(0xFF6366F1));
+      dashboard.data['mobile_primary_color'],
+      const Color(0xFF6366F1),
+    );
     final accent = _brandingColor(
-        dashboard.data['mobile_accent_color'], const Color(0xFFF59E0B));
+      dashboard.data['mobile_accent_color'],
+      const Color(0xFFF59E0B),
+    );
     final background = _brandingColor(
-        dashboard.data['mobile_background_color'], const Color(0xFFF0F2F5));
+      dashboard.data['mobile_background_color'],
+      const Color(0xFFF0F2F5),
+    );
+    final surface = _brandingColor(
+      dashboard.data['mobile_surface_color'],
+      Colors.white,
+    );
+    final textColor = _brandingColor(
+      dashboard.data['mobile_text_color'],
+      const Color(0xFF0F172A),
+    );
     MyColors.mainC0lor = primary;
     MyColors.navBackground = primary;
     MyColors.kBlueColor = primary;
     final lightTheme = appThemeData[AppTheme.White]!.copyWith(
       colorScheme: appThemeData[AppTheme.White]!.colorScheme.copyWith(
-            primary: primary,
-            secondary: accent,
-            surface: background,
-          ),
+        primary: primary,
+        secondary: accent,
+        surface: surface,
+        onSurface: textColor,
+      ),
       scaffoldBackgroundColor: background,
+      cardColor: surface,
       appBarTheme: appThemeData[AppTheme.White]!.appBarTheme.copyWith(
-            backgroundColor: primary,
-            foregroundColor: Colors.white,
-            iconTheme: const IconThemeData(color: Colors.white),
-          ),
+        backgroundColor: primary,
+        foregroundColor: Colors.white,
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
     );
     final darkTheme = appThemeData[AppTheme.Dark]!.copyWith(
       appBarTheme: appThemeData[AppTheme.Dark]!.appBarTheme.copyWith(
-            backgroundColor: primary,
-            foregroundColor: Colors.white,
-            iconTheme: const IconThemeData(color: Colors.white),
-          ),
+        backgroundColor: primary,
+        foregroundColor: Colors.white,
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
     );
     //appStateManager = Provider.of<AppStateManager>(context);
     final platform = Theme.of(context).platform;
@@ -470,8 +486,9 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           }
 
           if (settings.name == AuthPage.routeName) {
-            bool status =
-                settings.arguments == null ? false : settings.arguments as bool;
+            bool status = settings.arguments == null
+                ? false
+                : settings.arguments as bool;
             return MaterialPageRoute(
               builder: (context) {
                 return AuthPage(status);
