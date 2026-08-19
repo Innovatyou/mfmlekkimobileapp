@@ -194,6 +194,10 @@ class _SettingsPageState extends State<SettingsPage> {
       'mobile_background_color',
       const Color(0xFFF1F4F9),
     );
+    final primary = dashModel.brandingColor(
+      'mobile_primary_color',
+      MyColors.mainC0lor,
+    );
 
     return Scaffold(
       backgroundColor: background,
@@ -253,8 +257,8 @@ class _SettingsPageState extends State<SettingsPage> {
                       children: [
                         _SwitchTile(
                           icon: LineAwesomeIcons.phone,
-                          iconColor: const Color(0xFF6366f1),
-                          iconBg: const Color(0xFFe0e7ff),
+                          iconColor: primary,
+                          iconBg: primary.withValues(alpha: 0.12),
                           title: t.phonenumber,
                           subtitle: t.showmyphonenumber,
                           value: phoneSwitch,
@@ -326,8 +330,8 @@ class _SettingsPageState extends State<SettingsPage> {
                     children: [
                       _SwitchTile(
                         icon: LineAwesomeIcons.bible,
-                        iconColor: const Color(0xFF6366f1),
-                        iconBg: const Color(0xFFe0e7ff),
+                        iconColor: primary,
+                        iconBg: primary.withValues(alpha: 0.12),
                         title: t.youversionbible.trim().isEmpty
                             ? 'You version Bible Reader'
                             : t.youversionbible,
@@ -359,8 +363,8 @@ class _SettingsPageState extends State<SettingsPage> {
                         ),
                       _SettingsTile(
                         icon: LineAwesomeIcons.tags,
-                        iconColor: const Color(0xFF6366f1),
-                        iconBg: const Color(0xFFe0e7ff),
+                        iconColor: primary,
+                        iconBg: primary.withValues(alpha: 0.12),
                         title: t.terms,
                         onTap: () => Utility.openBrowserTab(
                           ApiUrl.TERMS,
@@ -430,10 +434,6 @@ class _SettingsPageState extends State<SettingsPage> {
       'mobile_primary_color',
       MyColors.mainC0lor,
     );
-    final header = dashboard.brandingColor(
-      'mobile_header_color',
-      MyColors.primaryDark,
-    );
     return SliverAppBar(
       expandedHeight: 120,
       pinned: true,
@@ -450,15 +450,7 @@ class _SettingsPageState extends State<SettingsPage> {
             letterSpacing: -0.3,
           ),
         ),
-        background: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [header, primary],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-        ),
+        background: ColoredBox(color: primary),
       ),
       leading: IconButton(
         icon: const Icon(
@@ -788,6 +780,9 @@ class _SwitchTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final primary = Provider.of<DashboardModel>(
+      context,
+    ).brandingColor('mobile_primary_color', MyColors.mainC0lor);
     return Column(
       children: [
         Padding(
@@ -825,7 +820,7 @@ class _SwitchTile extends StatelessWidget {
               const SizedBox(width: 8),
               CupertinoSwitch(
                 value: value,
-                activeTrackColor: MyColors.primary,
+                activeTrackColor: primary,
                 onChanged: onChanged,
               ),
             ],
