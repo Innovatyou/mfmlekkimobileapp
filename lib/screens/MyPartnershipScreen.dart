@@ -22,7 +22,8 @@ Color _hexColor(String? hex) {
   return MyColors.primary;
 }
 
-String _freqLabel(String f) => const {
+String _freqLabel(String f) =>
+    const {
       'one-time': 'One-Time',
       'monthly': 'Monthly',
       'quarterly': 'Quarterly',
@@ -74,12 +75,24 @@ class _MyPartnershipScreenState extends State<MyPartnershipScreen> {
             .whereType<Map<String, dynamic>>()
             .map(Partnership.fromJson)
             .toList();
-        if (mounted) setState(() { _partnerships = list; _loading = false; });
+        if (mounted)
+          setState(() {
+            _partnerships = list;
+            _loading = false;
+          });
       } else {
-        if (mounted) setState(() { _loading = false; _error = true; });
+        if (mounted)
+          setState(() {
+            _loading = false;
+            _error = true;
+          });
       }
     } catch (_) {
-      if (mounted) setState(() { _loading = false; _error = true; });
+      if (mounted)
+        setState(() {
+          _loading = false;
+          _error = true;
+        });
     }
   }
 
@@ -133,8 +146,7 @@ class _MyPartnershipScreenState extends State<MyPartnershipScreen> {
                     : _partnerships.isEmpty
                         ? _buildEmpty()
                         : ListView(
-                            padding:
-                                const EdgeInsets.fromLTRB(14, 14, 14, 32),
+                            padding: const EdgeInsets.fromLTRB(14, 14, 14, 32),
                             children: _partnerships
                                 .map((p) => _PartnershipCard(
                                       partnership: p,
@@ -171,8 +183,7 @@ class _MyPartnershipScreenState extends State<MyPartnershipScreen> {
             const Text(
               'Create an account or sign in to track your partnership history.',
               textAlign: TextAlign.center,
-              style:
-                  TextStyle(color: MyColors.textSecondary, fontSize: 13),
+              style: TextStyle(color: MyColors.textSecondary, fontSize: 13),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
@@ -237,14 +248,13 @@ class _MyPartnershipScreenState extends State<MyPartnershipScreen> {
             const Text(
               'You haven\'t made any partnership pledges yet. Head back to browse available tiers.',
               textAlign: TextAlign.center,
-              style:
-                  TextStyle(color: MyColors.textSecondary, fontSize: 13),
+              style: TextStyle(color: MyColors.textSecondary, fontSize: 13),
             ),
             const SizedBox(height: 20),
             OutlinedButton(
               style: OutlinedButton.styleFrom(
                 foregroundColor: MyColors.primary,
-                side: const BorderSide(color: MyColors.primary),
+                side: BorderSide(color: MyColors.primary),
                 minimumSize: const Size(160, 46),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10)),
@@ -293,9 +303,8 @@ class _PartnershipCard extends StatelessWidget {
     final progress = partnership.pledgeAmount > 0
         ? (partnership.paidAmount / partnership.pledgeAmount).clamp(0.0, 1.0)
         : 0.0;
-    final remaining =
-        (partnership.pledgeAmount - partnership.paidAmount)
-            .clamp(0.0, double.infinity);
+    final remaining = (partnership.pledgeAmount - partnership.paidAmount)
+        .clamp(0.0, double.infinity);
     final isActionable =
         partnership.status == 'active' || partnership.status == 'pending';
 
@@ -363,15 +372,18 @@ class _PartnershipCard extends StatelessWidget {
                       // Amounts row
                       Row(
                         children: [
-                          _amountItem('Pledged',
+                          _amountItem(
+                              'Pledged',
                               '${partnership.currency} ${fmt.format(partnership.pledgeAmount)}',
                               MyColors.textBody),
                           const SizedBox(width: 20),
-                          _amountItem('Paid',
+                          _amountItem(
+                              'Paid',
                               '${partnership.currency} ${fmt.format(partnership.paidAmount)}',
                               const Color(0xFF059669)),
                           const SizedBox(width: 20),
-                          _amountItem('Remaining',
+                          _amountItem(
+                              'Remaining',
                               '${partnership.currency} ${fmt.format(remaining)}',
                               partnership.status == 'overdue'
                                   ? const Color(0xFFDC2626)
@@ -413,15 +425,14 @@ class _PartnershipCard extends StatelessWidget {
                               child: OutlinedButton.icon(
                                 style: OutlinedButton.styleFrom(
                                   foregroundColor: MyColors.primary,
-                                  side: const BorderSide(
-                                      color: MyColors.primary),
+                                  side:
+                                      const BorderSide(color: MyColors.primary),
                                   minimumSize: const Size(0, 38),
                                   shape: RoundedRectangleBorder(
-                                      borderRadius:
-                                          BorderRadius.circular(8)),
+                                      borderRadius: BorderRadius.circular(8)),
                                 ),
-                                icon: const Icon(Icons.history_rounded,
-                                    size: 15),
+                                icon:
+                                    const Icon(Icons.history_rounded, size: 15),
                                 label: const Text('View Payments',
                                     style: TextStyle(
                                         fontSize: 12,
@@ -441,8 +452,7 @@ class _PartnershipCard extends StatelessWidget {
                                   minimumSize: const Size(0, 38),
                                   elevation: 0,
                                   shape: RoundedRectangleBorder(
-                                      borderRadius:
-                                          BorderRadius.circular(8)),
+                                      borderRadius: BorderRadius.circular(8)),
                                 ),
                                 icon:
                                     const Icon(Icons.payment_rounded, size: 15),
@@ -471,8 +481,7 @@ class _PartnershipCard extends StatelessWidget {
                             icon: const Icon(Icons.history_rounded, size: 15),
                             label: const Text('View Payment History',
                                 style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600)),
+                                    fontSize: 12, fontWeight: FontWeight.w600)),
                             onPressed: () => _viewPayments(context),
                           ),
                         ),
@@ -493,14 +502,11 @@ class _PartnershipCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label,
-            style:
-                const TextStyle(fontSize: 10, color: MyColors.textDisabled)),
+            style: const TextStyle(fontSize: 10, color: MyColors.textDisabled)),
         const SizedBox(height: 2),
         Text(value,
             style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: valueColor)),
+                fontSize: 12, fontWeight: FontWeight.w700, color: valueColor)),
       ],
     );
   }
@@ -515,11 +521,7 @@ class _StatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (bg, fg, label) = switch (status) {
-      'active' => (
-          const Color(0xFFD1FAE5),
-          const Color(0xFF065F46),
-          'Active'
-        ),
+      'active' => (const Color(0xFFD1FAE5), const Color(0xFF065F46), 'Active'),
       'pending' => (
           const Color(0xFFFEF3C7),
           const Color(0xFFB45309),
@@ -547,8 +549,8 @@ class _StatusBadge extends StatelessWidget {
       decoration:
           BoxDecoration(color: bg, borderRadius: BorderRadius.circular(6)),
       child: Text(label,
-          style: TextStyle(
-              fontSize: 11, fontWeight: FontWeight.w600, color: fg)),
+          style:
+              TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: fg)),
     );
   }
 }

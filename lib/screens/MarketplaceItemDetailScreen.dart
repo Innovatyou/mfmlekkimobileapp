@@ -71,15 +71,14 @@ class _MarketplaceItemDetailScreenState
             'Are you sure you want to delete this listing? This cannot be undone.'),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('Cancel')),
+              onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: MyColors.danger),
             onPressed: () async {
               Navigator.pop(ctx);
-              final ok = await Provider.of<MarketplaceModel>(context,
-                      listen: false)
-                  .deleteListing(item.id);
+              final ok =
+                  await Provider.of<MarketplaceModel>(context, listen: false)
+                      .deleteListing(item.id);
               if (ok && mounted) Navigator.pop(context);
             },
             child: const Text('Delete'),
@@ -114,8 +113,7 @@ class _MarketplaceItemDetailScreenState
             key: formKey,
             child: Column(mainAxisSize: MainAxisSize.min, children: [
               const Text('Send Inquiry',
-                  style:
-                      TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
+                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
               const SizedBox(height: 16),
               _sheetField(nameCtrl, 'Your Name *', TextInputType.name,
                   validator: (v) => (v == null || v.trim().isEmpty)
@@ -143,14 +141,14 @@ class _MarketplaceItemDetailScreenState
                       padding: const EdgeInsets.symmetric(vertical: 14)),
                   onPressed: () async {
                     if (!formKey.currentState!.validate()) return;
-                    final ok = await Provider.of<MarketplaceModel>(ctx,
-                            listen: false)
-                        .submitInquiry(
-                            itemId: item.id,
-                            name: nameCtrl.text.trim(),
-                            email: emailCtrl.text.trim(),
-                            phone: phoneCtrl.text.trim(),
-                            message: msgCtrl.text.trim());
+                    final ok =
+                        await Provider.of<MarketplaceModel>(ctx, listen: false)
+                            .submitInquiry(
+                                itemId: item.id,
+                                name: nameCtrl.text.trim(),
+                                email: emailCtrl.text.trim(),
+                                phone: phoneCtrl.text.trim(),
+                                message: msgCtrl.text.trim());
                     if (mounted) Navigator.pop(ctx);
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                       content: Text(ok
@@ -170,8 +168,8 @@ class _MarketplaceItemDetailScreenState
     );
   }
 
-  TextFormField _sheetField(TextEditingController ctrl, String label,
-      TextInputType type,
+  TextFormField _sheetField(
+      TextEditingController ctrl, String label, TextInputType type,
       {String? Function(String?)? validator}) {
     return TextFormField(
       controller: ctrl,
@@ -195,8 +193,7 @@ class _MarketplaceItemDetailScreenState
             borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
         focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide:
-                const BorderSide(color: MyColors.primary, width: 1.5)),
+            borderSide: BorderSide(color: MyColors.primary, width: 1.5)),
       );
 
   @override
@@ -224,7 +221,9 @@ class _MarketplaceItemDetailScreenState
         final own = _isOwn(item);
         final photoUrls = item.photos.isNotEmpty
             ? item.photos.map((p) => p.url).toList()
-            : (item.coverImageUrl.isNotEmpty ? [item.coverImageUrl] : <String>[]);
+            : (item.coverImageUrl.isNotEmpty
+                ? [item.coverImageUrl]
+                : <String>[]);
 
         return CustomScrollView(
           slivers: [
@@ -233,8 +232,7 @@ class _MarketplaceItemDetailScreenState
               expandedHeight: photoUrls.isNotEmpty ? 280 : 0,
               backgroundColor: MyColors.surface,
               surfaceTintColor: Colors.transparent,
-              iconTheme:
-                  const IconThemeData(color: MyColors.textPrimary),
+              iconTheme: const IconThemeData(color: MyColors.textPrimary),
               actions: [
                 IconButton(
                   icon: const Icon(Icons.share_outlined),
@@ -293,8 +291,7 @@ class _MarketplaceItemDetailScreenState
                         const SizedBox(width: 4),
                         Text(item.location!,
                             style: const TextStyle(
-                                fontSize: 14,
-                                color: MyColors.textSecondary)),
+                                fontSize: 14, color: MyColors.textSecondary)),
                       ]),
                     ],
 
@@ -331,13 +328,11 @@ class _MarketplaceItemDetailScreenState
                           style: FilledButton.styleFrom(
                               backgroundColor: MyColors.primary,
                               shape: RoundedRectangleBorder(
-                                  borderRadius:
-                                      BorderRadius.circular(12))),
+                                  borderRadius: BorderRadius.circular(12))),
                           onPressed: () => _openInquirySheet(item),
                           child: const Text('Send Inquiry',
                               style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700)),
+                                  fontSize: 16, fontWeight: FontWeight.w700)),
                         ),
                       ),
 
@@ -346,18 +341,14 @@ class _MarketplaceItemDetailScreenState
                       Row(children: [
                         Expanded(
                           child: OutlinedButton.icon(
-                            icon: const Icon(Icons.edit_outlined,
-                                size: 18),
+                            icon: const Icon(Icons.edit_outlined, size: 18),
                             label: const Text('Edit'),
                             style: OutlinedButton.styleFrom(
                               foregroundColor: MyColors.primary,
-                              side: const BorderSide(
-                                  color: MyColors.primary),
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 12),
+                              side: const BorderSide(color: MyColors.primary),
+                              padding: const EdgeInsets.symmetric(vertical: 12),
                               shape: RoundedRectangleBorder(
-                                  borderRadius:
-                                      BorderRadius.circular(12)),
+                                  borderRadius: BorderRadius.circular(12)),
                             ),
                             onPressed: () {
                               Navigator.pushNamed(
@@ -377,16 +368,13 @@ class _MarketplaceItemDetailScreenState
                         const SizedBox(width: 12),
                         Expanded(
                           child: FilledButton.icon(
-                            icon: const Icon(Icons.delete_outline,
-                                size: 18),
+                            icon: const Icon(Icons.delete_outline, size: 18),
                             label: const Text('Delete'),
                             style: FilledButton.styleFrom(
                               backgroundColor: MyColors.danger,
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 12),
+                              padding: const EdgeInsets.symmetric(vertical: 12),
                               shape: RoundedRectangleBorder(
-                                  borderRadius:
-                                      BorderRadius.circular(12)),
+                                  borderRadius: BorderRadius.circular(12)),
                             ),
                             onPressed: () => _confirmDelete(item),
                           ),
@@ -413,12 +401,11 @@ class _MarketplaceItemDetailScreenState
             imageUrl: urls[i],
             fit: BoxFit.cover,
             width: double.infinity,
-            placeholder: (_, __) =>
-                Container(color: const Color(0xFFF1F5F9)),
-            errorWidget: (_, __, ___) =>
-                Container(color: const Color(0xFFF1F5F9),
-                    child: const Icon(Icons.image_rounded,
-                        color: Color(0xFFCBD5E1), size: 48)),
+            placeholder: (_, __) => Container(color: const Color(0xFFF1F5F9)),
+            errorWidget: (_, __, ___) => Container(
+                color: const Color(0xFFF1F5F9),
+                child: const Icon(Icons.image_rounded,
+                    color: Color(0xFFCBD5E1), size: 48)),
           ),
         ),
         if (urls.length > 1)
@@ -476,8 +463,7 @@ class _MarketplaceItemDetailScreenState
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
       decoration: BoxDecoration(
-          color: c['bg'] as Color,
-          borderRadius: BorderRadius.circular(20)),
+          color: c['bg'] as Color, borderRadius: BorderRadius.circular(20)),
       child: Text(c['label'] as String,
           style: TextStyle(
               fontSize: 12,
@@ -503,22 +489,17 @@ class _MarketplaceItemDetailScreenState
     return Text(
       '$currency${NumberFormat('#,##0.00').format(item.price)}',
       style: const TextStyle(
-          fontSize: 24,
-          fontWeight: FontWeight.w900,
-          color: MyColors.primary),
+          fontSize: 24, fontWeight: FontWeight.w900, color: MyColors.primary),
     );
   }
 
   Widget _chip(String label, Color fg, Color bg) => Container(
-        padding:
-            const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-        decoration: BoxDecoration(
-            color: bg, borderRadius: BorderRadius.circular(20)),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+        decoration:
+            BoxDecoration(color: bg, borderRadius: BorderRadius.circular(20)),
         child: Text(label,
             style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: fg)),
+                fontSize: 12, fontWeight: FontWeight.w600, color: fg)),
       );
 
   Widget _buildSellerCard(MarketplaceItem item) {
@@ -557,8 +538,7 @@ class _MarketplaceItemDetailScreenState
                         fontWeight: FontWeight.w700,
                         fontSize: 15,
                         color: MyColors.textPrimary)),
-                if (item.sellerEmail != null &&
-                    item.sellerEmail!.isNotEmpty)
+                if (item.sellerEmail != null && item.sellerEmail!.isNotEmpty)
                   Text(item.sellerEmail!,
                       style: const TextStyle(
                           fontSize: 12, color: MyColors.textSecondary)),
@@ -567,19 +547,15 @@ class _MarketplaceItemDetailScreenState
           ),
           if (item.sellerPhone != null && item.sellerPhone!.isNotEmpty)
             IconButton(
-              icon: const Icon(Icons.phone_outlined,
-                  color: MyColors.primary),
+              icon: const Icon(Icons.phone_outlined, color: MyColors.primary),
               tooltip: 'Call seller',
-              onPressed: () =>
-                  _launch('tel:${item.sellerPhone}'),
+              onPressed: () => _launch('tel:${item.sellerPhone}'),
             ),
           if (item.sellerEmail != null && item.sellerEmail!.isNotEmpty)
             IconButton(
-              icon: const Icon(Icons.email_outlined,
-                  color: MyColors.primary),
+              icon: const Icon(Icons.email_outlined, color: MyColors.primary),
               tooltip: 'Email seller',
-              onPressed: () =>
-                  _launch('mailto:${item.sellerEmail}'),
+              onPressed: () => _launch('mailto:${item.sellerEmail}'),
             ),
         ],
       ),
@@ -610,12 +586,9 @@ class _ExpandableTextState extends State<_ExpandableText> {
           Text(
             widget.text,
             maxLines: _expanded ? null : 5,
-            overflow:
-                _expanded ? TextOverflow.visible : TextOverflow.ellipsis,
+            overflow: _expanded ? TextOverflow.visible : TextOverflow.ellipsis,
             style: const TextStyle(
-                fontSize: 14,
-                color: MyColors.textBody,
-                height: 1.55),
+                fontSize: 14, color: MyColors.textBody, height: 1.55),
           ),
           if (widget.text.length > 200) ...[
             const SizedBox(height: 4),

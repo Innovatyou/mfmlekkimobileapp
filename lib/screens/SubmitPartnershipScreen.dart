@@ -138,8 +138,8 @@ class _SubmitPartnershipScreenState extends State<SubmitPartnershipScreen> {
         endpoint = ApiUrl.SUBMIT_PARTNERSHIP_PLEDGE;
       }
 
-      final response =
-          await (await Utility.getAuthenticatedDio()).post(endpoint, data: payload);
+      final response = await (await Utility.getAuthenticatedDio())
+          .post(endpoint, data: payload);
 
       final res = response.data is String
           ? jsonDecode(response.data as String)
@@ -196,9 +196,7 @@ class _SubmitPartnershipScreenState extends State<SubmitPartnershipScreen> {
                     ? 'Your changes have been submitted and are pending re-approval. We\'ll review them shortly.'
                     : 'Your partnership application has been submitted for review. We\'ll be in touch soon.',
                 style: const TextStyle(
-                    fontSize: 13.5,
-                    color: MyColors.textSecondary,
-                    height: 1.5),
+                    fontSize: 13.5, color: MyColors.textSecondary, height: 1.5),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 22),
@@ -218,8 +216,8 @@ class _SubmitPartnershipScreenState extends State<SubmitPartnershipScreen> {
                     Navigator.of(context).pop();
                   },
                   child: const Text('Done',
-                      style: TextStyle(
-                          fontSize: 15, fontWeight: FontWeight.w600)),
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
                 ),
               ),
             ],
@@ -235,8 +233,7 @@ class _SubmitPartnershipScreenState extends State<SubmitPartnershipScreen> {
         content: Text(msg),
         backgroundColor: MyColors.danger,
         behavior: SnackBarBehavior.floating,
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     );
   }
@@ -358,7 +355,8 @@ class _SubmitPartnershipScreenState extends State<SubmitPartnershipScreen> {
                             return 'Amount is required';
                           }
                           final n = double.tryParse(v.trim());
-                          if (n == null || n <= 0) return 'Enter a valid amount';
+                          if (n == null || n <= 0)
+                            return 'Enter a valid amount';
                           return null;
                         },
                       ),
@@ -398,8 +396,8 @@ class _SubmitPartnershipScreenState extends State<SubmitPartnershipScreen> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(
-                          color: MyColors.primary, width: 1.5),
+                      borderSide:
+                          const BorderSide(color: MyColors.primary, width: 1.5),
                     ),
                     contentPadding: const EdgeInsets.symmetric(
                         horizontal: 14, vertical: 12),
@@ -422,8 +420,7 @@ class _SubmitPartnershipScreenState extends State<SubmitPartnershipScreen> {
                   child: _submitting
                       ? const CupertinoActivityIndicator(
                           color: Colors.white, radius: 10)
-                      : Text(
-                          _isEdit ? 'Update Pledge' : 'Submit Pledge',
+                      : Text(_isEdit ? 'Update Pledge' : 'Submit Pledge',
                           style: const TextStyle(
                               fontSize: 15, fontWeight: FontWeight.w600)),
                 ),
@@ -475,8 +472,7 @@ class _SubmitPartnershipScreenState extends State<SubmitPartnershipScreen> {
       style: const TextStyle(fontSize: 14, color: MyColors.textPrimary),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle:
-            const TextStyle(color: MyColors.textDisabled, fontSize: 14),
+        hintStyle: const TextStyle(color: MyColors.textDisabled, fontSize: 14),
         prefixIcon: Icon(icon, size: 18, color: MyColors.textDisabled),
         filled: true,
         fillColor: const Color(0xFFF8FAFC),
@@ -490,7 +486,7 @@ class _SubmitPartnershipScreenState extends State<SubmitPartnershipScreen> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: MyColors.primary, width: 1.5),
+          borderSide: BorderSide(color: MyColors.primary, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
@@ -538,8 +534,7 @@ class _TierPicker extends StatelessWidget {
         GestureDetector(
           onTap: () => onChanged(null),
           child: Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
               color: selected == null
                   ? MyColors.primaryVeryLight
@@ -568,8 +563,7 @@ class _TierPicker extends StatelessWidget {
           return GestureDetector(
             onTap: () => onChanged(t),
             child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
                 color: isSelected
                     ? color.withValues(alpha: 0.12)
@@ -604,9 +598,7 @@ class _CurrencyPicker extends StatelessWidget {
   final ValueChanged<String> onChanged;
 
   const _CurrencyPicker(
-      {required this.value,
-      required this.currencies,
-      required this.onChanged});
+      {required this.value, required this.currencies, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -648,9 +640,7 @@ class _FrequencyPicker extends StatelessWidget {
   final ValueChanged<String> onChanged;
 
   const _FrequencyPicker(
-      {required this.value,
-      required this.options,
-      required this.onChanged});
+      {required this.value, required this.options, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -663,8 +653,7 @@ class _FrequencyPicker extends StatelessWidget {
         return GestureDetector(
           onTap: () => onChanged(key),
           child: Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
             decoration: BoxDecoration(
               color: isSelected
                   ? MyColors.primaryVeryLight
@@ -680,8 +669,7 @@ class _FrequencyPicker extends StatelessWidget {
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
-                color:
-                    isSelected ? MyColors.primary : MyColors.textSecondary,
+                color: isSelected ? MyColors.primary : MyColors.textSecondary,
               ),
             ),
           ),

@@ -24,11 +24,7 @@ const List<Map<String, dynamic>> _kCategories = [
     'label': 'Financial',
     'icon': Icons.account_balance_wallet_rounded
   },
-  {
-    'value': 'spiritual',
-    'label': 'Spiritual',
-    'icon': Icons.menu_book_rounded
-  },
+  {'value': 'spiritual', 'label': 'Spiritual', 'icon': Icons.menu_book_rounded},
   {
     'value': 'relationship',
     'label': 'Relationships',
@@ -47,8 +43,7 @@ class SubmitCounselingScreen extends StatefulWidget {
   const SubmitCounselingScreen({Key? key}) : super(key: key);
 
   @override
-  State<SubmitCounselingScreen> createState() =>
-      _SubmitCounselingScreenState();
+  State<SubmitCounselingScreen> createState() => _SubmitCounselingScreenState();
 }
 
 class _SubmitCounselingScreenState extends State<SubmitCounselingScreen> {
@@ -131,8 +126,7 @@ class _SubmitCounselingScreenState extends State<SubmitCounselingScreen> {
         content: Text(message),
         backgroundColor: MyColors.danger,
         behavior: SnackBarBehavior.floating,
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         margin: const EdgeInsets.all(12),
       ),
     );
@@ -143,8 +137,7 @@ class _SubmitCounselingScreenState extends State<SubmitCounselingScreen> {
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         contentPadding: const EdgeInsets.fromLTRB(24, 28, 24, 16),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -179,9 +172,7 @@ class _SubmitCounselingScreenState extends State<SubmitCounselingScreen> {
               'You can track the status under "My Cases".',
               textAlign: TextAlign.center,
               style: TextStyle(
-                  color: MyColors.textDisabled,
-                  fontSize: 12.5,
-                  height: 1.4),
+                  color: MyColors.textDisabled, fontSize: 12.5, height: 1.4),
             ),
           ],
         ),
@@ -217,9 +208,8 @@ class _SubmitCounselingScreenState extends State<SubmitCounselingScreen> {
       labelText: label,
       hintText: hint,
       hintStyle: const TextStyle(color: MyColors.textDisabled, fontSize: 13),
-      prefixIcon: icon != null
-          ? Icon(icon, color: MyColors.primary, size: 20)
-          : null,
+      prefixIcon:
+          icon != null ? Icon(icon, color: MyColors.primary, size: 20) : null,
       filled: true,
       fillColor: const Color(0xFFF8F9FA),
       border: OutlineInputBorder(
@@ -232,7 +222,7 @@ class _SubmitCounselingScreenState extends State<SubmitCounselingScreen> {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: MyColors.primary, width: 1.5),
+        borderSide: BorderSide(color: MyColors.primary, width: 1.5),
       ),
     );
   }
@@ -327,20 +317,19 @@ class _SubmitCounselingScreenState extends State<SubmitCounselingScreen> {
             children: _kCategories.map((cat) {
               final selected = _selectedCategory == cat['value'];
               return GestureDetector(
-                onTap: () => setState(
-                    () => _selectedCategory = cat['value'] as String),
+                onTap: () =>
+                    setState(() => _selectedCategory = cat['value'] as String),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 150),
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 12, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
                     color: selected
                         ? MyColors.primaryVeryLight
                         : const Color(0xFFF8F9FA),
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
-                      color:
-                          selected ? MyColors.primary : MyColors.border,
+                      color: selected ? MyColors.primary : MyColors.border,
                       width: selected ? 1.5 : 1,
                     ),
                   ),
@@ -359,12 +348,10 @@ class _SubmitCounselingScreenState extends State<SubmitCounselingScreen> {
                         cat['label'] as String,
                         style: TextStyle(
                           fontSize: 13,
-                          fontWeight: selected
-                              ? FontWeight.w600
-                              : FontWeight.w400,
-                          color: selected
-                              ? MyColors.primary
-                              : MyColors.textBody,
+                          fontWeight:
+                              selected ? FontWeight.w600 : FontWeight.w400,
+                          color:
+                              selected ? MyColors.primary : MyColors.textBody,
                         ),
                       ),
                     ],
@@ -425,16 +412,15 @@ class _SubmitCounselingScreenState extends State<SubmitCounselingScreen> {
           backgroundColor: MyColors.primary,
           foregroundColor: Colors.white,
           disabledBackgroundColor: MyColors.primaryLight,
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
         onPressed: _submitting ? null : _submit,
         child: _submitting
             ? const SizedBox(
                 width: 20,
                 height: 20,
-                child:
-                    CupertinoActivityIndicator(color: Colors.white),
+                child: CupertinoActivityIndicator(color: Colors.white),
               )
             : const Row(
                 mainAxisSize: MainAxisSize.min,
@@ -443,8 +429,7 @@ class _SubmitCounselingScreenState extends State<SubmitCounselingScreen> {
                   SizedBox(width: 8),
                   Text(
                     'Submit Confidentially',
-                    style: TextStyle(
-                        fontWeight: FontWeight.w600, fontSize: 15),
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
                   ),
                 ],
               ),

@@ -87,7 +87,8 @@ class _PartnershipPaymentScreenState extends State<PartnershipPaymentScreen> {
         });
       } else {
         setState(() {
-          _historyError = res?['message']?.toString() ?? 'Could not load history.';
+          _historyError =
+              res?['message']?.toString() ?? 'Could not load history.';
           _historyLoading = false;
         });
       }
@@ -103,7 +104,8 @@ class _PartnershipPaymentScreenState extends State<PartnershipPaymentScreen> {
 
   void _payNow(BuildContext context, PartnershipPaymentArgs args) {
     Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => DonateScreen(url: ApiUrl.partnerPaymentUrl(args.partnershipId)),
+      builder: (_) =>
+          DonateScreen(url: ApiUrl.partnerPaymentUrl(args.partnershipId)),
     ));
   }
 
@@ -214,10 +216,12 @@ class _PartnershipPaymentScreenState extends State<PartnershipPaymentScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _amountBox('Pledged',
+                      _amountBox(
+                          'Pledged',
                           '${args.currency} ${fmt.format(args.pledgeAmount)}',
                           MyColors.textBody),
-                      _amountBox('Paid',
+                      _amountBox(
+                          'Paid',
                           '${args.currency} ${fmt.format(args.paidAmount)}',
                           const Color(0xFF059669)),
                       _amountBox(
@@ -235,10 +239,9 @@ class _PartnershipPaymentScreenState extends State<PartnershipPaymentScreen> {
                       value: progress,
                       minHeight: 6,
                       backgroundColor: const Color(0xFFE2E8F0),
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                          isOverdue
-                              ? const Color(0xFFDC2626)
-                              : MyColors.primary),
+                      valueColor: AlwaysStoppedAnimation<Color>(isOverdue
+                          ? const Color(0xFFDC2626)
+                          : MyColors.primary),
                     ),
                   ),
                   const SizedBox(height: 6),
@@ -256,13 +259,12 @@ class _PartnershipPaymentScreenState extends State<PartnershipPaymentScreen> {
             if (isOverdue)
               Container(
                 margin: const EdgeInsets.only(bottom: 20),
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 14, vertical: 11),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
                 decoration: BoxDecoration(
                   color: const Color(0xFFFEF2F2),
                   borderRadius: BorderRadius.circular(10),
-                  border:
-                      Border.all(color: const Color(0xFFFCA5A5)),
+                  border: Border.all(color: const Color(0xFFFCA5A5)),
                 ),
                 child: const Row(
                   children: [
@@ -289,9 +291,8 @@ class _PartnershipPaymentScreenState extends State<PartnershipPaymentScreen> {
                 height: 52,
                 child: ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: isOverdue
-                        ? const Color(0xFFDC2626)
-                        : MyColors.primary,
+                    backgroundColor:
+                        isOverdue ? const Color(0xFFDC2626) : MyColors.primary,
                     foregroundColor: Colors.white,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
@@ -300,8 +301,7 @@ class _PartnershipPaymentScreenState extends State<PartnershipPaymentScreen> {
                   icon: const Icon(Icons.payment_rounded, size: 20),
                   label: const Text(
                     'Pay Now',
-                    style:
-                        TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
                   ),
                   onPressed: () => _payNow(context, args),
                 ),
@@ -316,15 +316,14 @@ class _PartnershipPaymentScreenState extends State<PartnershipPaymentScreen> {
               child: OutlinedButton.icon(
                 style: OutlinedButton.styleFrom(
                   foregroundColor: MyColors.primary,
-                  side: const BorderSide(color: MyColors.primary),
+                  side: BorderSide(color: MyColors.primary),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14)),
                 ),
                 icon: const Icon(Icons.history_rounded, size: 18),
                 label: const Text(
                   'View Payment History',
-                  style:
-                      TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                 ),
                 onPressed: () => _showHistorySheet(context, args),
               ),
@@ -338,9 +337,7 @@ class _PartnershipPaymentScreenState extends State<PartnershipPaymentScreen> {
                   'Payments are only available for active or overdue pledges.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                      fontSize: 12,
-                      color: MyColors.textDisabled,
-                      height: 1.5),
+                      fontSize: 12, color: MyColors.textDisabled, height: 1.5),
                 ),
               ),
           ],
@@ -356,8 +353,8 @@ class _PartnershipPaymentScreenState extends State<PartnershipPaymentScreen> {
         Icon(icon, size: 15, color: MyColors.textDisabled),
         const SizedBox(width: 8),
         Text('$label:  ',
-            style: const TextStyle(
-                fontSize: 13, color: MyColors.textSecondary)),
+            style:
+                const TextStyle(fontSize: 13, color: MyColors.textSecondary)),
         Expanded(
           child: Text(value,
               style: const TextStyle(
@@ -374,14 +371,11 @@ class _PartnershipPaymentScreenState extends State<PartnershipPaymentScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label,
-            style: const TextStyle(
-                fontSize: 11, color: MyColors.textDisabled)),
+            style: const TextStyle(fontSize: 11, color: MyColors.textDisabled)),
         const SizedBox(height: 3),
         Text(value,
             style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: valueColor)),
+                fontSize: 13, fontWeight: FontWeight.w700, color: valueColor)),
       ],
     );
   }
@@ -396,11 +390,7 @@ class _StatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (bg, fg, label) = switch (status) {
-      'active' => (
-          const Color(0xFFD1FAE5),
-          const Color(0xFF065F46),
-          'Active'
-        ),
+      'active' => (const Color(0xFFD1FAE5), const Color(0xFF065F46), 'Active'),
       'completed' => (
           const Color(0xFFDBEAFE),
           const Color(0xFF1D4ED8),
@@ -420,11 +410,11 @@ class _StatusBadge extends StatelessWidget {
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-          color: bg, borderRadius: BorderRadius.circular(6)),
+      decoration:
+          BoxDecoration(color: bg, borderRadius: BorderRadius.circular(6)),
       child: Text(label,
-          style: TextStyle(
-              fontSize: 11, fontWeight: FontWeight.w600, color: fg)),
+          style:
+              TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: fg)),
     );
   }
 }
@@ -498,8 +488,7 @@ class _PaymentHistorySheet extends StatelessWidget {
           // Body
           Expanded(
             child: historyLoading
-                ? const Center(
-                    child: CupertinoActivityIndicator(radius: 14))
+                ? const Center(child: CupertinoActivityIndicator(radius: 14))
                 : historyError != null
                     ? Center(
                         child: Column(
@@ -526,8 +515,7 @@ class _PaymentHistorySheet extends StatelessWidget {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Icon(Icons.receipt_long_rounded,
-                                    size: 36,
-                                    color: MyColors.textDisabled),
+                                    size: 36, color: MyColors.textDisabled),
                                 SizedBox(height: 10),
                                 Text('No payments recorded yet.',
                                     style: TextStyle(
@@ -544,8 +532,8 @@ class _PaymentHistorySheet extends StatelessWidget {
                             itemBuilder: (_, i) {
                               final p = history!.payments[i];
                               return Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 12),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 12),
                                 child: Row(
                                   children: [
                                     Container(
@@ -580,8 +568,7 @@ class _PaymentHistorySheet extends StatelessWidget {
                                                 : 'Payment',
                                             style: const TextStyle(
                                                 fontSize: 12,
-                                                color:
-                                                    MyColors.textSecondary),
+                                                color: MyColors.textSecondary),
                                           ),
                                         ],
                                       ),
@@ -603,8 +590,7 @@ class _PaymentHistorySheet extends StatelessWidget {
           // Summary footer
           if (history != null)
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
               decoration: const BoxDecoration(
                 color: Colors.white,
                 border: Border(top: BorderSide(color: Color(0xFFE2E8F0))),
@@ -612,10 +598,12 @@ class _PaymentHistorySheet extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _footerItem('Pledged',
+                  _footerItem(
+                      'Pledged',
                       '${args.currency} ${fmt.format(history!.pledgeAmount)}',
                       MyColors.textBody),
-                  _footerItem('Paid',
+                  _footerItem(
+                      'Paid',
                       '${args.currency} ${fmt.format(history!.paidAmount)}',
                       const Color(0xFF059669)),
                   _footerItem(
@@ -635,14 +623,11 @@ class _PaymentHistorySheet extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(label,
-            style: const TextStyle(
-                fontSize: 11, color: MyColors.textDisabled)),
+            style: const TextStyle(fontSize: 11, color: MyColors.textDisabled)),
         const SizedBox(height: 3),
         Text(value,
             style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: valueColor)),
+                fontSize: 13, fontWeight: FontWeight.w700, color: valueColor)),
       ],
     );
   }

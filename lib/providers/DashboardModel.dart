@@ -62,6 +62,7 @@ class DashboardModel with ChangeNotifier {
 
   DashboardModel() {
     registerEvents();
+    loadBranding();
   }
 
   registerEvents() {
@@ -80,6 +81,7 @@ class DashboardModel with ChangeNotifier {
     isLoading = true;
     notifyListeners();
     fetchItems();
+    loadMobileAdverts();
   }
 
   Future<void> loadBranding() async {
