@@ -26,6 +26,8 @@ class AppStateManager with ChangeNotifier {
   bool articlesnotifications = true;
   bool devotionalsnotifications = true;
   bool youversionbible = false;
+  bool darkMode = false;
+  final _darkModePreference = "dark_mode_preference";
   final _langPreference = "language_preference";
   final _inboxnotificationPreference = "inbox_notification_preference";
   final _eventnotificationPreference = "event_notification_preference";
@@ -45,7 +47,6 @@ class AppStateManager with ChangeNotifier {
     getPackageInfo();
     registerEvents();
   }
-
 
   registerEvents() {
     //logged in event
@@ -78,6 +79,7 @@ class AppStateManager with ChangeNotifier {
   //app theme manager
   void _loadAppSettings() {
     SharedPreferences.getInstance().then((prefs) {
+      darkMode = prefs.getBool(_darkModePreference) ?? false;
       //bible
       if (prefs.getBool(_youversionbiblePreference) != null) {
         youversionbible = prefs.getBool(_youversionbiblePreference)!;
@@ -136,6 +138,13 @@ class AppStateManager with ChangeNotifier {
       }
       notifyListeners();
     });
+  }
+
+  Future<void> toggleDarkMode() async {
+    darkMode = !darkMode;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_darkModePreference, darkMode);
   }
 
   //app language setting
@@ -301,11 +310,15 @@ class AppStateManager with ChangeNotifier {
     final calls = [
       dio.post(
         ApiUrl.storeFcmToken,
-        data: jsonEncode({"data": {"token": token, "version": "v2"}}),
+        data: jsonEncode({
+          "data": {"token": token, "version": "v2"}
+        }),
       ),
       dio.post(
         ApiUrl.updateUserSocialFcmToken,
-        data: jsonEncode({"data": {"email": userdata!.email, "token": token}}),
+        data: jsonEncode({
+          "data": {"email": userdata!.email, "token": token}
+        }),
       ),
     ];
     try {
@@ -378,5 +391,3 @@ class AppStateManager with ChangeNotifier {
     notifyListeners();
   }
 }
-
-

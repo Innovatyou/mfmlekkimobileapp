@@ -263,6 +263,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    final appState = Provider.of<AppStateManager>(context);
     //appStateManager = Provider.of<AppStateManager>(context);
     final platform = Theme.of(context).platform;
     return RefreshConfiguration(
@@ -278,6 +279,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       //autoLoad: true,
       child: MaterialApp(
         theme: appThemeData[AppTheme.White],
+        darkTheme: appThemeData[AppTheme.Dark],
+        themeMode: appState.darkMode ? ThemeMode.dark : ThemeMode.light,
         navigatorKey: navigatorKey,
         title: 'MFM Lekki',
         localizationsDelegates: [
@@ -432,9 +435,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           }
 
           if (settings.name == AuthPage.routeName) {
-            bool status = settings.arguments == null
-                ? false
-                : settings.arguments as bool;
+            bool status =
+                settings.arguments == null ? false : settings.arguments as bool;
             return MaterialPageRoute(
               builder: (context) {
                 return AuthPage(status);

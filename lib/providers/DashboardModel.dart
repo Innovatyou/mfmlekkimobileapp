@@ -22,6 +22,7 @@ class DashboardModel with ChangeNotifier {
   var data = {
     "features": "",
     "app_login": true,
+    "mobile_app_enabled": true,
     "allow_downloads": false,
     "join_groups": true,
     "post_prayer": true,
@@ -205,6 +206,8 @@ class DashboardModel with ChangeNotifier {
         data['features'] = settings['features'] ?? "";
         // "1" = feature enabled/required, "0" = disabled
         data['app_login'] = settings['app_login'] == "1";
+        data['mobile_app_enabled'] =
+            settings['mobile_app_enabled']?.toString() != "0";
         data['allow_downloads'] = settings['allow_downloads'] == "1";
         data['join_groups'] = settings['join_groups'] == "1";
         data['post_prayer'] = settings['post_prayer'] == "1";

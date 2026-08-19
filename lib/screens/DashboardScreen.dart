@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -26,6 +28,7 @@ import 'package:higherground/utils/langs.dart';
 import 'package:higherground/utils/my_colors.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class DashboardScreen extends StatefulWidget {
   DashboardScreen({Key? key}) : super(key: key);
@@ -37,6 +40,43 @@ class DashboardScreen extends StatefulWidget {
 class DashboardScreenRouteState extends State<DashboardScreen> {
   late DashboardModel dashboardModel;
   late AppStateManager appStateManager;
+  Set<String> _hiddenDashboardItems = {};
+  Map<String, String> _dashboardLabels = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDashboardPreferences();
+  }
+
+  Future<void> _loadDashboardPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
+    setState(() {
+      _hiddenDashboardItems =
+          (prefs.getStringList('dashboard_hidden_items') ?? []).toSet();
+      final stored = prefs.getString('dashboard_labels');
+      _dashboardLabels = stored == null
+          ? {}
+          : Map<String, String>.from(jsonDecode(stored) as Map);
+    });
+  }
+
+  Future<void> _saveDashboardPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(
+        'dashboard_hidden_items', _hiddenDashboardItems.toList());
+    await prefs.setString('dashboard_labels', jsonEncode(_dashboardLabels));
+  }
+
+  String _label(String value) => _dashboardLabels[value] ?? value;
+
+  List<_DashboardAction> _visible(
+          String section, List<_DashboardAction> actions) =>
+      actions
+          .where((action) =>
+              !_hiddenDashboardItems.contains('$section:${action.title}'))
+          .toList();
 
   String getHeader() {
     Userdata? userdata = appStateManager.userdata;
@@ -61,6 +101,25 @@ class DashboardScreenRouteState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     dashboardModel = Provider.of<DashboardModel>(context);
     appStateManager = Provider.of<AppStateManager>(context);
+    if (dashboardModel.data['mobile_app_enabled'] == false) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.mobile_off_rounded, size: 64),
+              SizedBox(height: 16),
+              Text('Mobile app temporarily unavailable',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
+              SizedBox(height: 8),
+              Text('Please check back later.', textAlign: TextAlign.center),
+            ],
+          ),
+        ),
+      );
+    }
     final double width = MediaQuery.of(context).size.width;
     final bool isWide = width >= 720;
     final double quickActionWidth =
@@ -86,8 +145,9 @@ class DashboardScreenRouteState extends State<DashboardScreen> {
                 const SizedBox(height: 20),
               ],
               _buildSectionHeader(
-                'Quick Access',
+                _label('Quick Access'),
                 'Jump straight into today\'s most-used church tools.',
+                onEdit: () => _showDashboardEditor('quick'),
               ),
               const SizedBox(height: 14),
               _buildCommunityRow(),
@@ -95,7 +155,7 @@ class DashboardScreenRouteState extends State<DashboardScreen> {
               Wrap(
                 spacing: 12,
                 runSpacing: 12,
-                children: _buildQuickActions()
+                children: _visible('quick', _buildQuickActions())
                     .map(
                       (action) => SizedBox(
                         width: quickActionWidth,
@@ -116,14 +176,15 @@ class DashboardScreenRouteState extends State<DashboardScreen> {
               ],
               const SizedBox(height: 28),
               _buildSectionHeader(
-                'Grow This Week',
+                _label('Grow This Week'),
                 'Worship, study, and stay connected from one place.',
+                onEdit: () => _showDashboardEditor('grow'),
               ),
               const SizedBox(height: 14),
               Wrap(
                 spacing: 12,
                 runSpacing: 12,
-                children: _buildServiceActions()
+                children: _visible('grow', _buildServiceActions())
                     .map(
                       (action) => SizedBox(
                         width: serviceWidth,
@@ -335,18 +396,24 @@ class DashboardScreenRouteState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildSectionHeader(String title, String subtitle) {
+  Widget _buildSectionHeader(String title, String subtitle,
+      {VoidCallback? onEdit}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title,
-          style: const TextStyle(
-            color: Color(0xFF0f172a),
-            fontSize: 22,
-            fontWeight: FontWeight.w800,
-          ),
-        ),
+        Row(children: [
+          Expanded(
+              child: Text(
+            title,
+            style: const TextStyle(
+              color: Color(0xFF0f172a),
+              fontSize: 22,
+              fontWeight: FontWeight.w800,
+            ),
+          )),
+          if (onEdit != null)
+            IconButton(onPressed: onEdit, icon: const Icon(Icons.tune_rounded))
+        ]),
         const SizedBox(height: 4),
         Text(
           subtitle,
@@ -387,7 +454,7 @@ class DashboardScreenRouteState extends State<DashboardScreen> {
               ),
               const SizedBox(height: 18),
               Text(
-                action.title,
+                _label(action.title),
                 style: const TextStyle(
                   color: Color(0xFF0f172a),
                   fontSize: 16,
@@ -629,40 +696,45 @@ class DashboardScreenRouteState extends State<DashboardScreen> {
   Widget _buildCommunityRow() {
     final tiles = <Widget>[];
 
-    tiles.add(_CommunityTile(
-      icon: Icons.lock_rounded,
-      label: 'Counseling',
-      description: 'Request private pastoral support & guidance.',
-      color: const Color(0xFF6366f1),
-      bg: const Color(0xFFe0e7ff),
-      onTap: () => Navigator.of(context).pushNamed(CounselingScreen.routeName),
-    ));
+    if (dashboardModel.isFeatureAvailable('counseling'))
+      tiles.add(_CommunityTile(
+        icon: Icons.lock_rounded,
+        label: 'Counseling',
+        description: 'Request private pastoral support & guidance.',
+        color: const Color(0xFF6366f1),
+        bg: const Color(0xFFe0e7ff),
+        onTap: () =>
+            Navigator.of(context).pushNamed(CounselingScreen.routeName),
+      ));
 
-    tiles.add(_CommunityTile(
-      icon: Icons.handshake_rounded,
-      label: 'Partnership',
-      description: 'Pledge your commitment to advance the Kingdom.',
-      color: const Color(0xFF10b981),
-      bg: const Color(0xFFD1FAE5),
-      onTap: () => Navigator.of(context).pushNamed(PartnershipScreen.routeName),
-    ));
+    if (dashboardModel.isFeatureAvailable('partnership'))
+      tiles.add(_CommunityTile(
+        icon: Icons.handshake_rounded,
+        label: 'Partnership',
+        description: 'Pledge your commitment to advance the Kingdom.',
+        color: const Color(0xFF10b981),
+        bg: const Color(0xFFD1FAE5),
+        onTap: () =>
+            Navigator.of(context).pushNamed(PartnershipScreen.routeName),
+      ));
 
-    tiles.add(_CommunityTile(
-      icon: Icons.favorite_rounded,
-      label: 'My Wellness',
-      description: 'Check your spiritual engagement score and care history.',
-      color: const Color(0xFF8b5cf6),
-      bg: const Color(0xFFEDE9FE),
-      onTap: () {
-        final email = appStateManager.userdata?.email ?? '';
-        if (email.isEmpty) {
-          Navigator.of(context).pushNamed('/AuthPage', arguments: true);
-          return;
-        }
-        Navigator.of(context)
-            .pushNamed(WellnessScreen.routeName, arguments: email);
-      },
-    ));
+    if (dashboardModel.isFeatureAvailable('wellness'))
+      tiles.add(_CommunityTile(
+        icon: Icons.favorite_rounded,
+        label: 'My Wellness',
+        description: 'Check your spiritual engagement score and care history.',
+        color: const Color(0xFF8b5cf6),
+        bg: const Color(0xFFEDE9FE),
+        onTap: () {
+          final email = appStateManager.userdata?.email ?? '';
+          if (email.isEmpty) {
+            Navigator.of(context).pushNamed('/AuthPage', arguments: true);
+            return;
+          }
+          Navigator.of(context)
+              .pushNamed(WellnessScreen.routeName, arguments: email);
+        },
+      ));
 
     return Row(
       children: [
@@ -766,18 +838,20 @@ class DashboardScreenRouteState extends State<DashboardScreen> {
       );
     }
 
-    actions.add(
-      _DashboardAction(
-        icon: Icons.storefront_outlined,
-        title: 'Marketplace',
-        description: 'Buy, sell, and give away items within the church family.',
-        color: const Color(0xFF8B5CF6),
-        borderColor: const Color(0xFFEDE9FE),
-        onTap: () {
-          Navigator.of(context).pushNamed(MarketplaceBrowseScreen.routeName);
-        },
-      ),
-    );
+    if (dashboardModel.isFeatureAvailable('marketplace'))
+      actions.add(
+        _DashboardAction(
+          icon: Icons.storefront_outlined,
+          title: 'Marketplace',
+          description:
+              'Buy, sell, and give away items within the church family.',
+          color: const Color(0xFF8B5CF6),
+          borderColor: const Color(0xFFEDE9FE),
+          onTap: () {
+            Navigator.of(context).pushNamed(MarketplaceBrowseScreen.routeName);
+          },
+        ),
+      );
 
     return actions;
   }
@@ -846,11 +920,103 @@ class DashboardScreenRouteState extends State<DashboardScreen> {
     return actions;
   }
 
+  Future<void> _showDashboardEditor(String section) async {
+    final actions =
+        section == 'quick' ? _buildQuickActions() : _buildServiceActions();
+    final sectionName = section == 'quick' ? 'Quick Access' : 'Grow This Week';
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: Text('Customize ${_label(sectionName)}'),
+          content: SizedBox(
+            width: 420,
+            child: ListView(
+              shrinkWrap: true,
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.title_rounded),
+                  title: Text(_label(sectionName)),
+                  subtitle: const Text('Rename section'),
+                  trailing: const Icon(Icons.edit_outlined),
+                  onTap: () =>
+                      _renameDashboardText(sectionName, setDialogState),
+                ),
+                const Divider(),
+                ...actions.map((action) {
+                  final key = '$section:${action.title}';
+                  final visible = !_hiddenDashboardItems.contains(key);
+                  return ListTile(
+                    leading: Checkbox(
+                      value: visible,
+                      onChanged: (value) {
+                        setState(() {
+                          value == true
+                              ? _hiddenDashboardItems.remove(key)
+                              : _hiddenDashboardItems.add(key);
+                        });
+                        setDialogState(() {});
+                        _saveDashboardPreferences();
+                      },
+                    ),
+                    title: Text(_label(action.title)),
+                    subtitle: Text(visible ? 'Shown' : 'Hidden'),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.edit_outlined),
+                      onPressed: () =>
+                          _renameDashboardText(action.title, setDialogState),
+                    ),
+                  );
+                }),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Done'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _renameDashboardText(
+      String original, StateSetter setDialogState) async {
+    final controller = TextEditingController(text: _label(original));
+    final value = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Rename text'),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          decoration: const InputDecoration(labelText: 'Display name'),
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel')),
+          FilledButton(
+              onPressed: () => Navigator.pop(context, controller.text.trim()),
+              child: const Text('Save')),
+        ],
+      ),
+    );
+    controller.dispose();
+    if (value == null || value.isEmpty) return;
+    setState(() => _dashboardLabels[original] = value);
+    setDialogState(() {});
+    await _saveDashboardPreferences();
+  }
+
   void _openDonation() {
     final donationsLink = dashboardModel.data['donations_link'];
-    final String url = (donationsLink != null && donationsLink.toString().isNotEmpty)
-        ? donationsLink.toString()
-        : ApiUrl.DONATE;
+    final String url =
+        (donationsLink != null && donationsLink.toString().isNotEmpty)
+            ? donationsLink.toString()
+            : ApiUrl.DONATE;
     Navigator.of(context).pushNamed(DonateScreen.routeName, arguments: url);
   }
 

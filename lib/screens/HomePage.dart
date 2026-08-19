@@ -165,6 +165,16 @@ class _HomePageItemState extends State<HomePageItem>
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 12),
             child: _buildChromeButton(
+              icon: appManager.darkMode
+                  ? Icons.light_mode_outlined
+                  : Icons.dark_mode_outlined,
+              onPressed: appManager.toggleDarkMode,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: _buildChromeButton(
               icon: LineAwesomeIcons.bell,
               badgeText: appManager.notificationcount,
               onPressed: () {
