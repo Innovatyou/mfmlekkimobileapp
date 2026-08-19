@@ -288,7 +288,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         ],
         supportedLocales: [Locale("en"), Locale("pt"), Locale("fr")],
         locale: Locale("en"),
-        home: SplashScreen(), //widget._defaultHome,
+        home: kIsWeb ? AuthPage(false) : SplashScreen(),
         debugShowCheckedModeBanner: false,
         onGenerateRoute: (settings) {
           if (settings.name == OnboardingPage.routeName) {
