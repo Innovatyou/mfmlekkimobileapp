@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:higherground/models/UserEvents.dart';
 import 'events.dart';
 import 'package:higherground/utils/ApiUrl.dart';
@@ -269,7 +270,16 @@ class AppStateManager with ChangeNotifier {
   }
 
   getUserData() async {
-    userdata = await SQLiteDbProvider.db.getUserData();
+    if (kIsWeb) {
+      final prefs = await SharedPreferences.getInstance();
+      final stored = prefs.getString('web_userdata');
+      userdata = stored == null
+          ? null
+          : Userdata.fromMap(
+              Map<String, dynamic>.from(jsonDecode(stored) as Map));
+    } else {
+      userdata = await SQLiteDbProvider.db.getUserData();
+    }
     print("userdata " + userdata.toString());
     getunseennotificationcount();
     notifyListeners();
@@ -280,8 +290,13 @@ class AppStateManager with ChangeNotifier {
   }
 
   setUserData(Userdata _userdata) async {
-    await SQLiteDbProvider.db.deleteUserData();
-    await SQLiteDbProvider.db.insertUser(_userdata);
+    if (kIsWeb) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('web_userdata', jsonEncode(_userdata.toMap()));
+    } else {
+      await SQLiteDbProvider.db.deleteUserData();
+      await SQLiteDbProvider.db.insertUser(_userdata);
+    }
     this.userdata = _userdata;
     _startPolling();
     eventBus.fire(UserLoggedInEvent(userdata));
@@ -291,7 +306,12 @@ class AppStateManager with ChangeNotifier {
   }
 
   unsetUserData() async {
-    await SQLiteDbProvider.db.deleteUserData();
+    if (kIsWeb) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('web_userdata');
+    } else {
+      await SQLiteDbProvider.db.deleteUserData();
+    }
     this.userdata = null;
     _stopPolling();
     eventBus.fire(AppEvents.LOGOUT);
