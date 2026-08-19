@@ -65,9 +65,9 @@ class _MyMarketplaceListingsScreenState
           controller: _tabCtrl,
           isScrollable: true,
           tabAlignment: TabAlignment.start,
-          labelColor: MyColors.primary,
+          labelColor: MyColors.mainC0lor,
           unselectedLabelColor: MyColors.textSecondary,
-          indicatorColor: MyColors.primary,
+          indicatorColor: MyColors.mainC0lor,
           labelStyle:
               const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
           unselectedLabelStyle:
@@ -94,34 +94,35 @@ class _MyMarketplaceListingsScreenState
           children: List.generate(_tabs.length, (i) {
             final items = _filtered(model.myListings, _statuses[i]);
             if (items.isEmpty) {
-              return _emptyTab(_tabs[i], () => Navigator.pushNamed(
-                  context, MarketplaceSubmitScreen.routeName));
+              return _emptyTab(
+                  _tabs[i],
+                  () => Navigator.pushNamed(
+                      context, MarketplaceSubmitScreen.routeName));
             }
             return _buildList(items, model.currencySymbol);
           }),
         );
       }),
       floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: MyColors.primary,
+        backgroundColor: MyColors.mainC0lor,
         foregroundColor: Colors.white,
         icon: const Icon(Icons.add),
         label: const Text('Post Advert',
             style: TextStyle(fontWeight: FontWeight.w600)),
         onPressed: () =>
             Navigator.pushNamed(context, MarketplaceSubmitScreen.routeName)
-                .then((_) => Provider.of<MarketplaceModel>(context,
-                        listen: false)
-                    .fetchMyListings()),
+                .then((_) =>
+                    Provider.of<MarketplaceModel>(context, listen: false)
+                        .fetchMyListings()),
       ),
     );
   }
 
   Widget _buildList(List<MarketplaceItem> items, String currency) {
     return RefreshIndicator(
-      color: MyColors.primary,
-      onRefresh: () =>
-          Provider.of<MarketplaceModel>(context, listen: false)
-              .fetchMyListings(),
+      color: MyColors.mainC0lor,
+      onRefresh: () => Provider.of<MarketplaceModel>(context, listen: false)
+          .fetchMyListings(),
       child: ListView.builder(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
         itemCount: items.length,
@@ -169,12 +170,11 @@ class _MyMarketplaceListingsScreenState
           const SizedBox(height: 6),
           Text(subtitle,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                  fontSize: 13, color: MyColors.textSecondary)),
+              style:
+                  const TextStyle(fontSize: 13, color: MyColors.textSecondary)),
           const SizedBox(height: 20),
           FilledButton(
-            style:
-                FilledButton.styleFrom(backgroundColor: MyColors.primary),
+            style: FilledButton.styleFrom(backgroundColor: MyColors.mainC0lor),
             onPressed: action,
             child: Text(actionLabel),
           ),
@@ -300,8 +300,7 @@ class _MyListingRow extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-          color: c['bg'] as Color,
-          borderRadius: BorderRadius.circular(20)),
+          color: c['bg'] as Color, borderRadius: BorderRadius.circular(20)),
       child: Text(c['label'] as String,
           style: TextStyle(
               fontSize: 11,
@@ -314,8 +313,7 @@ class _MyListingRow extends StatelessWidget {
     try {
       final dt = DateTime.parse(createdAt);
       return Text(DateFormat('d MMM yy').format(dt),
-          style: const TextStyle(
-              fontSize: 11, color: MyColors.textSecondary));
+          style: const TextStyle(fontSize: 11, color: MyColors.textSecondary));
     } catch (_) {
       return const SizedBox.shrink();
     }

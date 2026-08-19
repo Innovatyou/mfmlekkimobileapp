@@ -41,8 +41,7 @@ class _MarketplaceBrowseScreenState extends State<MarketplaceBrowseScreen> {
     _scrollCtrl.addListener(() {
       if (_scrollCtrl.position.pixels >=
           _scrollCtrl.position.maxScrollExtent - 200) {
-        Provider.of<MarketplaceModel>(context, listen: false)
-            .fetchListings();
+        Provider.of<MarketplaceModel>(context, listen: false).fetchListings();
       }
     });
   }
@@ -92,8 +91,8 @@ class _MarketplaceBrowseScreenState extends State<MarketplaceBrowseScreen> {
                           tmpCond = null;
                         });
                       },
-                      child: const Text('Reset',
-                          style: TextStyle(color: MyColors.primary)),
+                      child: Text('Reset',
+                          style: TextStyle(color: MyColors.mainC0lor)),
                     ),
                   ],
                 ),
@@ -148,7 +147,7 @@ class _MarketplaceBrowseScreenState extends State<MarketplaceBrowseScreen> {
                   width: double.infinity,
                   child: FilledButton(
                     style: FilledButton.styleFrom(
-                        backgroundColor: MyColors.primary,
+                        backgroundColor: MyColors.mainC0lor,
                         padding: const EdgeInsets.symmetric(vertical: 14)),
                     onPressed: () {
                       setState(() {
@@ -181,16 +180,15 @@ class _MarketplaceBrowseScreenState extends State<MarketplaceBrowseScreen> {
         duration: const Duration(milliseconds: 150),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
         decoration: BoxDecoration(
-          color: selected ? MyColors.primary : const Color(0xFFF1F5F9),
+          color: selected ? MyColors.mainC0lor : const Color(0xFFF1F5F9),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-              color: selected ? MyColors.primary : const Color(0xFFE2E8F0)),
+              color: selected ? MyColors.mainC0lor : const Color(0xFFE2E8F0)),
         ),
         child: Text(label,
             style: TextStyle(
                 color: selected ? Colors.white : const Color(0xFF475569),
-                fontWeight:
-                    selected ? FontWeight.w600 : FontWeight.w400,
+                fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
                 fontSize: 13)),
       ),
     );
@@ -217,7 +215,8 @@ class _MarketplaceBrowseScreenState extends State<MarketplaceBrowseScreen> {
             onPressed: () => setState(() => _isGridView = !_isGridView),
           ),
           IconButton(
-            icon: const Icon(Icons.list_alt_rounded, color: MyColors.textSecondary),
+            icon: const Icon(Icons.list_alt_rounded,
+                color: MyColors.textSecondary),
             tooltip: 'My Adverts',
             onPressed: () => Navigator.pushNamed(
                 context, MyMarketplaceListingsScreen.routeName),
@@ -231,7 +230,7 @@ class _MarketplaceBrowseScreenState extends State<MarketplaceBrowseScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: MyColors.primary,
+        backgroundColor: MyColors.mainC0lor,
         foregroundColor: Colors.white,
         icon: const Icon(Icons.add),
         label: const Text('Sell / Post Advert',
@@ -264,8 +263,8 @@ class _MarketplaceBrowseScreenState extends State<MarketplaceBrowseScreen> {
                 },
                 decoration: InputDecoration(
                   hintText: 'Search listings…',
-                  hintStyle: const TextStyle(
-                      color: Color(0xFF94A3B8), fontSize: 14),
+                  hintStyle:
+                      const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
                   prefixIcon: const Icon(Icons.search_rounded,
                       color: Color(0xFF94A3B8), size: 20),
                   suffixIcon: _searchCtrl.text.isNotEmpty
@@ -280,8 +279,7 @@ class _MarketplaceBrowseScreenState extends State<MarketplaceBrowseScreen> {
                               color: Color(0xFF94A3B8), size: 18))
                       : null,
                   border: InputBorder.none,
-                  contentPadding:
-                      const EdgeInsets.symmetric(vertical: 11),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 11),
                 ),
                 onChanged: (_) => setState(() {}),
               ),
@@ -294,10 +292,10 @@ class _MarketplaceBrowseScreenState extends State<MarketplaceBrowseScreen> {
               height: 42,
               width: 42,
               decoration: BoxDecoration(
-                color: (_selectedCategoryId != null ||
-                        _selectedCondition != null)
-                    ? MyColors.primary
-                    : Colors.white,
+                color:
+                    (_selectedCategoryId != null || _selectedCondition != null)
+                        ? MyColors.primary
+                        : Colors.white,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: const Color(0xFFE2E8F0)),
               ),
@@ -335,8 +333,8 @@ class _MarketplaceBrowseScreenState extends State<MarketplaceBrowseScreen> {
           icon: Icons.storefront_outlined,
           title: 'No listings yet',
           subtitle: 'Be the first to post an advert!',
-          action: () => Navigator.pushNamed(
-              context, MarketplaceSubmitScreen.routeName),
+          action: () =>
+              Navigator.pushNamed(context, MarketplaceSubmitScreen.routeName),
           actionLabel: 'Post Advert',
         );
       }
@@ -405,11 +403,11 @@ class _MarketplaceBrowseScreenState extends State<MarketplaceBrowseScreen> {
           const SizedBox(height: 6),
           Text(subtitle,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                  fontSize: 14, color: MyColors.textSecondary)),
+              style:
+                  const TextStyle(fontSize: 14, color: MyColors.textSecondary)),
           const SizedBox(height: 20),
           FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: MyColors.primary),
+            style: FilledButton.styleFrom(backgroundColor: MyColors.mainC0lor),
             onPressed: action,
             child: Text(actionLabel),
           ),
@@ -493,8 +491,7 @@ class _ListingCard extends StatelessWidget {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
-                                  fontSize: 10,
-                                  color: MyColors.textSecondary)),
+                                  fontSize: 10, color: MyColors.textSecondary)),
                         ),
                     ]),
                     const SizedBox(height: 4),
@@ -538,9 +535,7 @@ class _ListingCard extends StatelessWidget {
     return Text(
       '$currency${NumberFormat('#,##0.00').format(item.price)}',
       style: const TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.w800,
-          color: MyColors.primary),
+          fontSize: 13, fontWeight: FontWeight.w800, color: MyColors.primary),
     );
   }
 
@@ -549,18 +544,14 @@ class _ListingCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
       decoration: BoxDecoration(
-          color: isNew
-              ? const Color(0xFFE0F2FE)
-              : const Color(0xFFF1F5F9),
+          color: isNew ? const Color(0xFFE0F2FE) : const Color(0xFFF1F5F9),
           borderRadius: BorderRadius.circular(10)),
       child: Text(
         isNew ? 'New' : 'Used',
         style: TextStyle(
             fontSize: 10,
             fontWeight: FontWeight.w600,
-            color: isNew
-                ? const Color(0xFF0C4A6E)
-                : MyColors.textSecondary),
+            color: isNew ? const Color(0xFF0C4A6E) : MyColors.textSecondary),
       ),
     );
   }
@@ -612,10 +603,10 @@ class _ListingRow extends StatelessWidget {
                         fit: BoxFit.cover,
                         placeholder: (_, __) =>
                             Container(color: const Color(0xFFF1F5F9)),
-                        errorWidget: (_, __, ___) =>
-                            Container(color: const Color(0xFFF1F5F9),
-                                child: const Icon(Icons.image_rounded,
-                                    color: Color(0xFFCBD5E1))),
+                        errorWidget: (_, __, ___) => Container(
+                            color: const Color(0xFFF1F5F9),
+                            child: const Icon(Icons.image_rounded,
+                                color: Color(0xFFCBD5E1))),
                       )
                     : Container(
                         color: const Color(0xFFF1F5F9),
@@ -664,8 +655,7 @@ class _ListingRow extends StatelessWidget {
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right_rounded,
-                color: Color(0xFFCBD5E1)),
+            const Icon(Icons.chevron_right_rounded, color: Color(0xFFCBD5E1)),
           ],
         ),
       ),

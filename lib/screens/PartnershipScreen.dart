@@ -69,8 +69,8 @@ class _PartnershipScreenState extends State<PartnershipScreen> {
             .toList();
         Partnership? current;
         if (res['current'] is Map<String, dynamic>) {
-          current = Partnership.fromJson(
-              res['current'] as Map<String, dynamic>);
+          current =
+              Partnership.fromJson(res['current'] as Map<String, dynamic>);
         }
         if (mounted) {
           setState(() {
@@ -83,7 +83,11 @@ class _PartnershipScreenState extends State<PartnershipScreen> {
         if (mounted) setState(() => _loading = false);
       }
     } catch (_) {
-      if (mounted) setState(() { _loading = false; _error = true; });
+      if (mounted)
+        setState(() {
+          _loading = false;
+          _error = true;
+        });
     }
   }
 
@@ -107,8 +111,8 @@ class _PartnershipScreenState extends State<PartnershipScreen> {
             content: Text(msg),
             backgroundColor: const Color(0xFF059669),
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           ));
           _load();
         },
@@ -164,13 +168,14 @@ class _PartnershipScreenState extends State<PartnershipScreen> {
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
-                    side: BorderSide(
-                        color: Colors.white.withValues(alpha: 0.35)),
+                    side:
+                        BorderSide(color: Colors.white.withValues(alpha: 0.35)),
                   ),
                 ),
                 icon: const Icon(Icons.receipt_long_rounded, size: 15),
                 label: const Text('My Pledges',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                    style:
+                        TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
                 onPressed: () => Navigator.of(context)
                     .pushNamed(MyPartnershipScreen.routeName),
               ),
@@ -267,9 +272,7 @@ class _PartnershipScreenState extends State<PartnershipScreen> {
             child: Text(
               'Sign in to join a tier or manage your partnership.',
               style: TextStyle(
-                  fontSize: 13,
-                  color: MyColors.primaryDark,
-                  height: 1.4),
+                  fontSize: 13, color: MyColors.primaryDark, height: 1.4),
             ),
           ),
           const SizedBox(width: 8),
@@ -361,8 +364,8 @@ class _CurrentPartnershipBanner extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           TextButton(
-            onPressed: () => Navigator.of(context)
-                .pushNamed(MyPartnershipScreen.routeName),
+            onPressed: () =>
+                Navigator.of(context).pushNamed(MyPartnershipScreen.routeName),
             style: TextButton.styleFrom(
               padding: EdgeInsets.zero,
               minimumSize: Size.zero,
@@ -407,8 +410,8 @@ class _StatusChip extends StatelessWidget {
       decoration:
           BoxDecoration(color: bg, borderRadius: BorderRadius.circular(6)),
       child: Text(label,
-          style: TextStyle(
-              fontSize: 11, fontWeight: FontWeight.w600, color: fg)),
+          style:
+              TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: fg)),
     );
   }
 }
@@ -429,9 +432,17 @@ class _TierActionCard extends StatelessWidget {
 
     final (buttonLabel, buttonBg, buttonFg) = switch (tier.action) {
       'renew' => ('Renew Commitment', color, Colors.white),
-      'upgrade' => ('Upgrade to ${tier.name}', const Color(0xFF059669), Colors.white),
-      'downgrade' => ('Switch to ${tier.name}', Colors.transparent, MyColors.textSecondary),
-      _ => ('Join This Tier', MyColors.primary, Colors.white),
+      'upgrade' => (
+          'Upgrade to ${tier.name}',
+          const Color(0xFF059669),
+          Colors.white
+        ),
+      'downgrade' => (
+          'Switch to ${tier.name}',
+          Colors.transparent,
+          MyColors.textSecondary
+        ),
+      _ => ('Join This Tier', MyColors.mainC0lor, Colors.white),
     };
 
     return Container(
@@ -658,7 +669,8 @@ class _PledgeBottomSheetState extends State<_PledgeBottomSheet> {
         };
       }
 
-      final response = await (await Utility.getAuthenticatedDio()).post(endpoint, data: payload);
+      final response = await (await Utility.getAuthenticatedDio())
+          .post(endpoint, data: payload);
       final res = response.data is String
           ? jsonDecode(response.data as String)
           : response.data;
@@ -687,7 +699,8 @@ class _PledgeBottomSheetState extends State<_PledgeBottomSheet> {
           _action = suggested;
           _current = existing ?? _current;
         });
-        _showError('You already have a partnership. Please ${suggested} instead.');
+        _showError(
+            'You already have a partnership. Please ${suggested} instead.');
       } else {
         _showError(res?['message']?.toString() ?? 'Something went wrong.');
       }
@@ -798,8 +811,8 @@ class _PledgeBottomSheetState extends State<_PledgeBottomSheet> {
                   _label('Pledge Amount'),
                   TextFormField(
                     controller: _amountCtrl,
-                    keyboardType: const TextInputType.numberWithOptions(
-                        decimal: true),
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(
                           RegExp(r'^\d+\.?\d{0,2}')),
@@ -828,7 +841,7 @@ class _PledgeBottomSheetState extends State<_PledgeBottomSheet> {
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide:
-                            const BorderSide(color: MyColors.primary, width: 1.5),
+                            BorderSide(color: MyColors.primary, width: 1.5),
                       ),
                       contentPadding: const EdgeInsets.symmetric(
                           horizontal: 14, vertical: 14),
@@ -898,7 +911,7 @@ class _PledgeBottomSheetState extends State<_PledgeBottomSheet> {
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide:
-                            const BorderSide(color: MyColors.primary, width: 1.5),
+                            BorderSide(color: MyColors.primary, width: 1.5),
                       ),
                       contentPadding: const EdgeInsets.symmetric(
                           horizontal: 14, vertical: 12),
