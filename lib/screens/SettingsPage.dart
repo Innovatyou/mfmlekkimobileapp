@@ -225,8 +225,10 @@ class _SettingsPageState extends State<SettingsPage> {
                     },
                   ),
                   if (userdata != null) ...[
-                    const SizedBox(height: 16),
-                    _WellnessTile(email: userdata!.email ?? ''),
+                    if (dashModel.isFeatureAvailable('wellness')) ...[
+                      const SizedBox(height: 16),
+                      _WellnessTile(email: userdata!.email ?? ''),
+                    ],
                     const SizedBox(height: 28),
                     _SectionLabel(label: 'ACCOUNT'),
                     const SizedBox(height: 8),
@@ -492,11 +494,10 @@ class _ProfileCard extends StatelessWidget {
     final bool loggedIn = userdata != null;
     final String name = loggedIn
         ? '${userdata!.firstname?.toTitleCase() ?? ''} ${userdata!.lastname?.toTitleCase() ?? ''}'
-              .trim()
+            .trim()
         : 'Guest';
-    final String sub = loggedIn
-        ? (userdata!.email ?? '')
-        : 'Sign in to access your account';
+    final String sub =
+        loggedIn ? (userdata!.email ?? '') : 'Sign in to access your account';
 
     return Container(
       margin: const EdgeInsets.only(top: 20),
@@ -730,8 +731,7 @@ class _SettingsTile extends StatelessWidget {
                   ),
                   Icon(
                     Icons.chevron_right_rounded,
-                    color:
-                        titleColor?.withValues(alpha: 0.5) ??
+                    color: titleColor?.withValues(alpha: 0.5) ??
                         const Color(0xFFcbd5e1),
                     size: 20,
                   ),
