@@ -112,7 +112,11 @@ class DashboardScreenRouteState extends State<DashboardScreen> {
     if (userdata == null) {
       return 'Hi Friend,';
     }
-    return 'Hi ${userdata.firstname!.toCapitalized()},';
+    final firstName = userdata.firstname?.trim() ?? '';
+    if (firstName.isEmpty) {
+      return 'Hi Friend,';
+    }
+    return 'Hi ${firstName.toCapitalized()},';
   }
 
   String greeting() {
