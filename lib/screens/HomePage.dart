@@ -77,11 +77,13 @@ class _HomePageItemState extends State<HomePageItem>
           : t.appname,
       builder: () => DashboardScreen(),
     ));
-    tabs.add(_HomeTab(
-      icon: LineAwesomeIcons.play_circle,
-      label: t.media,
-      builder: () => MediaPage(),
-    ));
+    if (model.isFeatureAvailable("media")) {
+      tabs.add(_HomeTab(
+        icon: LineAwesomeIcons.play_circle,
+        label: t.media,
+        builder: () => MediaPage(),
+      ));
+    }
     if (model.isFeatureAvailable("publications")) {
       tabs.add(_HomeTab(
         icon: LineAwesomeIcons.blog,
@@ -89,11 +91,13 @@ class _HomePageItemState extends State<HomePageItem>
         builder: () => PublicationsPage(),
       ));
     }
-    tabs.add(_HomeTab(
-      icon: LineAwesomeIcons.alternate_share,
-      label: t.connect,
-      builder: () => ConnectPage(),
-    ));
+    if (model.isFeatureAvailable("connect")) {
+      tabs.add(_HomeTab(
+        icon: LineAwesomeIcons.alternate_share,
+        label: t.connect,
+        builder: () => ConnectPage(),
+      ));
+    }
     if (model.isFeatureAvailable("gosocial")) {
       tabs.add(_HomeTab(
         icon: LineAwesomeIcons.teamspeak,

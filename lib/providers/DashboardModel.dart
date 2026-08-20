@@ -95,6 +95,9 @@ class DashboardModel with ChangeNotifier {
           : response.data;
       if (decoded is! Map || decoded['settings'] is! Map) return;
       final settings = decoded['settings'] as Map;
+      data['features'] = settings['features'] ?? 'none';
+      data['app_login'] = settings['app_login'] ?? true;
+      data['mobile_app_enabled'] = settings['mobile_app_enabled'] ?? true;
       data['mobile_app_name'] = settings['mobile_app_name'] ?? '';
       data['mobile_primary_color'] =
           settings['mobile_primary_color'] ?? '#6366F1';
@@ -678,6 +681,14 @@ class DashboardModel with ChangeNotifier {
     }
     if (type == "publications") {
       return enabled.contains("articles") || enabled.contains("books");
+    }
+    if (type == "connect") {
+      return enabled.intersection({
+        "groups",
+        "prayer",
+        "testimony",
+        "gosocial",
+      }).isNotEmpty;
     }
     if (type != "") {
       return enabled.contains(type.toLowerCase());
